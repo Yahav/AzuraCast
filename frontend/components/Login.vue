@@ -10,12 +10,6 @@
                         >
                             {{ $gettext('Welcome!') }}
                         </h2>
-                        <h2
-                            v-else
-                            class="card-title text-center"
-                        >
-                            {{ $gettext('Welcome to AzuraCast!') }}
-                        </h2>
                         <h3
                             v-if="instanceName"
                             class="card-subtitle text-center text-muted"
