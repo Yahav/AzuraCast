@@ -23,18 +23,15 @@
 
             <streaming-log-modal ref="$modal" />
         </div>
-        <div class="col-md-4">
-        </div>
+        <div class="col-md-4" />
     </div>
 </template>
 
 <script setup lang="ts">
-import Icon from "~/components/Common/Icon.vue";
 import StreamingLogModal from "~/components/Common/StreamingLogModal.vue";
 import LogList from "~/components/Common/LogList.vue";
 import {ref} from "vue";
 import {getStationApiUrl} from "~/router";
-import {IconSupport} from "~/components/Common/icons.ts";
 
 const logsUrl = getStationApiUrl('/logs');
 

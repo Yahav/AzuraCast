@@ -62,7 +62,7 @@ class Station implements Stringable, IdentifiableEntityInterface
         ),
         ORM\Column(length: 100, nullable: false),
         Assert\NotBlank,
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     protected string $short_name = '';
 
@@ -267,7 +267,7 @@ class Station implements Stringable, IdentifiableEntityInterface
             example: 5
         ),
         ORM\Column(type: 'smallint'),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     protected int $api_history_items = 5;
 

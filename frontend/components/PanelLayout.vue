@@ -98,16 +98,6 @@
                 <li>
                     <a
                         class="dropdown-item"
-                        href="/docs"
-                        target="_blank"
-                    >
-                        <icon :icon="IconSupport" />
-                        {{ $gettext('Documentation') }}
-                    </a>
-                </li>
-                <li>
-                    <a
-                        class="dropdown-item"
                         href="https://www.caster.fm/help/pro-plan/"
                         target="_blank"
                     >
@@ -157,10 +147,6 @@
                 href="https://www.caster.fm/"
                 target="_blank"
             >Caster.fm</a>
-            &bull;
-            <span v-html="version" />
-            &bull;
-            <span v-html="platform" /><br>
         </footer>
     </div>
 </template>
@@ -178,7 +164,6 @@ import {
     IconMenu,
     IconMenuOpen,
     IconSettings,
-    IconSupport
 } from "~/components/Common/icons";
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
 
