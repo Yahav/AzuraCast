@@ -45,7 +45,6 @@ return static function (RouteCollectorProxy $app) {
                     ->setName($routeName);
             }
 
-            $group->get('/{routes:.+}', StationsAction::class);
         }
     )->add(Middleware\Module\PanelLayout::class)
         ->add(new Middleware\Permissions(StationPermissions::View, true))

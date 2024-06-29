@@ -1,6 +1,6 @@
 import {useTranslate} from "~/vendor/gettext.ts";
 import filterMenu, { MenuCategory, ReactiveMenu } from "~/functions/filterMenu.ts";
-import {StationPermission, userAllowedForStation} from "~/acl.ts";
+import {StationPermission, userAllowedForStation, GlobalPermission, userAllowed} from "~/acl.ts";
 import {useAzuraCast} from "~/vendor/azuracast.ts";
 import {computed, reactive} from "vue";
 import {
@@ -21,6 +21,8 @@ export function useStationsMenu(): ReactiveMenu {
 
     const {enableAdvancedFeatures, sidebarProps} = useAzuraCast();
     const stationProps = sidebarProps.station;
+
+    const isAdministrator = userAllowed(GlobalPermission.All);
 
     // Reuse this variable to avoid multiple calls.
     const userCanManageMedia = userAllowedForStation(StationPermission.Media);
@@ -275,6 +277,7 @@ export function useStationsMenu(): ReactiveMenu {
                     },
                     visible: userAllowedForStation(StationPermission.Broadcasting)
                         && stationProps.features.customLiquidsoapConfig
+                        && isAdministrator
                 },
                 {
                     key: 'stereo_tool',
@@ -284,6 +287,7 @@ export function useStationsMenu(): ReactiveMenu {
                     },
                     visible: stationProps.features.media && enableAdvancedFeatures
                         && userAllowedForStation(StationPermission.Broadcasting)
+                        && isAdministrator
                 },
                 {
                     key: 'queue',
