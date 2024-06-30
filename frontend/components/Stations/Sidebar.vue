@@ -20,7 +20,7 @@
                 :to="{ name: 'stations:profile:edit' }"
                 class="navbar-brand ms-0 flex-shrink-0"
             >
-                <icon :icon="IconEdit" />
+                <icon :icon="IconSettings" />
                 <span class="visually-hidden">{{ $gettext('Edit Profile') }}</span>
             </router-link>
         </div>
@@ -29,7 +29,7 @@
     <template v-if="userAllowedForStation(StationPermission.Broadcasting)">
         <div
             v-if="!station.hasStarted"
-            class="navdrawer-alert bg-success-subtle text-success-emphasis"
+            class="navdrawer-alert bg-success text-success-emphasis"
         >
             <router-link
                 :to="{name: 'stations:restart:index'}"
@@ -42,7 +42,7 @@
         </div>
         <div
             v-else-if="needsRestart"
-            class="navdrawer-alert bg-warning-subtle text-warning-emphasis"
+            class="navdrawer-alert bg-warning text-warning-emphasis"
         >
             <router-link
                 :to="{name: 'stations:restart:index'}"
@@ -70,7 +70,7 @@ import {useStationsMenu} from "~/components/Stations/menu";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import {useAxios} from "~/vendor/axios.ts";
 import {getStationApiUrl} from "~/router.ts";
-import {IconEdit} from "~/components/Common/icons.ts";
+import {IconSettings} from "~/components/Common/icons.ts";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import {useLuxon} from "~/vendor/luxon.ts";
 import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";

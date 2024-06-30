@@ -5,15 +5,14 @@ import {useAzuraCast} from "~/vendor/azuracast.ts";
 import {computed, reactive} from "vue";
 import {
     IconBroadcast,
-    IconCode,
-    IconImage,
+    IconCode, IconHome,
     IconLibraryMusic,
     IconLogs,
     IconMic,
     IconPlaylist,
     IconPodcasts,
     IconPublic,
-    IconReport
+    IconReport, IconSettings
 } from "~/components/Common/icons.ts";
 
 export function useStationsMenu(): ReactiveMenu {
@@ -29,20 +28,22 @@ export function useStationsMenu(): ReactiveMenu {
 
     const menu: ReactiveMenu = reactive<Array<MenuCategory>>([
         {
+            key: 'dashboard',
+            label: computed(() => $gettext('Overview')),
+            icon: IconHome,
+            url: {
+                name: 'stations:index'
+            },
+            external: false,
+        },
+        {
             key: 'profile',
-            label: computed(() => $gettext('Profile')),
-            icon: IconImage,
+            label: computed(() => $gettext('Settings')),
+            icon: IconSettings,
             items: [
                 {
-                    key: 'view_profile',
-                    label: computed(() => $gettext('View Profile')),
-                    url: {
-                        name: 'stations:index'
-                    }
-                },
-                {
                     key: 'edit_profile',
-                    label: computed(() => $gettext('Edit Profile')),
+                    label: computed(() => $gettext('Station Settings')),
                     url: {
                         name: 'stations:profile:edit'
                     },
@@ -50,7 +51,7 @@ export function useStationsMenu(): ReactiveMenu {
                 },
                 {
                     key: 'branding',
-                    label: computed(() => $gettext('Branding')),
+                    label: computed(() => $gettext('Branding Options')),
                     url: {
                         name: 'stations:branding'
                     },
@@ -130,7 +131,7 @@ export function useStationsMenu(): ReactiveMenu {
                 },
                 {
                     key: 'bulk_media',
-                    label: computed(() => $gettext('Bulk Media Import/Export')),
+                    label: computed(() => $gettext('Bulk Metadata Edit')),
                     url: {
                         name: 'stations:bulk-media'
                     },

@@ -13,7 +13,9 @@
 }
 
 .card {
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, .14), 0 3px 4px 0 rgba(0, 0, 0, .12), 0 1px 5px 0 rgba(0, 0, 0, .2);
+  //box-shadow: 0 0 4px 0 rgba(0, 0, 0, .14), 0 3px 4px 0 rgba(0, 0, 0, .12), 0 1px 5px 0 rgba(0, 0, 0, .2);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);
+  background-color: #fff;
 
   .card-title {
     @include font-size($h4-font-size);
@@ -38,6 +40,11 @@
 
     border-radius: 0;
     margin-bottom: 0;
+  }
+
+  .card-header {
+    background-color: #212121 !important;
+    border-bottom: 4px solid #3874ff;
   }
 
   .card-header,

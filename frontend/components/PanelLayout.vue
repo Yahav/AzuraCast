@@ -28,16 +28,16 @@
             class="navbar-brand ms-0 me-auto"
             :href="homeUrl"
         >
-            <small v-if="instanceName">{{ instanceName }}</small>
+            <img
+                src="../../../img/caster_logo.svg"
+                alt="Caster.fm"
+                style="height:40px;"
+            >
         </a>
 
         <div id="radio-player-controls" />
 
         <div class="dropdown ms-3 d-inline-flex align-items-center">
-            <div class="me-2">
-                {{ userDisplayName }}
-            </div>
-
             <button
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -48,7 +48,7 @@
             >
                 <icon
                     :icon="IconMenuOpen"
-                    class="lg"
+                    class="xl"
                 />
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -82,16 +82,16 @@
                         {{ $gettext('My Account') }}
                     </a>
                 </li>
-                <li>
-                    <a
-                        class="dropdown-item theme-switcher"
-                        href="#"
-                        @click.prevent="toggleTheme"
-                    >
-                        <icon :icon="IconInvertColors" />
-                        {{ $gettext('Switch Theme') }}
-                    </a>
-                </li>
+                <!--                <li>-->
+                <!--                    <a-->
+                <!--                        class="dropdown-item theme-switcher"-->
+                <!--                        href="#"-->
+                <!--                        @click.prevent="toggleTheme"-->
+                <!--                    >-->
+                <!--                        <icon :icon="IconInvertColors" />-->
+                <!--                        {{ $gettext('Switch Theme') }}-->
+                <!--                    </a>-->
+                <!--                </li>-->
                 <li class="dropdown-divider">
                     &nbsp;
                 </li>
@@ -154,13 +154,13 @@
 <script setup lang="ts">
 import {nextTick, onMounted, useSlots, watch} from "vue";
 import Icon from "~/components/Common/Icon.vue";
-import useTheme from "~/functions/theme";
+//import useTheme from "~/functions/theme";
 import {
     IconAccountCircle,
     IconExitToApp,
     IconHelp,
     IconHome,
-    IconInvertColors,
+    //IconInvertColors,
     IconMenu,
     IconMenuOpen,
     IconSettings,
@@ -216,7 +216,7 @@ const handleSidebar = () => {
     }
 }
 
-const {toggleTheme} = useTheme();
+//const {toggleTheme} = useTheme();
 
 watch(
     () => slots.sidebar,

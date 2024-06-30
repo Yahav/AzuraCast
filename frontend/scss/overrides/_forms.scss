@@ -114,3 +114,7 @@ input, textarea {
   height: 10px;
   width: auto;
 }
+
+.form-control, .form-control:focus, .form-select {
+  background-color: #fff;
+}
