@@ -476,7 +476,7 @@ export interface ApiNowPlayingStation {
   shortcode?: string;
   /**
    * Station description
-   * @example "An AzuraCast station!"
+   * @example "A Caster.fm station!"
    */
   description?: string;
   /**
@@ -1344,7 +1344,7 @@ export type Station = HasAutoIncrementId & {
   backend_config?: any[];
   /** @example "A sample radio station." */
   description?: string | null;
-  /** @example "https://demo.azuracast.com/" */
+  /** @example "https://demo.caster.fm/" */
   url?: string | null;
   /** @example "Various" */
   genre?: string | null;
@@ -1578,7 +1578,7 @@ export interface HasUniqueId {
 }
 
 export type User = HasAutoIncrementId & {
-  /** @example "demo@azuracast.com" */
+  /** @example "demo@caster.fm" */
   email?: string;
   /** @example "" */
   new_password?: string | null;

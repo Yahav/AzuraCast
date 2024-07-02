@@ -81,10 +81,32 @@
     }
 
     nav.nav-tabs {
-      background: var(--bs-tertiary-bg);
+      background: #fff;
 
       margin: (0-$card-spacer-y) (0-$card-spacer-x) 0 (0-$card-spacer-x);
-      padding: $card-spacer-y $card-spacer-x 0 $card-spacer-x;
+      padding: $card-spacer-y 1.25rem 0 1.25rem;
+      box-shadow: unset !important;
+      border-bottom: 1px solid #d0d0d0;
+
+      .nav-link
+      {
+        border: 0;
+        background: transparent;
+        color: #757575;
+        padding: 1.0625rem .85rem;
+        transition-duration: .3s;
+        transition-property: background-color, color, opacity;
+        transition-timing-function: cubic-bezier(.4,0,.2,1);
+        font-weight: 500;
+        line-height: 1;
+        min-height: 3rem;
+        text-transform: uppercase;
+
+        &.active {
+          color: #2c2c2c;
+          border-bottom:3px solid $primary;
+        }
+      }
     }
   }
 }

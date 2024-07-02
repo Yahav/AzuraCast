@@ -50,21 +50,27 @@ div.datatable-main {
 }
 
 .table {
-  thead th {
-    font-size: 1.1rem;
-    font-weight: normal;
+  thead {
+    th {
+      font-size: 1.1rem;
+      font-weight: normal;
 
-    //Mods
-    --bs-text-opacity: 1;
-    background-color: #f6f6f6;
-    color: #212121;
-    border-top:3px solid #3874ff;
-    font-size: 15px !important;
+      //Mods
+      --bs-text-opacity: 1;
+      background-color: #f6f6f6;
+      color: #212121;
+      border-top: 3px solid #3874ff;
+      font-size: 15px !important;
 
-    &.sortable {
-      font-weight: 500;
+      &.sortable {
+        font-weight: 500;
+      }
     }
-
+    &.no-border {
+      th {
+        border-top: none;
+      }
+    }
   }
 
   > :not(caption) > * > * {

@@ -51,14 +51,14 @@
                         <router-link
                             v-if="isRouteLink(item)"
                             :to="item.url"
-                            class="nav-link ps-4 py-2"
+                            class="nav-link ps-4"
                             :class="getLinkClass(item)"
                         >
                             {{ item.label }}
                         </router-link>
                         <a
                             v-else
-                            class="nav-link ps-4 py-2"
+                            class="nav-link ps-4"
                             :class="item.class"
                             :href="item.url"
                             :target="(item.external) ? '_blank' : ''"
