@@ -6,12 +6,10 @@
         <template #header="{id}">
             <h3
                 :id="id"
-                class="card-title"
+                class="card-title d-flex justify-content-between"
             >
                 {{ $gettext('AutoDJ Service') }}
                 <running-badge :running="backendRunning" />
-                <br>
-                <small>{{ backendName }}</small>
             </h3>
         </template>
 
@@ -80,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import {BackendAdapter} from '~/entities/RadioAdapters';
+//import {BackendAdapter} from '~/entities/RadioAdapters';
 import Icon from '~/components/Common/Icon.vue';
 import RunningBadge from "~/components/Common/Badges/RunningBadge.vue";
 import {useTranslate} from "~/vendor/gettext";
@@ -118,7 +116,7 @@ const langTotalTracks = computed(() => {
     );
 
     return $gettext(
-        'LiquidSoap is currently shuffling from %{songs} and %{playlists}.',
+        'AutoDJ is currently shuffling from %{songs} and %{playlists}.',
         {
             songs: numSongs,
             playlists: numPlaylists
@@ -126,12 +124,12 @@ const langTotalTracks = computed(() => {
     );
 });
 
-const backendName = computed(() => {
-    if (props.backendType === BackendAdapter.Liquidsoap) {
-        return 'Liquidsoap';
-    }
-    return '';
-});
+// const backendName = computed(() => {
+//     if (props.backendType === BackendAdapter.Liquidsoap) {
+//         return 'Liquidsoap';
+//     }
+//     return '';
+// });
 
 const makeApiCall = (uri) => {
     emit('api-call', uri);

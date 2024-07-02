@@ -38,6 +38,11 @@
         <div id="radio-player-controls" />
 
         <div class="dropdown ms-3 d-inline-flex align-items-center">
+            <div id="station-time-wrapper" />
+            <clock
+                v-if="stationName !==null "
+                :station-name="stationName"
+            />
             <button
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -137,6 +142,49 @@
     >
         <main id="main">
             <div class="container">
+                <template v-if="hasStarted !== null && needsRestart !== null && userAllowedForStation(StationPermission.Broadcasting)">
+                    <div
+                        v-if="hasStarted !== null && !hasStarted"
+                        class="navdrawer-alert bg-success text-success-emphasis mb-3 mb-3 d-flex align-items-center"
+                    >
+                        <icon
+                            :icon="IconWarning"
+                            class="lg me-3"
+                        />
+                        <router-link
+                            :to="{name: 'stations:restart:index'}"
+                            :class="'alert-link'"
+                        >
+                            <h4 class="fw-bold">
+                                {{ $gettext('Start Station') }}
+                            </h4>
+                            <div>
+                                {{ $gettext('Ready to start broadcasting? Click to start your station.') }}
+                            </div>
+                        </router-link>
+                    </div>
+                    <div
+                        v-else-if="needsRestart !== null && needsRestart"
+                        class="alert alert-warning bg-warning text-warning-emphasis mb-3 d-flex align-items-center"
+                    >
+                        <icon
+                            :icon="IconWarning"
+                            class="lg me-3"
+                        />
+                        <router-link
+                            :to="{name: 'stations:restart:index'}"
+                            :class="'alert-link'"
+                        >
+                            <h4 class="fw-bold">
+                                {{ $gettext('Reload to Apply Changes') }}
+                            </h4>
+                            <div>
+                                {{ $gettext('Your station has changes that require a reload to apply.') }}
+                            </div>
+                        </router-link>
+                    </div>
+                </template>
+
                 <slot />
             </div>
         </main>
@@ -152,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, useSlots, watch} from "vue";
+import {nextTick, onMounted, /*ref,*/ useSlots, watch} from "vue";
 import Icon from "~/components/Common/Icon.vue";
 //import useTheme from "~/functions/theme";
 import {
@@ -163,9 +211,12 @@ import {
     //IconInvertColors,
     IconMenu,
     IconMenuOpen,
-    IconSettings,
+    IconSettings, IconWarning,
 } from "~/components/Common/icons";
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
+import {StationPermission, userAllowedForStation} from "~/acl.ts";
+import Clock from "~/components/Stations/Clock.vue";
+
 
 const props = defineProps({
   instanceName: {
@@ -203,6 +254,21 @@ const props = defineProps({
   platform: {
       type: String,
       required: true
+  },
+  hasStarted: {
+    type: Boolean,
+    required: false,
+    default: null
+  },
+  needsRestart: {
+    type: Boolean,
+    required: false,
+    default: null
+  },
+  stationName: {
+    type: String,
+    required: false,
+    default: null,
   }
 });
 

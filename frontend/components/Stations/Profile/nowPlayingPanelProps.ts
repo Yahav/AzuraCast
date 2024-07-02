@@ -14,4 +14,8 @@ export default {
         type: String,
         required: true
     },
+    hasStarted: {
+        type: Boolean,
+        required: true
+    }
 }

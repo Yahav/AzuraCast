@@ -1,9 +1,8 @@
 <template>
-    <profile-header
-        v-bind="pickProps(props, headerPanelProps)"
-        :station="profileInfo.station"
-    />
-
+    <!--    <profile-header-->
+    <!--        v-bind="pickProps(props, headerPanelProps)"-->
+    <!--        :station="profileInfo.station"-->
+    <!--    />-->
     <div
         id="profile"
         class="row row-of-cards"
@@ -12,6 +11,7 @@
             <template v-if="hasStarted">
                 <profile-now-playing
                     v-bind="pickProps(props, nowPlayingPanelProps)"
+                    :station="profileInfo.station"
                     @api-call="makeApiCall"
                 />
 
@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import ProfileStreams from './StreamsPanel.vue';
-import ProfileHeader from './HeaderPanel.vue';
+//import ProfileHeader from './HeaderPanel.vue';
 import ProfileNowPlaying from './NowPlayingPanel.vue';
 import ProfileSchedule from './SchedulePanel.vue';
 import ProfileRequests from './RequestsPanel.vue';

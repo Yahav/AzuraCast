@@ -6,6 +6,16 @@
     >
         <template #header="{id}">
             <div class="d-flex align-items-center">
+                <div
+                    v-if="station.listen_url"
+                    class="flex-shrink-0 me-2"
+                >
+                    <play-button
+                        class="btn-xl text-white"
+                        :url="station.listen_url"
+                        is-stream
+                    />
+                </div>
                 <h3
                     :id="id"
                     class="flex-shrink card-title my-0"
@@ -264,9 +274,15 @@ import {
     IconVolumeOff
 } from "~/components/Common/icons";
 import UpdateMetadataModal from "~/components/Stations/Profile/UpdateMetadataModal.vue";
+import PlayButton from "~/components/Common/PlayButton.vue";
+//import PlayButton from "~/components/Common/PlayButton.vue";
 
 const props = defineProps({
     ...nowPlayingPanelProps,
+    station: {
+        type: Object,
+        required: true
+    }
 });
 
 const emit = defineEmits(['api-call']);

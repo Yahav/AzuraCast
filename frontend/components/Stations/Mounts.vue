@@ -23,21 +23,27 @@
         >
             <template #cell(display_name)="row">
                 <h5 class="m-0">
-                    <a :href="row.item.links.listen">{{ row.item.display_name }}</a>
+                    {{ row.item.display_name }}
                 </h5>
                 <div v-if="row.item.is_default">
-                    <span class="badge text-bg-success">
+                    <span class="badge text-bg-success mt-2">
                         {{ $gettext('Default Mount') }}
                     </span>
                 </div>
             </template>
             <template #cell(enable_autodj)="row">
                 <template v-if="row.item.enable_autodj">
-                    {{ $gettext('Enabled') }} -
-                    {{ showFormatAndBitrate(row.item.autodj_format, row.item.autodj_bitrate) }}
+                    <span class="badge text-bg-success mt-2">
+                        {{ $gettext('Enabled') }}
+                    </span>
+                    <span class="badge text-bg-dark mt-2 ms-2">
+                        {{ showFormatAndBitrate(row.item.autodj_format, row.item.autodj_bitrate) }}
+                    </span>
                 </template>
                 <template v-else>
-                    {{ $gettext('Disabled') }}
+                    <span class="badge text-bg-danger mt-2">
+                        {{ $gettext('Disabled') }}
+                    </span>
                 </template>
             </template>
             <template #cell(actions)="row">
