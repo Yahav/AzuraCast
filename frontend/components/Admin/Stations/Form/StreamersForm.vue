@@ -154,7 +154,6 @@ const props = defineProps({
 
 const {enableAdvancedFeatures} = useAzuraCast();
 const {maxBitrate} = useAzuraCastStation();
-
 const isAdministrator = userAllowed(GlobalPermission.All);
 
 const emit = defineEmits(['update:form']);
