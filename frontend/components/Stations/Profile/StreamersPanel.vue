@@ -3,7 +3,7 @@
         <template #header="{id}">
             <h3
                 :id="id"
-                class="card-title"
+                class="card-title d-flex justify-content-between"
             >
                 {{ $gettext('Streamers/DJs') }}
                 <enabled-badge :enabled="enableStreamers" />

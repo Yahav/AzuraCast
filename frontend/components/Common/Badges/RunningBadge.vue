@@ -13,13 +13,18 @@ const props = defineProps({
     running: {
         type: Boolean,
         required: true
+    },
+    extraClasses: {
+        type: String,
+        required: false,
+        default: ''
     }
 });
 
 const badgeClass = computed(() => {
     return (props.running)
-        ? 'text-bg-success'
-        : 'text-bg-danger';
+        ? props.extraClasses +' '+'text-bg-success'
+        : props.extraClasses +' '+'text-bg-danger';
 });
 
 const {$gettext} = useGettext();

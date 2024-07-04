@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controller;
+use App\Enums\GlobalPermissions;
 use App\Enums\StationFeatures;
 use App\Enums\StationPermissions;
 use App\Middleware;
@@ -870,7 +871,8 @@ return static function (RouteCollectorProxy $group) {
                                 Controller\Api\Stations\LiquidsoapConfig\PutAction::class
                             );
                         }
-                    )->add(new Middleware\Permissions(StationPermissions::Broadcasting, true));
+                    )->add(new Middleware\Permissions(StationPermissions::Broadcasting, true))
+                        ->add(new Middleware\Permissions(GlobalPermissions::All));
 
                     // StereoTool Configuration
                     $group->group(
@@ -891,7 +893,8 @@ return static function (RouteCollectorProxy $group) {
                                 Controller\Api\Stations\StereoTool\DeleteStereoToolConfigurationAction::class
                             );
                         }
-                    )->add(new Middleware\Permissions(StationPermissions::Broadcasting, true));
+                    )->add(new Middleware\Permissions(StationPermissions::Broadcasting, true))
+                        ->add(new Middleware\Permissions(GlobalPermissions::All));
 
                     // Logs
                     $group->group(

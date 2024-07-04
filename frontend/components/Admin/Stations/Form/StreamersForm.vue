@@ -25,7 +25,7 @@
                         class="col-md-12"
                         :field="v$.backend_config.record_streams"
                         :label="$gettext('Record Live Broadcasts')"
-                        :description="$gettext('If enabled, AzuraCast will automatically record any live broadcasts made to this station to per-broadcast recordings.')"
+                        :description="$gettext('If enabled, We will automatically record any live broadcasts made to this station to per-broadcast recordings.')"
                     />
                 </div>
                 <div
@@ -70,7 +70,7 @@
                     </form-group-field>
 
                     <form-group-field
-                        v-if="enableAdvancedFeatures"
+                        v-if="enableAdvancedFeatures && isAdministrator"
                         id="edit_form_backend_dj_port"
                         class="col-md-6"
                         :field="v$.backend_config.dj_port"
@@ -101,7 +101,7 @@
                     />
 
                     <form-group-field
-                        v-if="enableAdvancedFeatures"
+                        v-if="enableAdvancedFeatures && isAdministrator"
                         id="edit_form_backend_dj_mount_point"
                         class="col-md-6"
                         :field="v$.backend_config.dj_mount_point"
@@ -138,6 +138,7 @@ import {numeric} from "@vuelidate/validators";
 import {useAzuraCast, useAzuraCastStation} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import BitrateOptions from "~/components/Common/BitrateOptions.vue";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 const props = defineProps({
     form: {
@@ -153,6 +154,7 @@ const props = defineProps({
 
 const {enableAdvancedFeatures} = useAzuraCast();
 const {maxBitrate} = useAzuraCastStation();
+const isAdministrator = userAllowed(GlobalPermission.All);
 
 const emit = defineEmits(['update:form']);
 const form = useVModel(props, 'form', emit);
@@ -179,10 +181,21 @@ const {v$, tabClass} = useVuelidateOnFormTab(
                 ...validations,
                 backend_config: {
                     ...validations.backend_config,
-                    dj_port: {numeric},
-                    dj_mount_point: {},
                 }
             };
+        }
+
+        if (isAdministrator) {
+            if (enableAdvancedFeatures) {
+                validations = {
+                    ...validations,
+                    backend_config: {
+                        ...validations.backend_config,
+                        dj_port: {numeric},
+                        dj_mount_point: {},
+                    }
+                };
+            }
         }
 
         return validations;
@@ -208,11 +221,23 @@ const {v$, tabClass} = useVuelidateOnFormTab(
                 ...blankForm,
                 backend_config: {
                     ...blankForm.backend_config,
-                    dj_port: '',
-                    dj_mount_point: '/',
                 }
             }
         }
+
+        if (isAdministrator) {
+            if (enableAdvancedFeatures) {
+                blankForm = {
+                    ...blankForm,
+                    backend_config: {
+                        ...blankForm.backend_config,
+                        dj_port: '',
+                        dj_mount_point: '/',
+                    }
+                }
+            }
+        }
+
 
         return blankForm;
     }
