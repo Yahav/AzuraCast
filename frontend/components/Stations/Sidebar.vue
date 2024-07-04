@@ -33,13 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+// import {ref} from "vue";
 import SidebarMenu from "~/components/Common/SidebarMenu.vue";
 import {useStationsMenu} from "~/components/Stations/menu";
-// import {StationPermission, userAllowedForStation} from "~/acl";
-import {useAxios} from "~/vendor/axios.ts";
-import {getStationApiUrl} from "~/router.ts";
-import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";
+//import {StationPermission, userAllowedForStation} from "~/acl";
+// import {useAxios} from "~/vendor/axios.ts";
+// import {getStationApiUrl} from "~/router.ts";
+// import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";
 
 const props = defineProps({
     station: {
@@ -51,18 +51,18 @@ const props = defineProps({
 const menuItems = useStationsMenu();
 
 
-const restartEventBus = useRestartEventBus();
-const restartStatusUrl = getStationApiUrl('/restart-status');
-const needsRestart = ref(props.station.needsRestart);
-const {axios} = useAxios();
-
-restartEventBus.on((forceRestart: boolean): void => {
-    if (forceRestart) {
-        needsRestart.value = true;
-    } else {
-        axios.get(restartStatusUrl.value).then((resp) => {
-            needsRestart.value = resp.data.needs_restart;
-        });
-    }
-});
+// const restartEventBus = useRestartEventBus();
+// const restartStatusUrl = getStationApiUrl('/restart-status');
+// const needsRestart = ref(props.station.needsRestart);
+// const {axios} = useAxios();
+//
+// restartEventBus.on((forceRestart: boolean): void => {
+//     if (forceRestart) {
+//         needsRestart.value = true;
+//     } else {
+//         axios.get(restartStatusUrl.value).then((resp) => {
+//             needsRestart.value = resp.data.needs_restart;
+//         });
+//     }
+// });
 </script>

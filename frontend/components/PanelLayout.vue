@@ -200,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, /*ref,*/ useSlots, watch} from "vue";
+import {nextTick, onMounted, ref, /*ref,*/ useSlots, watch} from "vue";
 import Icon from "~/components/Common/Icon.vue";
 //import useTheme from "~/functions/theme";
 import {
@@ -216,6 +216,9 @@ import {
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
 import {StationPermission, userAllowedForStation} from "~/acl.ts";
 import Clock from "~/components/Stations/Clock.vue";
+import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";
+import {getStationApiUrl} from "~/router.ts";
+import {useAxios} from "~/vendor/axios.ts";
 
 
 const props = defineProps({
@@ -283,6 +286,24 @@ const handleSidebar = () => {
 }
 
 //const {toggleTheme} = useTheme();
+
+
+const restartEventBus = useRestartEventBus();
+
+const needsRestart = ref(props.needsRestart);
+const {axios} = useAxios();
+
+restartEventBus.on((forceRestart: boolean): void => {
+    const restartStatusUrl = getStationApiUrl('/restart-status');
+    if (forceRestart) {
+        needsRestart.value = true;
+    } else {
+        axios.get(restartStatusUrl.value).then((resp) => {
+            needsRestart.value = resp.data.needs_restart;
+        });
+    }
+});
+
 
 watch(
     () => slots.sidebar,
