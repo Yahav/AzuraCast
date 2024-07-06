@@ -239,7 +239,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             }
         }
 
-
         return blankForm;
     }
 );
