@@ -22,5 +22,4 @@ final class Version20240706170405 extends AbstractMigration
     {
         $this->addSql('ALTER TABLE station DROP max_bitrate, max_hls_streams');
     }
-
 }
