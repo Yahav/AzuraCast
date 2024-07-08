@@ -295,6 +295,26 @@ class Station implements Stringable, IdentifiableEntityInterface
     ]
     protected int $max_bitrate = 128;
 
+    #[
+        OA\Property(
+            description: "The maximum number of mount points the station can have",
+            example: 3
+        ),
+        ORM\Column,
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
+    ]
+    protected int $max_mounts = 3;
+
+    #[
+        OA\Property(
+            description: "The maximum number of HLS streams the station can have",
+            example: 3
+        ),
+        ORM\Column,
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
+    ]
+    protected int $max_hls_streams = 3;
+
     /**
      * @var ConfigData|null
      */
@@ -911,6 +931,40 @@ class Station implements Stringable, IdentifiableEntityInterface
             $this->setNeedsRestart(true);
         }
         $this->max_bitrate = $max_bitrate;
+    }
+
+    public function getMaxMounts(): int
+    {
+        if (!empty($this->max_mounts)) {
+            return $this->max_mounts;
+        }
+
+        return 3;
+    }
+
+    public function setMaxMounts(int $max_mounts): void
+    {
+        if ($this->max_mounts !== $max_mounts) {
+            $this->setNeedsRestart(true);
+        }
+        $this->max_mounts = $max_mounts;
+    }
+
+    public function getMaxHlsStreams(): int
+    {
+        if (!empty($this->max_hls_streams)) {
+            return $this->max_hls_streams;
+        }
+
+        return 3;
+    }
+
+    public function setMaxHlsStreams(int $max_hls_streams): void
+    {
+        if ($this->max_hls_streams !== $max_hls_streams) {
+            $this->setNeedsRestart(true);
+        }
+        $this->max_hls_streams = $max_hls_streams;
     }
 
     public function getBrandingConfig(): StationBrandingConfiguration

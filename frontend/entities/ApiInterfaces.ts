@@ -1406,6 +1406,16 @@ export type Station = HasAutoIncrementId & {
    * @example 128
    */
   max_bitrate?: number;
+  /**
+   * The maximum number of mount points the station can have
+   * @example 3
+   */
+  max_mounts?: number;
+  /**
+   * The maximum number of HLS streams the station can have
+   * @example 3
+   */
+  max_hls_streams?: number;
   /** An array containing station-specific branding configuration */
   branding_config?: any[];
 };
