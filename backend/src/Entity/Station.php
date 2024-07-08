@@ -297,23 +297,23 @@ class Station implements Stringable, IdentifiableEntityInterface
 
     #[
         OA\Property(
-            description: "The maximum number of mount points the station can have",
+            description: "The maximum number of mount points the station can have, 0 for unlimited",
             example: 3
         ),
         ORM\Column,
         Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
-    protected int $max_mounts = 3;
+    protected int $max_mounts = 0;
 
     #[
         OA\Property(
-            description: "The maximum number of HLS streams the station can have",
+            description: "The maximum number of HLS streams the station can have, 0 for unlimited",
             example: 3
         ),
         ORM\Column,
         Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
-    protected int $max_hls_streams = 3;
+    protected int $max_hls_streams = 0;
 
     /**
      * @var ConfigData|null
@@ -935,7 +935,7 @@ class Station implements Stringable, IdentifiableEntityInterface
             return $this->max_mounts;
         }
 
-        return 3;
+        return 0;
     }
 
     public function setMaxMounts(int $max_mounts): void
@@ -952,7 +952,7 @@ class Station implements Stringable, IdentifiableEntityInterface
             return $this->max_hls_streams;
         }
 
-        return 3;
+        return 0;
     }
 
     public function setMaxHlsStreams(int $max_hls_streams): void

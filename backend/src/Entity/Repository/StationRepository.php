@@ -202,6 +202,10 @@ final class StationRepository extends Repository
 
     public function reduceMountPointsToLimit(Station $station): void
     {
+        if ($station->getMaxMounts() === 0) {
+            return;
+        }
+
         foreach ($station->getMounts() as $index => $stationMount) {
             if (($index + 1) > $station->getMaxMounts()) {
                 $this->em->remove($stationMount);
@@ -214,6 +218,9 @@ final class StationRepository extends Repository
 
     public function reduceHlsStreamsToLimit(Station $station): void
     {
+        if ($station->getMaxHlsStreams() === 0) {
+            return;
+        }
 
         foreach ($station->getHlsStreams() as $index => $stationHlsStream) {
             if (($index + 1) > $station->getMaxHlsStreams()) {

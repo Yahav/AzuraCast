@@ -357,17 +357,21 @@ class StationsController extends AbstractApiCrudController
             $this->stationRepo->lowerLiveBroadcastRecordingBitrate($station);
         }
 
-        $maxMountsLowered = $oldMaxMounts > $station->getMaxMounts();
+        $maxMountsLowered = $station->getMaxMounts() !== 0 && ($oldMaxMounts > $station->getMaxMounts());
         if ($maxMountsLowered) {
             $this->stationRepo->reduceMountPointsToLimit($station);
         }
 
-        $maxHlsStreamsLowered = $oldMaxHlsStreams > $station->getMaxHlsStreams();
+        $maxHlsStreamsLowered = $station->getMaxHlsStreams() !== 0
+            && ($oldMaxHlsStreams > $station->getMaxHlsStreams());
         if ($maxHlsStreamsLowered) {
             $this->stationRepo->reduceHlsStreamsToLimit($station);
         }
 
-        if ($adapterChanged || $maxBitrateLowered || $enabledChanged || $maxMountsLowered || $maxHlsStreamsLowered) {
+        if (
+            $adapterChanged || $maxBitrateChanged || $enabledChanged
+            || $maxMountsLowered || $maxHlsStreamsLowered
+        ) {
             try {
                 $this->configuration->writeConfiguration(
                     station: $station,

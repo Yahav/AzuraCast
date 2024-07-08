@@ -142,8 +142,8 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             podcasts_storage_location: '',
             is_enabled: true,
             max_bitrate: 128,
-            max_mounts: 4,
-            max_hls_streams: 3
+            max_mounts: 0,
+            max_hls_streams: 0
         };
 
         if (enableAdvancedFeatures) {
