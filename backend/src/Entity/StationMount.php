@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Interfaces\EntityGroupsInterface;
 use App\Radio\Enums\AdapterTypeInterface;
 use App\Radio\Enums\FrontendAdapters;
 use App\Radio\Enums\StreamFormats;
@@ -16,6 +17,7 @@ use OpenApi\Attributes as OA;
 use Psr\Http\Message\UriInterface;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 #[
     OA\Schema(type: "object"),
@@ -119,7 +121,8 @@ class StationMount implements
 
     #[
         OA\Property(example: "https://custom-listen-url.example.com/stream.mp3"),
-        ORM\Column(length: 255, nullable: true)
+        ORM\Column(length: 255, nullable: true),
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     protected ?string $custom_listen_url = null;
 
@@ -128,7 +131,8 @@ class StationMount implements
 
     #[
         OA\Property(type: "array", items: new OA\Items()),
-        ORM\Column(type: 'text', nullable: true)
+        ORM\Column(type: 'text', nullable: true),
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     protected ?string $frontend_config = null;
 
