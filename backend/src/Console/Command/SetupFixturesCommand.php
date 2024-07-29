@@ -31,6 +31,10 @@ final class SetupFixturesCommand extends CommandAbstract
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        foreach ($this->environment->toArray() as $key => $value) {
+                putenv("$key=$value");
+        }
+
         $io = new SymfonyStyle($input, $output);
         $loader = new Loader();
 
