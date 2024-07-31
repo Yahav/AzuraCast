@@ -45,6 +45,16 @@
   .card-header {
     background-color: #212121 !important;
     border-bottom: 4px solid #3874ff;
+
+    .btn.btn-dark {
+      background-color: var(--bs-btn-active-bg);
+      border-color: var(--bs-btn-active-border-color);
+
+      &:hover {
+        background-color: #767b7f;
+        border-color: #767b7f;
+      }
+    }
   }
 
   .card-header,
