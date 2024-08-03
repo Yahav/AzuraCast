@@ -29,7 +29,7 @@
             :href="homeUrl"
         >
             <img
-                src="../../../img/caster_logo.svg"
+                src="/web/static/img/caster_logo.svg"
                 alt="Caster.fm"
                 style="height:40px;"
             >
