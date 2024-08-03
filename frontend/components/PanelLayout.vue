@@ -145,11 +145,11 @@
                 <template v-if="hasStarted !== null && needsRestart !== null && userAllowedForStation(StationPermission.Broadcasting)">
                     <div
                         v-if="hasStarted !== null && !hasStarted"
-                        class="navdrawer-alert bg-success text-success-emphasis mb-3 mb-3 d-flex align-items-center"
+                        class="navdrawer-alert bg-success text-white mb-3 mb-3 d-flex align-items-center"
                     >
                         <icon
                             :icon="IconWarning"
-                            class="lg me-3"
+                            class="lg me-3 ms-4"
                         />
                         <router-link
                             :to="{name: 'stations:restart:index'}"
