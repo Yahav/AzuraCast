@@ -122,10 +122,6 @@
 
                 <p class="text-center m-0">
                     {{ $gettext('Please log in to continue.') }}
-
-                    <a :href="forgotPasswordUrl">
-                        {{ $gettext('Forgot your password?') }}
-                    </a>
                 </p>
             </div>
         </div>

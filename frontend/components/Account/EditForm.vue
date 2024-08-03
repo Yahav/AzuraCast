@@ -10,6 +10,7 @@
             />
 
             <form-group-field
+                v-if="isAdministrator"
                 id="form_email"
                 class="mb-3"
                 tabindex="2"
@@ -48,6 +49,7 @@ import objectToFormOptions from "~/functions/objectToFormOptions";
 import {computed} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 const props = defineProps({
     form: {
@@ -61,6 +63,8 @@ const props = defineProps({
 });
 
 const {$gettext} = useTranslate();
+
+const isAdministrator = userAllowed(GlobalPermission.All);
 
 const localeOptions = computed(() => {
     const localeOptions = objectToFormOptions(props.supportedLocales);
