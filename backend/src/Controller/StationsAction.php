@@ -29,6 +29,7 @@ final class StationsAction implements SingleActionInterface
 
         $globalProps->set('sidebarProps', [
             'station' => [
+                'stationName' => $station->getName(),
                 'hasStarted' => $station->getHasStarted(),
                 'needsRestart' => $station->getNeedsRestart(),
                 'enablePublicPages' => $station->getEnablePublicPage(),

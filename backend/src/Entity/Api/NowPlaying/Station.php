@@ -23,19 +23,19 @@ final class Station implements ResolvableUrlInterface
 
     #[OA\Property(
         description: 'Station name',
-        example: 'AzuraTest Radio'
+        example: 'Casterfm Radio'
     )]
     public string $name;
 
     #[OA\Property(
         description: 'Station "short code", used for URL and folder paths',
-        example: 'azuratest_radio'
+        example: 'Casterfm_radio'
     )]
     public string $shortcode = '';
 
     #[OA\Property(
         description: 'Station description',
-        example: 'An AzuraCast station!'
+        example: 'A Caster.fm station!'
     )]
     public string $description = '';
 

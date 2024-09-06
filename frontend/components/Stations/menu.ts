@@ -1,19 +1,18 @@
 import {useTranslate} from "~/vendor/gettext.ts";
 import filterMenu, { MenuCategory, ReactiveMenu } from "~/functions/filterMenu.ts";
-import {StationPermission, userAllowedForStation} from "~/acl.ts";
+import {StationPermission, userAllowedForStation, GlobalPermission, userAllowed} from "~/acl.ts";
 import {useAzuraCast} from "~/vendor/azuracast.ts";
 import {computed, reactive} from "vue";
 import {
     IconBroadcast,
-    IconCode,
-    IconImage,
+    IconCode, IconHome,
     IconLibraryMusic,
     IconLogs,
     IconMic,
     IconPlaylist,
     IconPodcasts,
     IconPublic,
-    IconReport
+    IconReport, IconSettings
 } from "~/components/Common/icons.ts";
 
 export function useStationsMenu(): ReactiveMenu {
@@ -22,25 +21,29 @@ export function useStationsMenu(): ReactiveMenu {
     const {enableAdvancedFeatures, sidebarProps} = useAzuraCast();
     const stationProps = sidebarProps.station;
 
+    const isAdministrator = userAllowed(GlobalPermission.All);
+
     // Reuse this variable to avoid multiple calls.
     const userCanManageMedia = userAllowedForStation(StationPermission.Media);
 
     const menu: ReactiveMenu = reactive<Array<MenuCategory>>([
         {
+            key: 'dashboard',
+            label: computed(() => $gettext('Overview')),
+            icon: IconHome,
+            url: {
+                name: 'stations:index'
+            },
+            external: false,
+        },
+        {
             key: 'profile',
-            label: computed(() => $gettext('Profile')),
-            icon: IconImage,
+            label: computed(() => $gettext('Settings')),
+            icon: IconSettings,
             items: [
                 {
-                    key: 'view_profile',
-                    label: computed(() => $gettext('View Profile')),
-                    url: {
-                        name: 'stations:index'
-                    }
-                },
-                {
                     key: 'edit_profile',
-                    label: computed(() => $gettext('Edit Profile')),
+                    label: computed(() => $gettext('Station Settings')),
                     url: {
                         name: 'stations:profile:edit'
                     },
@@ -48,7 +51,7 @@ export function useStationsMenu(): ReactiveMenu {
                 },
                 {
                     key: 'branding',
-                    label: computed(() => $gettext('Branding')),
+                    label: computed(() => $gettext('Branding Options')),
                     url: {
                         name: 'stations:branding'
                     },
@@ -128,7 +131,7 @@ export function useStationsMenu(): ReactiveMenu {
                 },
                 {
                     key: 'bulk_media',
-                    label: computed(() => $gettext('Bulk Media Import/Export')),
+                    label: computed(() => $gettext('Bulk Metadata Edit')),
                     url: {
                         name: 'stations:bulk-media'
                     },
@@ -275,6 +278,7 @@ export function useStationsMenu(): ReactiveMenu {
                     },
                     visible: userAllowedForStation(StationPermission.Broadcasting)
                         && stationProps.features.customLiquidsoapConfig
+                        && isAdministrator
                 },
                 {
                     key: 'stereo_tool',
@@ -284,6 +288,7 @@ export function useStationsMenu(): ReactiveMenu {
                     },
                     visible: stationProps.features.media && enableAdvancedFeatures
                         && userAllowedForStation(StationPermission.Broadcasting)
+                        && isAdministrator
                 },
                 {
                     key: 'queue',

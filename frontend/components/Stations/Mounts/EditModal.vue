@@ -24,7 +24,7 @@
                 :edit-intro-url="record.links.intro"
             />
             <mount-form-advanced
-                v-if="enableAdvancedFeatures"
+                v-if="enableAdvancedFeatures && isAdministrator"
                 v-model:form="form"
                 :station-frontend-type="stationFrontendType"
             />
@@ -46,6 +46,7 @@ import {useResettableRef} from "~/functions/useResettableRef";
 import ModalForm from "~/components/Common/ModalForm.vue";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tabs from "~/components/Common/Tabs.vue";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 const props = defineProps({
     ...baseEditModalProps,
@@ -110,6 +111,9 @@ const {
         },
     }
 );
+
+const isAdministrator = userAllowed(GlobalPermission.Stations);
+
 
 const {$gettext} = useTranslate();
 

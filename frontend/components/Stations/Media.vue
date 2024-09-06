@@ -81,9 +81,10 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 pe-2">
                         <template v-if="item.type === FileTypes.Media">
-                            <play-button
-                                :url="item.media.links.play"
-                                class="btn-lg"
+                            <album-art
+                                v-if="item.media?.art"
+                                :src="item.media.art"
+                                class="flex-shrink-1 ps-2"
                             />
                         </template>
                         <template v-else>
@@ -144,11 +145,12 @@
                         <small v-else>{{ item.text }}</small>
                     </div>
 
-                    <album-art
-                        v-if="item.media?.art"
-                        :src="item.media.art"
-                        class="flex-shrink-1 ps-2"
+                    <play-button
+                        v-if="item.type === FileTypes.Media"
+                        :url="item.media.links.play"
+                        class="btn-lg"
                     />
+
                     <album-art
                         v-else-if="item.type === FileTypes.CoverArt"
                         :src="item.links.download"

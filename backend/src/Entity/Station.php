@@ -48,7 +48,7 @@ class Station implements Stringable, IdentifiableEntityInterface
     use Traits\TruncateStrings;
 
     #[
-        OA\Property(description: "The full display name of the station.", example: "AzuraTest Radio"),
+        OA\Property(description: "The full display name of the station.", example: "Caster.fm Radio"),
         ORM\Column(length: 100, nullable: false),
         Assert\NotBlank,
         Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
@@ -58,11 +58,11 @@ class Station implements Stringable, IdentifiableEntityInterface
     #[
         OA\Property(
             description: "The URL-friendly name for the station, typically auto-generated from the full station name.",
-            example: "azuratest_radio"
+            example: "casterfm_radio"
         ),
         ORM\Column(length: 100, nullable: false),
         Assert\NotBlank,
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     protected string $short_name = '';
 
@@ -140,7 +140,7 @@ class Station implements Stringable, IdentifiableEntityInterface
     protected ?string $description = null;
 
     #[
-        OA\Property(example: "https://demo.azuracast.com/"),
+        OA\Property(example: "https://demo.caster.fm/"),
         ORM\Column(length: 255, nullable: true),
         Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
     ]
@@ -154,7 +154,7 @@ class Station implements Stringable, IdentifiableEntityInterface
     protected ?string $genre = null;
 
     #[
-        OA\Property(example: "/var/azuracast/stations/azuratest_radio"),
+        OA\Property(example: "/var/casterfm/stations/casterfm_radio"),
         ORM\Column(length: 255, nullable: true),
         Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
@@ -283,7 +283,7 @@ class Station implements Stringable, IdentifiableEntityInterface
             example: 5
         ),
         ORM\Column(type: 'smallint'),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     protected int $api_history_items = 5;
 

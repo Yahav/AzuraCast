@@ -62,25 +62,27 @@
                     </span>
                 </template>
 
-                <div class="row g-3 mb-3">
-                    <form-group-field
-                        id="edit_form_frontend_port"
-                        class="col-md-6"
-                        :field="v$.frontend_config.port"
-                        input-type="number"
-                        :input-attrs="{min: '0'}"
-                        :label="$gettext('Customize Broadcasting Port')"
-                        :description="$gettext('No other program can be using this port. Leave blank to automatically assign a port.')"
-                    />
+                <template v-if="isAdministrator">
+                    <div class="row g-3 mb-3">
+                        <form-group-field
+                            id="edit_form_frontend_port"
+                            class="col-md-6"
+                            :field="v$.frontend_config.port"
+                            input-type="number"
+                            :input-attrs="{min: '0'}"
+                            :label="$gettext('Customize Broadcasting Port')"
+                            :description="$gettext('No other program can be using this port. Leave blank to automatically assign a port.')"
+                        />
 
-                    <form-group-field
-                        id="edit_form_max_listeners"
-                        class="col-md-6"
-                        :field="v$.frontend_config.max_listeners"
-                        :label="$gettext('Maximum Listeners')"
-                        :description="$gettext('Maximum number of total listeners across all streams. Leave blank to use the default.')"
-                    />
-                </div>
+                        <form-group-field
+                            id="edit_form_max_listeners"
+                            class="col-md-6"
+                            :field="v$.frontend_config.max_listeners"
+                            :label="$gettext('Maximum Listeners')"
+                            :description="$gettext('Maximum number of total listeners across all streams. Leave blank to use the default.')"
+                        />
+                    </div>
+                </template>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-5">
@@ -135,7 +137,7 @@
                 </div>
             </form-fieldset>
 
-            <form-fieldset v-if="enableAdvancedFeatures">
+            <form-fieldset v-if="enableAdvancedFeatures && isAdministrator">
                 <template #label>
                     {{ $gettext('Custom Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -179,6 +181,7 @@ import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric, required} from "@vuelidate/validators";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 const props = defineProps({
     form: {
@@ -196,6 +199,8 @@ const props = defineProps({
 });
 
 const {enableAdvancedFeatures} = useAzuraCast();
+
+const isAdministrator = userAllowed(GlobalPermission.All);
 
 const emit = defineEmits(['update:form']);
 const form = useVModel(props, 'form', emit);
@@ -219,14 +224,20 @@ const {v$, tabClass} = useVuelidateOnFormTab(
                 ...validations,
                 frontend_config: {
                     ...validations.frontend_config,
-                    port: {numeric},
-                    max_listeners: {},
-                    custom_config: {},
                     banned_ips: {},
                     banned_countries: {},
                     allowed_ips: {},
                     banned_user_agents: {}
                 },
+            };
+        }
+
+        if (isAdministrator) {
+            validations.frontend_config = {
+                ...validations.frontend_config,
+                max_listeners: {},
+                port: {numeric},
+                custom_config: ''
             };
         }
 
@@ -251,14 +262,20 @@ const {v$, tabClass} = useVuelidateOnFormTab(
                 ...blankForm,
                 frontend_config: {
                     ...blankForm.frontend_config,
-                    port: '',
-                    max_listeners: '',
-                    custom_config: '',
                     banned_ips: '',
                     banned_countries: [],
                     allowed_ips: '',
                     banned_user_agents: '',
                 },
+            };
+        }
+
+        if (isAdministrator) {
+            blankForm.frontend_config = {
+                ...blankForm.frontend_config,
+                custom_config: '',
+                port: '',
+                max_listeners: '',
             };
         }
 
