@@ -185,6 +185,20 @@ class Station implements Stringable, IdentifiableEntityInterface
     protected ?int $request_threshold = 15;
 
     #[
+        OA\Property(example: 10),
+        ORM\Column(type: 'smallint', nullable: true),
+        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+    ]
+    protected ?int $request_priority = null;
+
+    #[
+        OA\Property(example: 0),
+        ORM\Column(options: ['default' => false]),
+        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+    ]
+    protected bool $requests_follow_format = false;
+
+    #[
         OA\Property(example: 0),
         ORM\Column(nullable: true, options: ['default' => 0]),
         Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
@@ -787,6 +801,26 @@ class Station implements Stringable, IdentifiableEntityInterface
         $this->request_threshold = $requestThreshold;
     }
 
+    public function getRequestPriority(): int|null
+    {
+        return $this->request_priority;
+    }
+
+    public function setRequestPriority(int $priority = null): void
+    {
+        $this->request_priority = $priority;
+    }
+
+    public function requestsFollowFormat(): bool
+    {
+        return $this->requests_follow_format;
+    }
+
+    public function setRequestsFollowFormat(bool $requests_follow_format): void
+    {
+        $this->requests_follow_format = $requests_follow_format;
+    }
+
     public function getDisconnectDeactivateStreamer(): ?int
     {
         return $this->disconnect_deactivate_streamer;
@@ -924,12 +958,12 @@ class Station implements Stringable, IdentifiableEntityInterface
         return $this->max_bitrate;
     }
 
-    public function setMaxBitrate(int $max_bitrate): void
+    public function setMaxBitrate(int $maxBitrate): void
     {
-        if ($this->max_bitrate !== $max_bitrate) {
+        if ($this->max_bitrate !== $maxBitrate) {
             $this->setNeedsRestart(true);
         }
-        $this->max_bitrate = $max_bitrate;
+        $this->max_bitrate = $maxBitrate;
     }
 
     public function getMaxMounts(): int
@@ -941,12 +975,12 @@ class Station implements Stringable, IdentifiableEntityInterface
         return 0;
     }
 
-    public function setMaxMounts(int $max_mounts): void
+    public function setMaxMounts(int $maxMounts): void
     {
-        if ($this->max_mounts !== $max_mounts) {
+        if ($this->max_mounts !== $maxMounts) {
             $this->setNeedsRestart(true);
         }
-        $this->max_mounts = $max_mounts;
+        $this->max_mounts = $maxMounts;
     }
 
     public function getMaxHlsStreams(): int
@@ -958,12 +992,12 @@ class Station implements Stringable, IdentifiableEntityInterface
         return 0;
     }
 
-    public function setMaxHlsStreams(int $max_hls_streams): void
+    public function setMaxHlsStreams(int $maxHlsStreams): void
     {
-        if ($this->max_hls_streams !== $max_hls_streams) {
+        if ($this->max_hls_streams !== $maxHlsStreams) {
             $this->setNeedsRestart(true);
         }
-        $this->max_hls_streams = $max_hls_streams;
+        $this->max_hls_streams = $maxHlsStreams;
     }
 
     public function getBrandingConfig(): StationBrandingConfiguration

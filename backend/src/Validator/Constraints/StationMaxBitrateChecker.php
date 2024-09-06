@@ -15,7 +15,6 @@ final class StationMaxBitrateChecker extends Constraint
         public string|array $selectedBitrate = '',
         array $options = []
     ) {
-
         $options['stationGetter'] = $stationGetter;
         $options['selectedBitrate'] = $selectedBitrate;
 
