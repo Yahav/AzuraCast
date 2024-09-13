@@ -29,7 +29,7 @@
             :href="homeUrl"
         >
             <img
-                src="/web/static/img/caster_logo.svg"
+                :src="logo"
                 alt="Caster.fm"
                 style="height:40px;"
             >
@@ -219,6 +219,7 @@ import Clock from "~/components/Stations/Clock.vue";
 import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";
 import {getStationApiUrl} from "~/router.ts";
 import {useAxios} from "~/vendor/axios.ts";
+import logo from '~/caster_logo.svg';
 
 
 const props = defineProps({

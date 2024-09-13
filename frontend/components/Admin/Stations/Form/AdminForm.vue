@@ -21,30 +21,6 @@
                 :label="$gettext('Base Station Directory')"
                 :description="$gettext('The parent directory where station playlist and configuration files are stored. Leave blank to use default directory.')"
             />
-
-            <form-group-field
-                id="edit_form_max_bitrate"
-                class="col-md-2"
-                :field="v$.max_bitrate"
-                :label="$gettext('Maximum Bitrate')"
-                :description="$gettext('The maximum bitrate in which the station allowed to broadcast at, in Kbps. 0 for unlimited.')"
-            />
-
-            <form-group-field
-                id="edit_form_max_mounts"
-                class="col-md-2"
-                :field="v$.max_mounts"
-                :label="$gettext('Maximum Mounts')"
-                :description="$gettext('The maximum number of mount points allowed')"
-            />
-
-            <form-group-field
-                id="edit_form_max_hls_streams"
-                class="col-md-2"
-                :field="v$.max_hls_streams"
-                :label="$gettext('Maximum Hls Streams')"
-                :description="$gettext('The maximum number of HLS streams allowed')"
-            />
         </div>
 
         <div class="row g-3 mb-3">
