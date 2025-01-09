@@ -141,8 +141,8 @@ import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import Loading from "~/components/Common/Loading.vue";
 import CardPage from "~/components/Common/CardPage.vue";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {getApiUrl} from "~/router";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const apiUrl = getApiUrl('/admin/stereo_tool');
 
@@ -176,10 +176,13 @@ const relist = () => {
     });
 };
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    confirmDelete().then((result) => {
+    confirmDelete({
+        title: $gettext('Uninstall Stereo Tool?'),
+        confirmButtonText: $gettext('Uninstall')
+    }).then((result) => {
         if (result.value) {
             axios.delete(apiUrl.value).then(relist);
         }

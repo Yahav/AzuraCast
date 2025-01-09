@@ -212,14 +212,13 @@
 import {Dropdown} from 'bootstrap';
 import {intersection, map} from 'lodash';
 import Icon from '~/components/Common/Icon.vue';
-import '~/vendor/sweetalert';
 import {computed, ref, toRef, watch} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useAxios} from "~/vendor/axios";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {IconClearAll, IconDelete, IconFolder, IconMoreHoriz, IconMove} from "~/components/Common/icons";
 import useHandleBatchResponse from "~/components/Stations/Media/useHandleBatchResponse.ts";
 import {useNotify} from "~/functions/useNotify.ts";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const props = defineProps({
     currentDirectory: {
@@ -335,7 +334,7 @@ const doClearExtra = () => {
     );
 };
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 
 const doDelete = () => {
     const numFiles = selectedItems.value.all.length;
@@ -346,6 +345,7 @@ const doDelete = () => {
 
     confirmDelete({
         title: buttonConfirmText,
+        confirmButtonText: $gettext('Delete')
     }).then((result) => {
         if (result.value) {
             doBatch(

@@ -157,10 +157,10 @@ import Icon from "~/components/Common/Icon.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
 import {IconInfo, IconSync, IconUpdate, IconUpload} from "~/components/Common/icons";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const props = defineProps({
     releaseChannel: {
@@ -193,9 +193,9 @@ const langReleaseChannel = computed(() => {
 
 const needsUpdates = computed(() => {
     if (props.releaseChannel === 'stable') {
-        return updateInfo.value?.needs_release_update ?? true;
+        return updateInfo.value?.needs_release_update ?? false;
     } else {
-        return updateInfo.value?.needs_rolling_update ?? true;
+        return updateInfo.value?.needs_rolling_update ?? false;
     }
 });
 
@@ -208,11 +208,12 @@ const checkForUpdates = () => {
     });
 };
 
-const {showAlert} = useSweetAlert();
+const {showAlert} = useDialog();
 
 const doUpdate = () => {
     showAlert({
-        title: $gettext('Update AzuraCast? Your installation will restart.')
+        title: $gettext('Update AzuraCast? Your installation will restart.'),
+        confirmButtonText: $gettext('Update via Web')
     }).then((result) => {
         if (result.value) {
             axios.put(updatesApiUrl.value).then(() => {

@@ -19,12 +19,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use InvalidArgumentException;
-use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
-use League\Flysystem\Visibility;
 use OpenApi\Attributes as OA;
 use RuntimeException;
 use Stringable;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -46,6 +43,18 @@ class Station implements Stringable, IdentifiableEntityInterface
 {
     use Traits\HasAutoIncrementId;
     use Traits\TruncateStrings;
+
+    public const string PLAYLISTS_DIR = 'playlists';
+    public const string CONFIG_DIR = 'config';
+    public const string TEMP_DIR = 'temp';
+    public const string HLS_DIR = 'hls';
+
+    public const array NON_STORAGE_LOCATION_DIRS = [
+        self::PLAYLISTS_DIR,
+        self::CONFIG_DIR,
+        self::TEMP_DIR,
+        self::HLS_DIR,
+    ];
 
     #[
         OA\Property(description: "The full display name of the station.", example: "AzuraTest Radio"),
@@ -183,20 +192,6 @@ class Station implements Stringable, IdentifiableEntityInterface
         Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
     ]
     protected ?int $request_threshold = 15;
-
-    #[
-        OA\Property(example: 10),
-        ORM\Column(type: 'smallint', nullable: true),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
-    ]
-    protected ?int $request_priority = null;
-
-    #[
-        OA\Property(example: 0),
-        ORM\Column(options: ['default' => false]),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
-    ]
-    protected bool $requests_follow_format = false;
 
     #[
         OA\Property(example: 0),
@@ -693,11 +688,11 @@ class Station implements Stringable, IdentifiableEntityInterface
     public function ensureDirectoriesExist(): void
     {
         // Flysystem adapters will automatically create the main directory.
-        $this->ensureDirectoryExists($this->getRadioBaseDir());
-        $this->ensureDirectoryExists($this->getRadioPlaylistsDir());
-        $this->ensureDirectoryExists($this->getRadioConfigDir());
-        $this->ensureDirectoryExists($this->getRadioTempDir());
-        $this->ensureDirectoryExists($this->getRadioHlsDir());
+        File::mkdirIfNotExists($this->getRadioBaseDir());
+        File::mkdirIfNotExists($this->getRadioPlaylistsDir());
+        File::mkdirIfNotExists($this->getRadioConfigDir());
+        File::mkdirIfNotExists($this->getRadioTempDir());
+        File::mkdirIfNotExists($this->getRadioHlsDir());
 
         if (null === $this->media_storage_location) {
             $storageLocation = new StorageLocation(
@@ -706,7 +701,7 @@ class Station implements Stringable, IdentifiableEntityInterface
             );
 
             $mediaPath = $this->getRadioBaseDir() . '/media';
-            $this->ensureDirectoryExists($mediaPath);
+            File::mkdirIfNotExists($mediaPath);
             $storageLocation->setPath($mediaPath);
 
             $this->media_storage_location = $storageLocation;
@@ -719,7 +714,7 @@ class Station implements Stringable, IdentifiableEntityInterface
             );
 
             $recordingsPath = $this->getRadioBaseDir() . '/recordings';
-            $this->ensureDirectoryExists($recordingsPath);
+            File::mkdirIfNotExists($recordingsPath);
             $storageLocation->setPath($recordingsPath);
 
             $this->recordings_storage_location = $storageLocation;
@@ -732,44 +727,31 @@ class Station implements Stringable, IdentifiableEntityInterface
             );
 
             $podcastsPath = $this->getRadioBaseDir() . '/podcasts';
-            $this->ensureDirectoryExists($podcastsPath);
+            File::mkdirIfNotExists($podcastsPath);
             $storageLocation->setPath($podcastsPath);
 
             $this->podcasts_storage_location = $storageLocation;
         }
     }
 
-    protected function ensureDirectoryExists(string $dirname): void
-    {
-        if (is_dir($dirname)) {
-            return;
-        }
-
-        $visibility = (new PortableVisibilityConverter(
-            defaultForDirectories: Visibility::PUBLIC
-        ))->defaultForDirectories();
-
-        (new Filesystem())->mkdir($dirname, $visibility);
-    }
-
     public function getRadioPlaylistsDir(): string
     {
-        return $this->radio_base_dir . '/playlists';
+        return $this->radio_base_dir . '/' . self::PLAYLISTS_DIR;
     }
 
     public function getRadioConfigDir(): string
     {
-        return $this->radio_base_dir . '/config';
+        return $this->radio_base_dir . '/' . self::CONFIG_DIR;
     }
 
     public function getRadioTempDir(): string
     {
-        return $this->radio_base_dir . '/temp';
+        return $this->radio_base_dir . '/' . self::TEMP_DIR;
     }
 
     public function getRadioHlsDir(): string
     {
-        return $this->radio_base_dir . '/hls';
+        return $this->radio_base_dir . '/' . self::HLS_DIR;
     }
 
     public function getEnableRequests(): bool
@@ -800,26 +782,6 @@ class Station implements Stringable, IdentifiableEntityInterface
     public function setRequestThreshold(int $requestThreshold = null): void
     {
         $this->request_threshold = $requestThreshold;
-    }
-
-    public function getRequestPriority(): int|null
-    {
-        return $this->request_priority;
-    }
-
-    public function setRequestPriority(int $priority = null): void
-    {
-        $this->request_priority = $priority;
-    }
-
-    public function requestsFollowFormat(): bool
-    {
-        return $this->requests_follow_format;
-    }
-
-    public function setRequestsFollowFormat(bool $requests_follow_format): void
-    {
-        $this->requests_follow_format = $requests_follow_format;
     }
 
     public function getDisconnectDeactivateStreamer(): ?int

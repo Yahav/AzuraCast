@@ -70,10 +70,8 @@ import formatFileSize from '~/functions/formatFileSize';
 import InlinePlayer from '~/components/InlinePlayer.vue';
 import Icon from '~/components/Common/Icon.vue';
 import PlayButton from "~/components/Common/PlayButton.vue";
-import '~/vendor/sweetalert';
 import {ref, shallowRef} from "vue";
 import {useTranslate} from "~/vendor/gettext";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import Modal from "~/components/Common/Modal.vue";
@@ -83,6 +81,7 @@ import {ModalTemplateRef, useHasModal} from "~/functions/useHasModal.ts";
 import {usePlayerStore, useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import BroadcastsModalToolbar from "~/components/Stations/Streamers/BroadcastsModalToolbar.vue";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const listUrl = ref(null);
 const batchUrl = ref(null);
@@ -135,7 +134,7 @@ const fields: DataTableField[] = [
     }
 ];
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
@@ -150,7 +149,7 @@ const onRowSelected = (items) => {
 
 const doDelete = (url) => {
     confirmDelete({
-        title: $gettext('Delete Broadcast?')
+        title: $gettext('Delete Broadcast?'),
     }).then((result) => {
         if (result.value) {
             axios.delete(url).then((resp) => {

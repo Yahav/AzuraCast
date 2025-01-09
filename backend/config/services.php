@@ -86,7 +86,7 @@ return [
 
         // Specify MariaDB version for local Docker installs. Let non-local ones auto-detect via Doctrine.
         if (isset($connectionOptions['unix_socket']) || $environment->isTesting()) {
-            $connectionOptions['serverVersion'] = '11.2.3-MariaDB-1';
+            $connectionOptions['serverVersion'] = '11.4.4-MariaDB-1';
         }
 
         $config = new Doctrine\DBAL\Configuration();
@@ -200,28 +200,11 @@ return [
         ? new Symfony\Component\Lock\Store\RedisStore($redisFactory->getInstance())
         : new Symfony\Component\Lock\Store\FlockStore($environment->getTempDirectory()),
 
-    // Console
-    App\Console\Application::class => static function (
-        DI\Container $di,
-        App\CallableEventDispatcherInterface $dispatcher,
-        App\Version $version,
+    // DB migrator configuration
+    Doctrine\Migrations\Configuration\Migration\ConfigurationLoader::class => static function (
         Environment $environment,
-        Doctrine\ORM\EntityManagerInterface $em
+        App\CallableEventDispatcherInterface $dispatcher,
     ) {
-        $console = new App\Console\Application(
-            $environment->getAppName() . ' Command Line Tools ('
-            . $environment->getAppEnvironmentEnum()->getName() . ')',
-            $version->getVersion()
-        );
-        $console->setDispatcher($dispatcher);
-
-        // Doctrine ORM/DBAL
-        Doctrine\ORM\Tools\Console\ConsoleRunner::addCommands(
-            $console,
-            new Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider($em)
-        );
-
-        // Add Doctrine Migrations
         $migrationConfigurations = [
             'migrations_paths' => [
                 'App\Entity\Migration' => $environment->getBackendDirectory() . '/src/Entity/Migration',
@@ -241,10 +224,34 @@ return [
 
         $migrationConfigurations = $buildMigrationConfigurationsEvent->getMigrationConfigurations();
 
-        $migrateConfig = new Doctrine\Migrations\Configuration\Migration\ConfigurationArray(
+        return new Doctrine\Migrations\Configuration\Migration\ConfigurationArray(
             $migrationConfigurations
         );
+    },
 
+    // Console
+    App\Console\Application::class => static function (
+        DI\Container $di,
+        App\CallableEventDispatcherInterface $dispatcher,
+        App\Version $version,
+        Environment $environment,
+        Doctrine\ORM\EntityManagerInterface $em,
+        Doctrine\Migrations\Configuration\Migration\ConfigurationLoader $migrateConfig,
+    ) {
+        $console = new App\Console\Application(
+            $environment->getAppName() . ' Command Line Tools ('
+            . $environment->getAppEnvironmentEnum()->getName() . ')',
+            $version->getVersion()
+        );
+        $console->setDispatcher($dispatcher);
+
+        // Doctrine ORM/DBAL
+        Doctrine\ORM\Tools\Console\ConsoleRunner::addCommands(
+            $console,
+            new Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider($em)
+        );
+
+        // Add Doctrine Migrations
         $migrateFactory = Doctrine\Migrations\DependencyFactory::fromEntityManager(
             $migrateConfig,
             new Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager($em)

@@ -50,18 +50,12 @@
                 type="button"
                 class="file-upload btn btn-primary text-center ms-1"
             >
-                <icon :icon="IconUpload" />
+                <icon :icon="IconUpload"/>
                 <span>
                     {{ $gettext('Select File') }}
                 </span>
             </button>
-            <small class="file-name" />
-            <input
-                type="file"
-                :accept="validMimeTypesList"
-                :multiple="allowMultiple"
-                style="visibility: hidden; position: absolute;"
-            >
+            <small class="file-name"/>
         </div>
     </div>
 </template>
@@ -70,11 +64,12 @@
 import formatFileSize from '~/functions/formatFileSize';
 import Icon from './Icon.vue';
 import {defaultsDeep, forEach, toInteger} from 'lodash';
-import {computed, onMounted, onUnmounted, reactive, ref} from "vue";
+import {onMounted, onUnmounted, reactive, ref} from "vue";
 import Flow from "@flowjs/flow.js";
 import {useAzuraCast} from "~/vendor/azuracast";
 import {useTranslate} from "~/vendor/gettext";
 import {IconUpload} from "~/components/Common/icons";
+import {useEventListener} from "@vueuse/core";
 
 const props = defineProps({
     targetUrl: {
@@ -82,6 +77,10 @@ const props = defineProps({
         required: true
     },
     allowMultiple: {
+        type: Boolean,
+        default: false
+    },
+    directoryMode: {
         type: Boolean,
         default: false
     },
@@ -106,21 +105,19 @@ interface FlowFile {
     isCompleted: boolean,
     progressPercent: number,
     error?: string,
-    size: string
+    size: string,
+    targetUrl: string
 }
 
 interface OriginalFlowFile {
     uniqueIdentifier: string,
     name: string,
     size: number,
+
     progress(): number
 }
 
 const emit = defineEmits(['complete', 'success', 'error']);
-
-const validMimeTypesList = computed(() => {
-    return props.validMimeTypes.join(', ');
-});
 
 let flow = null;
 
@@ -142,7 +139,8 @@ const files = reactive<{
             isVisible: true,
             isCompleted: false,
             progressPercent: 0,
-            error: null
+            error: null,
+            targetUrl: props.targetUrl
         };
     },
     get(file: OriginalFlowFile): FlowFile {
@@ -165,11 +163,21 @@ const {apiCsrf} = useAzuraCast();
 
 const {$gettext} = useTranslate();
 
+useEventListener($fileDropTarget, 'dragenter', (e) => {
+    if (e.target.classList.contains('file-drop-target')) {
+        e.target.classList.add('drag_over');
+    }
+});
+
+useEventListener($fileDropTarget, 'dragleave', (e) => {
+    if (e.target.classList.contains('file-drop-target')) {
+        e.target.classList.remove('drag_over');
+    }
+});
+
 onMounted(() => {
     const defaultConfig = {
-        target: () => {
-            return props.targetUrl
-        },
+        target: (file: OriginalFlowFile) => files.get(file).targetUrl ?? props.targetUrl,
         singleFile: !props.allowMultiple,
         headers: {
             'Accept': 'application/json',
@@ -188,7 +196,9 @@ onMounted(() => {
 
     flow = new Flow(config);
 
-    flow.assignBrowse($fileBrowseTarget.value);
+    flow.assignBrowse($fileBrowseTarget.value, props.directoryMode, !props.allowMultiple, {
+        accept: props.validMimeTypes.join(',')
+    });
     flow.assignDrop($fileDropTarget.value);
 
     flow.on('fileAdded', (file: OriginalFlowFile) => {
@@ -201,7 +211,7 @@ onMounted(() => {
     });
 
     flow.on('fileProgress', (file: OriginalFlowFile) => {
-      files.get(file).progressPercent = toInteger(file.progress() * 100);
+        files.get(file).progressPercent = toInteger(file.progress() * 100);
     });
 
     flow.on('fileSuccess', (file: OriginalFlowFile, message) => {
@@ -247,40 +257,3 @@ onUnmounted(() => {
     files.reset();
 });
 </script>
-
-<style lang="scss">
-div.flow-upload {
-    div.upload-progress {
-        padding: 4px 0;
-
-        & > div {
-            padding: 3px 0;
-        }
-
-        .error {
-            color: #a00;
-        }
-
-        .progress {
-            margin-bottom: 5px;
-
-            .progress-bar {
-                border-bottom-width: 10px;
-
-                &::after {
-                    height: 10px;
-                }
-            }
-        }
-    }
-
-    div.file-drop-target {
-        padding: 25px 0;
-        text-align: center;
-
-        input {
-            display: inline;
-        }
-    }
-}
-</style>

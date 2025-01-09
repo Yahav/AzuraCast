@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Media\Metadata;
 use App\Utilities\Time;
 use App\Utilities\Types;
-use ReflectionObject;
 
 class StationMediaMetadata extends AbstractStationConfiguration
 {
@@ -20,7 +18,7 @@ class StationMediaMetadata extends AbstractStationConfiguration
 
     public function setAmplify(float|string $amplify = null): void
     {
-        $this->set(self::AMPLIFY, self::getNumericValue($amplify));
+        $this->set(self::AMPLIFY, self::getNumericValue($amplify, true));
     }
 
     public const string CROSS_START_NEXT = 'cross_start_next';
@@ -56,7 +54,7 @@ class StationMediaMetadata extends AbstractStationConfiguration
 
     public function setFadeOut(string|int|float $fadeOut = null): void
     {
-        $this->set(self::FADE_OUT, $fadeOut);
+        $this->set(self::FADE_OUT, self::getNumericValue($fadeOut));
     }
 
     public const string CUE_IN = 'cue_in';
@@ -83,8 +81,10 @@ class StationMediaMetadata extends AbstractStationConfiguration
         $this->set(self::CUE_OUT, self::getNumericValue($cueOut));
     }
 
-    public static function getNumericValue(string|int|float $annotation = null): ?float
-    {
+    private function getNumericValue(
+        string|int|float $annotation = null,
+        bool $allowNegative = false
+    ): ?float {
         if (is_string($annotation)) {
             if (str_contains($annotation, ':')) {
                 $annotation = Time::displayTimeToSeconds($annotation);
@@ -94,57 +94,14 @@ class StationMediaMetadata extends AbstractStationConfiguration
             }
         }
 
-        return Types::floatOrNull($annotation);
-    }
+        $annotation = Types::floatOrNull($annotation);
 
-    public function toAnnotations(float $duration): array
-    {
-        $annotations = array_filter(
-            $this->toArray() ?? [],
-            fn($row) => $row !== null
-        );
-
-        if (0 === count($annotations)) {
-            return [];
+        if (null === $annotation) {
+            return null;
         }
 
-        // Safety checks for cue lengths.
-        if (
-            isset($annotations[self::CUE_OUT])
-            && $annotations[self::CUE_OUT] < 0.0
-        ) {
-            $cueOut = abs($annotations[self::CUE_OUT]);
-
-            if (0.0 === $cueOut) {
-                unset($annotations[self::CUE_OUT]);
-            }
-
-            if ($cueOut > $duration) {
-                unset($annotations[self::CUE_OUT]);
-            } else {
-                $annotations[self::CUE_OUT] = max(0, $duration - $cueOut);
-            }
-        }
-
-        if (
-            isset($annotations[self::CUE_OUT])
-            && $annotations[self::CUE_OUT] > $duration
-        ) {
-            unset($annotations[self::CUE_OUT]);
-        }
-
-        if (
-            isset($annotations[self::CUE_IN])
-            && $annotations[self::CUE_IN] > $duration
-        ) {
-            unset($annotations[self::CUE_IN]);
-        }
-
-        // Specify formatting on Amplify.
-        if (isset($annotations[self::AMPLIFY])) {
-            $annotations[self::AMPLIFY] .= ' dB';
-        }
-
-        return $annotations;
+        return ($allowNegative || $annotation >= 0)
+            ? $annotation
+            : null;
     }
 }

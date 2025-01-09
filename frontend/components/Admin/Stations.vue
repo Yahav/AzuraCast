@@ -97,9 +97,9 @@ import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
 import CloneModal from "~/components/Admin/Stations/CloneModal.vue";
-import {useSweetAlert} from "~/vendor/sweetalert.ts";
 import {useNotify} from "~/functions/useNotify.ts";
 import {useAxios} from "~/vendor/axios.ts";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const props = defineProps({
     ...stationFormProps,
@@ -160,18 +160,24 @@ const doClone = (stationName, url) => {
     $cloneModal.value.create(stationName, url);
 };
 
-const {showAlert} = useSweetAlert();
+const {showAlert} = useDialog();
 const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
 const doToggle = (station) => {
-    const title = (station.is_enabled)
-        ? $gettext('Disable station?')
-        : $gettext('Enable station?');
-
-    showAlert({
-        title: title
-    }).then((result) => {
+    showAlert((station.is_enabled)
+        ? {
+            title: $gettext('Disable station?'),
+            confirmButtonText: $gettext('Disable'),
+            confirmButtonClass: 'btn-warning',
+            focusCancel: true
+        } : {
+            title: $gettext('Enable station?'),
+            confirmButtonText: $gettext('Enable'),
+            confirmButtonClass: 'btn-success',
+            focusCancel: false
+        }
+    ).then((result) => {
         if (result.value) {
             axios.put(station.links.self, {
                 is_enabled: !station.is_enabled

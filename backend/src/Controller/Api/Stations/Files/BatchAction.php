@@ -310,7 +310,6 @@ final class BatchAction implements SingleActionInterface
 
                     $newQueue = StationQueue::fromMedia($stationRef, $media);
                     $newQueue->setTimestampCued($cuedTimestamp);
-                    $newQueue->setTimestampScheduled($cuedTimestamp);
                     $this->em->persist($newQueue);
                 } catch (Throwable $e) {
                     $result->errors[] = sprintf('%s: %s', $media->getPath(), $e->getMessage());
@@ -362,9 +361,9 @@ final class BatchAction implements SingleActionInterface
 
                     $newQueue = StationQueue::fromMedia($station, $media);
                     $newQueue->setTimestampCued($cuedTimestamp);
-                    $newQueue->setTimestampScheduled($cuedTimestamp);
                     $newQueue->setIsPlayed();
                     $this->em->persist($newQueue);
+                    $this->em->flush();
 
                     $event = AnnotateNextSong::fromStationQueue($newQueue, true);
                     $this->eventDispatcher->dispatch($event);

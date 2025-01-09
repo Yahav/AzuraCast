@@ -8,18 +8,18 @@ FROM golang:1.23-bookworm AS go-dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssl git
 
-RUN go install github.com/jwilder/dockerize@v0.8.0
+RUN go install github.com/jwilder/dockerize@v0.9.1
 
 RUN go install github.com/aptible/supercronic@v0.2.33
 
-RUN go install github.com/centrifugal/centrifugo/v5@v5.4.7
+RUN go install github.com/centrifugal/centrifugo/v5@v5.4.9
 
 RUN strip /go/bin/*
 
 #
 # MariaDB dependencies build step
 #
-FROM mariadb:11.2-jammy AS mariadb
+FROM mariadb:lts-noble AS mariadb
 
 #
 # Built-in docs build step
@@ -116,12 +116,13 @@ USER root
 VOLUME "/var/azuracast/stations"
 VOLUME "/var/azuracast/backups"
 VOLUME "/var/lib/mysql"
-VOLUME "/var/azuracast/storage/uploads"
+VOLUME "/var/azuracast/storage/acme"
+VOLUME "/var/azuracast/storage/geoip"
+VOLUME "/var/azuracast/storage/rsas"
+VOLUME "/var/azuracast/storage/sftpgo"
 VOLUME "/var/azuracast/storage/shoutcast2"
 VOLUME "/var/azuracast/storage/stereo_tool"
-VOLUME "/var/azuracast/storage/geoip"
-VOLUME "/var/azuracast/storage/sftpgo"
-VOLUME "/var/azuracast/storage/acme"
+VOLUME "/var/azuracast/storage/uploads"
 
 EXPOSE 80 443 2022
 EXPOSE 8000-8999
