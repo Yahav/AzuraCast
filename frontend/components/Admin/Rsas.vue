@@ -103,8 +103,8 @@
                             <flow-upload
                                 :target-url="licenseUrl"
                                 :valid-mime-types="['.key']"
-                                @complete="relist"
                                 accept
+                                @complete="relist"
                             />
 
                             <div
@@ -135,6 +135,7 @@ import {useAxios} from "~/vendor/axios";
 import Loading from "~/components/Common/Loading.vue";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const apiUrl = getApiUrl('/admin/rsas');
 const licenseUrl = getApiUrl('/admin/rsas/license');
@@ -147,7 +148,7 @@ const {$gettext} = useTranslate();
 
 const langInstalledVersion = computed(() => {
     return $gettext(
-        'RSAS version "%{ version }" is currently installed.',
+        'RSAS version "%{version}" is currently installed.',
         {
             version: version.value
         }
@@ -158,7 +159,7 @@ const {axios} = useAxios();
 
 const relist = () => {
     isLoading.value = true;
-    axios.get(apiUrl.value).then(({data}) => {
+    void axios.get(apiUrl.value).then(({data}) => {
         version.value = data.version;
         hasLicense.value = data.hasLicense;
 
@@ -166,13 +167,15 @@ const relist = () => {
     });
 };
 
+const {confirmDelete} = useDialog();
+
 const doRemoveLicense = () => {
-    confirmDelete({
+    void confirmDelete({
         title: $gettext('Remove RSAS license key?'),
         confirmButtonText: $gettext('Remove License Key')
     }).then((result) => {
         if (result.value) {
-            axios.delete(licenseUrl.value).then(relist);
+            void axios.delete(licenseUrl.value).then(relist);
         }
     });
 }

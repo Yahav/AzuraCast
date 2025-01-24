@@ -14,7 +14,7 @@
         </div>
         <div class="row g-3">
             <form-group-multi-check
-                v-if="triggers.length > 0"
+                v-if="triggersForType.length > 0"
                 id="edit_form_triggers"
                 class="col-md-7"
                 :field="v$.triggers"
@@ -24,6 +24,7 @@
                 :description="$gettext('This web hook will only run when the selected event(s) occur on this specific station.')"
             />
 
+            <!-- @vue-expect-error Vuelidate mistyping -->
             <form-group-select
                 id="form_config_rate_limit"
                 class="col-md-5"
@@ -39,29 +40,26 @@
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
-import {map} from "lodash";
-import {useVModel} from "@vueuse/core";
-import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {map, pick} from "lodash";
+import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import {useTranslate} from "~/vendor/gettext.ts";
+import {getTriggers, WebhookTriggerDetails, WebhookType} from "~/entities/Webhooks.ts";
+import {computed} from "vue";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    },
-    triggers: {
-        type: Array,
-        required: true
-    }
-});
+interface WebhookBasicInfoFormProps extends FormTabProps {
+    type: WebhookType | null
+    triggerDetails: WebhookTriggerDetails
+}
 
-const emit = defineEmits(['update:form']);
-const form = useVModel(props, 'form', emit);
+const props = defineProps<WebhookBasicInfoFormProps>();
+const emit = defineEmits<FormTabEmits>();
 
 const {v$, tabClass} = useVuelidateOnFormTab(
+    props,
+    emit,
     {
         name: {required},
         triggers: {},
@@ -69,7 +67,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             rate_limit: {}
         }
     },
-    form,
     {
         name: null,
         triggers: [],
@@ -79,22 +76,30 @@ const {v$, tabClass} = useVuelidateOnFormTab(
     }
 );
 
-const triggerOptions = map(
-    props.triggers,
-    (trigger) => {
-        return {
-            value: trigger.key,
-            text: trigger.title,
-            description: trigger.description
-        };
-    }
-);
+const triggersForType = computed(() => {
+    return (props.type) ? getTriggers(props.type) : [];
+});
+
+const triggerOptions = computed(() => {
+    const triggerDetailsForType = pick(props.triggerDetails, ...triggersForType.value);
+
+    return map(
+        triggerDetailsForType,
+        (trigger, key) => {
+            return {
+                value: key,
+                text: trigger.title,
+                description: trigger.description
+            };
+        }
+    )
+});
 
 const {$gettext, interpolate} = useTranslate();
 
-const langSeconds = $gettext('%{ seconds } seconds');
-const langMinutes = $gettext('%{ minutes } minutes');
-const langHours = $gettext('%{ hours } hours');
+const langSeconds = $gettext('%{seconds} seconds');
+const langMinutes = $gettext('%{minutes} minutes');
+const langHours = $gettext('%{hours} hours');
 
 const rateLimitOptions = [
     {

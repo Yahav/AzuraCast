@@ -41,20 +41,16 @@ import useHandlePodcastBatchResponse from "~/components/Stations/Podcasts/useHan
 import {map} from "lodash";
 import {useDialog} from "~/functions/useDialog.ts";
 
-const props = defineProps({
-    batchUrl: {
-        type: String,
-        required: true
-    },
-    selectedItems: {
-        type: Array,
-        required: true
-    },
-    podcastIsManual: {
-        type: Boolean,
-        default: true
+const props = withDefaults(
+    defineProps<{
+        batchUrl: string,
+        selectedItems: Array<any>,
+        podcastIsManual: boolean,
+    }>(),
+    {
+        podcastIsManual: true,
     }
-});
+);
 
 const emit = defineEmits(['relist', 'batch-edit']);
 
@@ -70,7 +66,7 @@ const hasSelectedItems = computed(() => {
 const {handleBatchResponse} = useHandlePodcastBatchResponse();
 
 const doBatch = (action, successMessage, errorMessage) => {
-    axios.put(props.batchUrl, {
+    void axios.put(props.batchUrl, {
         'do': action,
         'episodes': map(props.selectedItems, 'id')
     }).then(({data}) => {
@@ -82,11 +78,11 @@ const doBatch = (action, successMessage, errorMessage) => {
 const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    confirmDelete({
+    void confirmDelete({
         title: $gettext(
-            'Delete %{ num } episodes?',
+            'Delete %{num} episodes?',
             {
-                num: props.selectedItems.length
+                num: String(props.selectedItems.length)
             }
         ),
     }).then((result) => {

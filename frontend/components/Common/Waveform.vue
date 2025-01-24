@@ -3,8 +3,8 @@
         <div class="row">
             <div class="col-md-12">
                 <div id="waveform_container">
-                    <div id="waveform-timeline"/>
-                    <div id="waveform"/>
+                    <div id="waveform-timeline" />
+                    <div id="waveform" />
                 </div>
             </div>
         </div>
@@ -28,7 +28,10 @@
                     </div>
                 </div>
             </div>
-            <div v-if="showVolume" class="col-md-5">
+            <div
+                v-if="showVolume"
+                class="col-md-5"
+            >
                 <div class="inline-volume-controls d-flex align-items-center">
                     <div class="flex-shrink-0 mx-2">
                         <mute-button
@@ -66,20 +69,11 @@ import usePlayerVolume from "~/functions/usePlayerVolume";
 import useShowVolume from "~/functions/useShowVolume.ts";
 import MuteButton from "~/components/Common/MuteButton.vue";
 
-const props = defineProps({
-    audioUrl: {
-        type: String,
-        required: true
-    },
-    waveformUrl: {
-        type: String,
-        required: true
-    },
-    waveformCacheUrl: {
-        type: String,
-        default: null
-    }
-});
+const props = defineProps<{
+    audioUrl: string,
+    waveformUrl: string,
+    waveformCacheUrl?: string,
+}>();
 
 const emit = defineEmits(['ready']);
 
@@ -133,7 +127,7 @@ const cacheWaveformRemotely = () => {
         data: peaks
     };
 
-    axiosSilent.post(props.waveformCacheUrl, dataToCache);
+    void axiosSilent.post(props.waveformCacheUrl, dataToCache);
 };
 
 onMounted(() => {
@@ -143,16 +137,9 @@ onMounted(() => {
         progressColor: '#4081CF',
     });
 
-    wavesurfer.registerPlugin(timeline.create({
-        primaryColor: '#222',
-        secondaryColor: '#888',
-        primaryFontColor: '#222',
-        secondaryFontColor: '#888'
-    }));
+    wavesurfer.registerPlugin(timeline.create());
 
-    wsRegions = wavesurfer.registerPlugin(regions.create({
-        regions: []
-    }));
+    wsRegions = wavesurfer.registerPlugin(regions.create());
 
     wavesurfer.on('ready', () => {
         wavesurfer.setVolume(getLogarithmicVolume(volume.value));

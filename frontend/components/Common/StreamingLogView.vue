@@ -18,18 +18,15 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, ref, toRef, watch} from "vue";
+import {nextTick, ref, toRef, useTemplateRef, watch} from "vue";
 import {useAxios} from "~/vendor/axios";
 import {tryOnScopeDispose} from "@vueuse/core";
 import Loading from "~/components/Common/Loading.vue";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
 
-const props = defineProps({
-    logUrl: {
-        type: String,
-        required: true,
-    }
-});
+const props = defineProps<{
+    logUrl: string
+}>();
 
 const isLoading = ref(false);
 const logs = ref('');
@@ -38,7 +35,7 @@ const scrollToBottom = ref(true);
 
 const {axios} = useAxios();
 
-const $textarea = ref<HTMLTextAreaElement | null>(null);
+const $textarea = useTemplateRef('$textarea');
 
 let updateInterval = null;
 
@@ -51,7 +48,7 @@ const stop = () => {
 tryOnScopeDispose(stop);
 
 const updateLogs = () => {
-    axios({
+    void axios({
         method: 'GET',
         url: props.logUrl,
         params: {
@@ -61,7 +58,7 @@ const updateLogs = () => {
         if (resp.data.contents !== '') {
             logs.value = logs.value + resp.data.contents + "\n";
             if (scrollToBottom.value && $textarea.value) {
-                nextTick(() => {
+                void nextTick(() => {
                     $textarea.value.scrollTop = $textarea.value?.scrollHeight;
                 });
             }

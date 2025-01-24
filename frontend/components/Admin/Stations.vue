@@ -9,7 +9,7 @@
 
         <data-table
             id="stations"
-            ref="$datatable"
+            ref="$dataTable"
             paginated
             :fields="fields"
             :api-url="listUrl"
@@ -69,7 +69,7 @@
     </card-page>
 
     <admin-stations-edit-modal
-        v-bind="pickProps(props, stationFormProps)"
+        v-bind="props"
         ref="$editModal"
         :create-url="listUrl"
         @relist="relist"
@@ -86,32 +86,25 @@ import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
 import AdminStationsEditModal from "./Stations/EditModal.vue";
 import {get} from "lodash";
 import AdminStationsCloneModal from "./Stations/CloneModal.vue";
-import stationFormProps from "./Stations/stationFormProps";
-import {pickProps} from "~/functions/pickProps";
 import {useTranslate} from "~/vendor/gettext";
-import {ref} from "vue";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
-import useHasEditModal, {EditModalTemplateRef} from "~/functions/useHasEditModal";
+import {useTemplateRef} from "vue";
+import useHasDatatable from "~/functions/useHasDatatable";
+import useHasEditModal from "~/functions/useHasEditModal";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
-import CloneModal from "~/components/Admin/Stations/CloneModal.vue";
 import {useNotify} from "~/functions/useNotify.ts";
 import {useAxios} from "~/vendor/axios.ts";
 import {useDialog} from "~/functions/useDialog.ts";
+import {StationFormParentProps} from "~/components/Admin/Stations/StationForm.vue";
 
-const props = defineProps({
-    ...stationFormProps,
-    frontendTypes: {
-        type: Object,
-        required: true
-    },
-    backendTypes: {
-        type: Object,
-        required: true
-    }
-});
+interface AdminStationsProps extends StationFormParentProps {
+    frontendTypes: object,
+    backendTypes: object
+}
+
+const props = defineProps<AdminStationsProps>();
 
 const listUrl = getApiUrl('/admin/stations');
 
@@ -148,13 +141,13 @@ const fields: DataTableField[] = [
     }
 ];
 
-const $datatable = ref<DataTableTemplateRef>(null);
-const {relist} = useHasDatatable($datatable);
+const $dataTable = useTemplateRef('$dataTable');
+const {relist} = useHasDatatable($dataTable);
 
-const $editModal = ref<EditModalTemplateRef>(null);
+const $editModal = useTemplateRef('$editModal');
 const {doCreate, doEdit} = useHasEditModal($editModal);
 
-const $cloneModal = ref<InstanceType<typeof CloneModal> | null>(null);
+const $cloneModal = useTemplateRef('$cloneModal');
 
 const doClone = (stationName, url) => {
     $cloneModal.value.create(stationName, url);
@@ -165,7 +158,7 @@ const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
 const doToggle = (station) => {
-    showAlert((station.is_enabled)
+    void showAlert((station.is_enabled)
         ? {
             title: $gettext('Disable station?'),
             confirmButtonText: $gettext('Disable'),
@@ -179,7 +172,7 @@ const doToggle = (station) => {
         }
     ).then((result) => {
         if (result.value) {
-            axios.put(station.links.self, {
+            void axios.put(station.links.self, {
                 is_enabled: !station.is_enabled
             }).then((resp) => {
                 notifySuccess(resp.data.message);

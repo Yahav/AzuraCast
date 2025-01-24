@@ -80,24 +80,36 @@
 </template>
 
 <script setup lang="ts">
-import {BackendAdapter} from '~/entities/RadioAdapters';
 import Icon from '~/components/Common/Icon.vue';
 import RunningBadge from "~/components/Common/Badges/RunningBadge.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {computed} from "vue";
-import backendPanelProps from "~/components/Stations/Profile/backendPanelProps";
 import CardPage from "~/components/Common/CardPage.vue";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import {IconPlay, IconStop, IconUpdate} from "~/components/Common/icons";
 import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
 
-const props = defineProps({
-    ...backendPanelProps,
-    backendRunning: {
-        type: Boolean,
-        required: true
-    }
+import {BackendAdapter} from '~/entities/RadioAdapters';
+
+export interface ProfileBackendPanelParentProps {
+    numSongs: number,
+    numPlaylists: number,
+    backendType: BackendAdapter,
+    hasStarted: boolean,
+    backendRestartUri: string,
+    backendStartUri: string,
+    backendStopUri: string,
+}
+
+defineOptions({
+    inheritAttrs: false
 });
+
+interface ProfileBackendPanelProps extends ProfileBackendPanelParentProps {
+    backendRunning: boolean,
+}
+
+const props = defineProps<ProfileBackendPanelProps>();
 
 const {$gettext, $ngettext} = useTranslate();
 
@@ -106,14 +118,18 @@ const langTotalTracks = computed(() => {
         '%{numSongs} uploaded song',
         '%{numSongs} uploaded songs',
         props.numSongs,
-        {numSongs: props.numSongs}
+        {
+            numSongs: String(props.numSongs)
+        }
     );
 
     const numPlaylists = $ngettext(
         '%{numPlaylists} playlist',
         '%{numPlaylists} playlists',
         props.numPlaylists,
-        {numPlaylists: props.numPlaylists}
+        {
+            numPlaylists: String(props.numPlaylists)
+        }
     );
 
     return $gettext(

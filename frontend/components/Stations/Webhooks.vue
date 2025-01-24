@@ -16,7 +16,7 @@
 
         <data-table
             id="station_webhooks"
-            ref="$datatable"
+            ref="$dataTable"
             :fields="fields"
             :api-url="listUrl"
         >
@@ -104,18 +104,18 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, { DataTableField } from '~/components/Common/DataTable.vue';
+import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
 import EditModal from './Webhooks/EditModal.vue';
 import {get, map} from 'lodash';
 import StreamingLogModal from "~/components/Common/StreamingLogModal.vue";
 import {useTranslate} from "~/vendor/gettext";
-import {ref} from "vue";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
-import useHasEditModal, {EditModalTemplateRef} from "~/functions/useHasEditModal";
+import {useTemplateRef} from "vue";
+import useHasDatatable from "~/functions/useHasDatatable";
+import useHasEditModal from "~/functions/useHasEditModal";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
-import {useTriggerDetails, useTypeDetails} from "~/entities/Webhooks";
+import {useTriggerDetails, useTypeDetails, WebhookTrigger, WebhookType} from "~/entities/Webhooks";
 import CardPage from "~/components/Common/CardPage.vue";
 import {useAzuraCastStation} from "~/vendor/azuracast";
 import {getApiUrl, getStationApiUrl} from "~/router";
@@ -149,40 +149,40 @@ const getToggleVariant = (record) => {
         : 'btn-success';
 };
 
-const isWebhookSupported = (key) => {
+const isWebhookSupported = (key: WebhookType) => {
     return (key in langTypeDetails);
 }
 
-const getWebhookName = (key) => {
+const getWebhookName = (key: WebhookType) => {
     return get(langTypeDetails, [key, 'title'], '');
 };
 
-const getTriggerNames = (triggers) => {
+const getTriggerNames = (triggers: WebhookTrigger[]) => {
     return map(triggers, (trigger) => {
         return get(langTriggerDetails, [trigger, 'title'], '');
     });
 };
 
-const $datatable = ref<DataTableTemplateRef>(null);
-const {relist} = useHasDatatable($datatable);
+const $dataTable = useTemplateRef('$dataTable');
+const {relist} = useHasDatatable($dataTable);
 
-const $editModal = ref<EditModalTemplateRef>(null);
+const $editModal = useTemplateRef('$editModal');
 const {doCreate, doEdit} = useHasEditModal($editModal);
 
 const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
 const doToggle = (url) => {
-    axios.put(url).then((resp) => {
+    void axios.put(url).then((resp) => {
         notifySuccess(resp.data.message);
         relist();
     });
 };
 
-const $logModal = ref<InstanceType<typeof StreamingLogModal> | null>(null);
+const $logModal = useTemplateRef('$logModal');
 
 const doTest = (url) => {
-    axios.put(url).then((resp) => {
+    void axios.put(url).then((resp) => {
         $logModal.value?.show(resp.data.links.log);
     });
 };

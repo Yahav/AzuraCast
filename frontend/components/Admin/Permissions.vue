@@ -16,7 +16,7 @@
 
         <data-table
             id="permissions"
-            ref="$datatable"
+            ref="$dataTable"
             paginated
             :fields="fields"
             :api-url="listUrl"
@@ -28,11 +28,11 @@
                     {{ getGlobalPermissionNames(row.item.permissions.global).join(', ') }}
                 </div>
                 <div
-                    v-for="(permissions, stationId) in row.item.permissions.station"
-                    :key="stationId"
+                    v-for="(stationRow) in row.item.permissions.station"
+                    :key="stationRow.id"
                 >
-                    <b>{{ getStationName(stationId) }}</b>:
-                    {{ getStationPermissionNames(permissions).join(', ') }}
+                    <b>{{ getStationName(stationRow.id) }}</b>:
+                    {{ getStationPermissionNames(stationRow.permissions).join(', ') }}
                 </div>
             </template>
             <template #cell(actions)="row">
@@ -71,32 +71,23 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, { DataTableField } from '~/components/Common/DataTable.vue';
+import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
 import EditModal from './Permissions/EditModal.vue';
 import {filter, get, map} from 'lodash';
 import {useTranslate} from "~/vendor/gettext";
-import {ref} from "vue";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
-import useHasEditModal, {EditModalTemplateRef} from "~/functions/useHasEditModal";
+import {useTemplateRef} from "vue";
+import useHasDatatable from "~/functions/useHasDatatable";
+import useHasEditModal from "~/functions/useHasEditModal";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
 
-const props = defineProps({
-    stations: {
-        type: Array,
-        required: true
-    },
-    globalPermissions: {
-        type: Array,
-        required: true
-    },
-    stationPermissions: {
-        type: Array,
-        required: true
-    }
-});
+const props = defineProps<{
+    stations: Record<string, string>,
+    globalPermissions: Record<string, string>,
+    stationPermissions: Record<string, string>,
+}>();
 
 const listUrl = getApiUrl('/admin/roles');
 
@@ -124,10 +115,10 @@ const getStationName = (stationId) => {
     return get(props.stations, stationId, null);
 };
 
-const $datatable = ref<DataTableTemplateRef>(null);
-const {relist} = useHasDatatable($datatable);
+const $dataTable = useTemplateRef('$dataTable');
+const {relist} = useHasDatatable($dataTable);
 
-const $editModal = ref<EditModalTemplateRef>(null);
+const $editModal = useTemplateRef('$editModal');
 const {doCreate, doEdit} = useHasEditModal($editModal);
 
 const {doDelete} = useConfirmAndDelete(

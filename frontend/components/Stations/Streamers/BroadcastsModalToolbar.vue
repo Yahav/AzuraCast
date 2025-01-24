@@ -27,19 +27,14 @@ import {computed, h, toRef} from "vue";
 import {forEach, map} from "lodash";
 import {useNotify} from "~/functions/useNotify.ts";
 import {useDialog} from "~/functions/useDialog.ts";
+import {HasRelistEmit} from "~/functions/useBaseEditModal.ts";
 
-const props = defineProps({
-    batchUrl: {
-        type: String,
-        required: true
-    },
-    selectedItems: {
-        type: Array,
-        required: true
-    }
-});
+const props = defineProps<{
+    batchUrl: string,
+    selectedItems: Array<any>,
+}>();
 
-const emit = defineEmits(['relist']);
+const emit = defineEmits<HasRelistEmit>();
 
 const {$gettext} = useTranslate();
 const {axios} = useAxios();
@@ -90,7 +85,7 @@ const handleBatchResponse = (
 }
 
 const doBatch = (action, successMessage, errorMessage) => {
-    axios.put(props.batchUrl, {
+    void axios.put(props.batchUrl, {
         'do': action,
         'rows': map(props.selectedItems, 'id')
     }).then(({data}) => {
@@ -102,10 +97,12 @@ const doBatch = (action, successMessage, errorMessage) => {
 const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    confirmDelete({
+    void confirmDelete({
         title: $gettext(
-            'Delete %{ num } broadcasts?',
-            {num: props.selectedItems.length}
+            'Delete %{num} broadcasts?',
+            {
+                num: String(props.selectedItems.length)
+            }
         ),
     }).then((result) => {
         if (result.value) {

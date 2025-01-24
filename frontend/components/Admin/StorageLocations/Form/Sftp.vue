@@ -55,22 +55,16 @@
 
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import {useVModel} from "@vueuse/core";
-import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    }
-});
-
-const emit = defineEmits(['update:form']);
-const form = useVModel(props, 'form', emit);
+const props = defineProps<FormTabProps>();
+const emit = defineEmits<FormTabEmits>();
 
 const {v$, tabClass} = useVuelidateOnFormTab(
+    props,
+    emit,
     {
         sftpHost: {required},
         sftpPort: {required},
@@ -79,6 +73,13 @@ const {v$, tabClass} = useVuelidateOnFormTab(
         sftpPrivateKey: {},
         sftpPrivateKeyPassPhrase: {}
     },
-    form
+    {
+        sftpHost: null,
+        sftpPort: '22',
+        sftpUsername: null,
+        sftpPassword: null,
+        sftpPrivateKey: null,
+        sftpPrivateKeyPassPhrase: null,
+    }
 );
 </script>

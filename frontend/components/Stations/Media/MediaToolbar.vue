@@ -212,38 +212,22 @@
 import {Dropdown} from 'bootstrap';
 import {intersection, map} from 'lodash';
 import Icon from '~/components/Common/Icon.vue';
-import {computed, ref, toRef, watch} from "vue";
+import {computed, ref, toRef, useTemplateRef, watch} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useAxios} from "~/vendor/axios";
 import {IconClearAll, IconDelete, IconFolder, IconMoreHoriz, IconMove} from "~/components/Common/icons";
 import useHandleBatchResponse from "~/components/Stations/Media/useHandleBatchResponse.ts";
 import {useNotify} from "~/functions/useNotify.ts";
 import {useDialog} from "~/functions/useDialog.ts";
+import {MediaInitialPlaylist, MediaSelectedItems} from "~/components/Stations/Media.vue";
 
-const props = defineProps({
-    currentDirectory: {
-        type: String,
-        required: true
-    },
-    selectedItems: {
-        type: Object,
-        required: true
-    },
-    playlists: {
-        type: Array,
-        default: () => {
-            return [];
-        }
-    },
-    batchUrl: {
-        type: String,
-        required: true
-    },
-    supportsImmediateQueue: {
-        type: Boolean,
-        required: true
-    }
-});
+const props = defineProps<{
+    currentDirectory: string,
+    selectedItems: MediaSelectedItems,
+    playlists?: MediaInitialPlaylist[],
+    batchUrl: string,
+    supportsImmediateQueue: boolean
+}>();
 
 const emit = defineEmits(['relist', 'add-playlist', 'move-files', 'create-directory']);
 
@@ -288,7 +272,7 @@ const notifyNoFiles = () => {
 
 const doBatch = (action, successMessage, errorMessage) => {
     if (hasSelectedItems.value) {
-        axios.put(props.batchUrl, {
+        void axios.put(props.batchUrl, {
             'do': action,
             'current_directory': props.currentDirectory,
             'files': selectedItems.value.files,
@@ -339,11 +323,11 @@ const {confirmDelete} = useDialog();
 const doDelete = () => {
     const numFiles = selectedItems.value.all.length;
     const buttonConfirmText = $gettext(
-        'Delete %{ num } media files?',
-        {num: numFiles}
+        'Delete %{num} media files?',
+        {num: String(numFiles)}
     );
 
-    confirmDelete({
+    void confirmDelete({
         title: buttonConfirmText,
         confirmButtonText: $gettext('Delete')
     }).then((result) => {
@@ -357,7 +341,7 @@ const doDelete = () => {
     });
 };
 
-const $playlistDropdown = ref<InstanceType<typeof HTMLDivElement> | null>(null);
+const $playlistDropdown = useTemplateRef('$playlistDropdown');
 
 const setPlaylists = () => {
     if ($playlistDropdown.value) {
@@ -365,7 +349,7 @@ const setPlaylists = () => {
     }
 
     if (hasSelectedItems.value) {
-        axios.put(props.batchUrl, {
+        void axios.put(props.batchUrl, {
             'do': 'playlist',
             'playlists': checkedPlaylists.value,
             'new_playlist_name': newPlaylist.value,

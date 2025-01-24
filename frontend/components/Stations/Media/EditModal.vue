@@ -32,7 +32,7 @@
             </tab>
             <tab :label="$gettext('Visual Cue Editor')">
                 <media-form-waveform-editor
-                    :form="form"
+                    v-model:form="form"
                     :audio-url="record.links.play"
                     :waveform-url="record.links.waveform"
                     :waveform-cache-url="record.links.waveform_cache"
@@ -58,25 +58,22 @@ import MediaFormAdvancedSettings from './Form/AdvancedSettings.vue';
 import MediaFormPlaylists from './Form/Playlists.vue';
 import MediaFormWaveformEditor from './Form/WaveformEditor.vue';
 import ModalForm from "~/components/Common/ModalForm.vue";
-import {ref} from "vue";
+import {useTemplateRef} from "vue";
 import Tabs from "~/components/Common/Tabs.vue";
 import Tab from "~/components/Common/Tab.vue";
-import {ModalFormTemplateRef, useBaseEditModal} from "~/functions/useBaseEditModal.ts";
+import {BaseEditModalEmits, BaseEditModalProps, useBaseEditModal} from "~/functions/useBaseEditModal.ts";
 import mergeExisting from "~/functions/mergeExisting.ts";
 import {useResettableRef} from "~/functions/useResettableRef.ts";
+import {CustomField} from "~/entities/ApiInterfaces.ts";
+import {MediaInitialPlaylist} from "~/components/Stations/Media.vue";
 
-const props = defineProps({
-    customFields: {
-        type: Array,
-        required: true
-    },
-    playlists: {
-        type: Array,
-        required: true
-    }
-});
+interface MediaEditModalProps extends BaseEditModalProps {
+    customFields: CustomField[],
+    playlists: MediaInitialPlaylist[]
+}
 
-const emit = defineEmits(['relist']);
+const props = defineProps<MediaEditModalProps>();
+const emit = defineEmits<BaseEditModalEmits>();
 
 const {record, reset} = useResettableRef({
     length_text: null,
@@ -88,7 +85,7 @@ const {record, reset} = useResettableRef({
     }
 });
 
-const $modal = ref<ModalFormTemplateRef>(null);
+const $modal = useTemplateRef('$modal');
 
 const {
     loading,
@@ -163,7 +160,7 @@ const {
             reset();
         },
         populateForm: (data, form) => {
-            record.value = mergeExisting(record.value, data);
+            record.value = mergeExisting(record.value, data as typeof record.value);
 
             const newForm = mergeExisting(form.value, data);
             newForm.playlists = map(data.playlists, 'id');

@@ -51,24 +51,12 @@ import FormGroup from "~/components/Form/FormGroup.vue";
 import FormFile from "~/components/Form/FormFile.vue";
 import Tab from "~/components/Common/Tab.vue";
 
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        required: true
-    },
-    artworkSrc: {
-        type: String,
-        required: true
-    },
-    editArtUrl: {
-        type: String,
-        required: true
-    },
-    newArtUrl: {
-        type: String,
-        required: true
-    },
-});
+const props = defineProps<{
+    modelValue: object,
+    artworkSrc: string,
+    editArtUrl: string,
+    newArtUrl: string,
+}>();
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -96,14 +84,14 @@ const uploadFile = (file) => {
     const formData = new FormData();
     formData.append('art', file);
 
-    axios.post(url, formData).then((resp) => {
+    void axios.post(url, formData).then((resp) => {
         emit('update:modelValue', resp.data);
     });
 };
 
 const deleteArt = () => {
     if (props.editArtUrl) {
-        axios.delete(props.editArtUrl).then(() => {
+        void axios.delete(props.editArtUrl).then(() => {
             localSrc.value = null;
         });
     } else {

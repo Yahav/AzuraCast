@@ -1,11 +1,19 @@
-import {Chart, registerables} from "chart.js";
+import {
+    Chart,
+    ChartConfiguration,
+    ChartConfigurationCustomTypesPerDataset,
+    ChartType,
+    DefaultDataPoint,
+    registerables
+} from "chart.js";
 import {defaultsDeep} from "lodash";
-import {computed, isRef, MaybeRef, onMounted, onUnmounted, Ref, toRef, toValue, watch} from "vue";
+import {computed, isRef, MaybeRefOrGetter, onMounted, onUnmounted, Ref, toRef, toValue, watch} from "vue";
 import zoomPlugin from 'chartjs-plugin-zoom';
 import chartjsColorSchemes from "~/vendor/chartjs_colorschemes.ts";
 
 import 'chartjs-adapter-luxon';
 import '~/vendor/luxon';
+import {reactiveComputed} from "@vueuse/core";
 
 Chart.register(...registerables);
 
@@ -13,38 +21,54 @@ Chart.register(zoomPlugin);
 
 Chart.register(chartjsColorSchemes);
 
-export const chartProps = {
-    options: {
-        type: Object,
-        default: () => {
-            return {};
-        }
-    },
-    data: {
-        type: Array,
-        default: () => {
-            return [];
-        }
-    },
-    alt: {
-        type: Array,
-        default: () => {
-            return [];
-        }
-    },
-    aspectRatio: {
-        type: Number,
-        default: 2,
-    }
-};
+interface ChartAltValue {
+    label: string,
+    type: string,
+    original: string | number,
+    value: string
+}
+
+export interface ChartAltData {
+    label: string,
+    values: ChartAltValue[]
+}
+
+export interface ChartProps<
+    TType extends ChartType = ChartType,
+    TData = DefaultDataPoint<TType>,
+    TLabel = unknown
+> {
+    options?: Partial<ChartConfiguration<TType, TData, TLabel> | ChartConfigurationCustomTypesPerDataset<TType, TData, TLabel>>,
+    data?: any[],
+    aspectRatio?: number,
+    alt?: ChartAltData[],
+    labels?: Array<any>
+}
 
 export type ChartTemplateRef = HTMLCanvasElement | null;
 
-export default function useChart(
-    props,
+export default function useChart<
+    TType extends ChartType = ChartType,
+    TData = DefaultDataPoint<TType>,
+    TLabel = unknown
+>(
+    initialProps: ChartProps,
     $canvas: Ref<ChartTemplateRef>,
-    defaultOptions: MaybeRef<object>
-) {
+    defaultOptions: MaybeRefOrGetter<
+        Partial<ChartConfiguration<TType, TData, TLabel> | ChartConfigurationCustomTypesPerDataset<TType, TData, TLabel>>
+    >
+): {
+    $chart: Chart<TType, TData, TLabel> | null
+} {
+    const props = reactiveComputed(() => (
+        {
+            data: [],
+            alt: [],
+            aspectRatio: 2,
+            ...initialProps
+        }
+    )) as ChartProps<TType, TData, TLabel>;
+
     let $chart = null;
 
     const chartConfig = computed(() => {

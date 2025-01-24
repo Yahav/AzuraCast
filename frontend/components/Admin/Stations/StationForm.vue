@@ -26,23 +26,19 @@
 
                 <admin-stations-backend-form
                     v-model:form="form"
-                    :station="station"
                     :is-stereo-tool-installed="isStereoToolInstalled"
                 />
 
                 <admin-stations-hls-form
                     v-model:form="form"
-                    :station="station"
                 />
 
                 <admin-stations-requests-form
                     v-model:form="form"
-                    :station="station"
                 />
 
                 <admin-stations-streamers-form
                     v-model:form="form"
-                    :station="station"
                 />
 
                 <admin-stations-admin-form
@@ -82,33 +78,47 @@ import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import mergeExisting from "~/functions/mergeExisting";
 import {useVuelidateOnForm} from "~/functions/useVuelidateOnForm";
-import stationFormProps from "~/components/Admin/Stations/stationFormProps";
-import {useResettableRef} from "~/functions/useResettableRef";
 import Loading from '~/components/Common/Loading.vue';
 import Tabs from "~/components/Common/Tabs.vue";
 import {GlobalPermission, userAllowed} from "~/acl";
 
-const props = defineProps({
-    ...stationFormProps,
-    createUrl: {
-        type: String,
-        default: null
-    },
-    editUrl: {
-        type: String,
-        default: null
-    },
-    isEditMode: {
-        type: Boolean,
-        required: true
-    },
-    isModal: {
-        type: Boolean,
-        default: false
-    }
+defineOptions({
+    inheritAttrs: false
 });
 
-const emit = defineEmits(['error', 'submitted', 'loadingUpdate', 'validUpdate']);
+export interface StationFormParentProps {
+    // Profile
+    timezones: Record<string, string>,
+    // Frontend
+    isRsasInstalled?: boolean,
+    isShoutcastInstalled?: boolean,
+    isStereoToolInstalled?: boolean,
+    countries: Record<string, string>
+}
+
+interface StationFormProps extends StationFormParentProps {
+    createUrl?: string,
+    editUrl?: string,
+    isEditMode: boolean,
+    isModal?: boolean
+}
+
+const props = withDefaults(
+    defineProps<StationFormProps>(),
+    {
+        isRsasInstalled: false,
+        isShoutcastInstalled: false,
+        isStereoToolInstalled: false,
+        isModal: false
+    }
+);
+
+const emit = defineEmits<{
+    (e: 'error', error: string): void,
+    (e: 'submitted'): void,
+    (e: 'loadingUpdate', loading: boolean): void,
+    (e: 'validUpdate', valid: boolean): void
+}>();
 
 const showAdminTab = userAllowed(GlobalPermission.Stations);
 
@@ -130,25 +140,11 @@ watch(isLoading, (newValue) => {
 
 const error = ref(null);
 
-const blankStation = {
-    stereo_tool_configuration_file_path: null,
-    links: {
-        stereo_tool_configuration: null
-    }
-};
-
-const {record: station, reset: resetStation} = useResettableRef(blankStation);
-
 const clear = () => {
     resetForm();
-    resetStation();
 
     isLoading.value = false;
     error.value = null;
-};
-
-const populateForm = (data) => {
-    form.value = mergeExisting(form.value, data);
 };
 
 const {notifySuccess} = useNotify();
@@ -157,8 +153,8 @@ const {axios} = useAxios();
 const doLoad = () => {
     isLoading.value = true;
 
-    axios.get(props.editUrl).then((resp) => {
-        populateForm(resp.data);
+    axios.get(props.editUrl).then(({data}) => {
+        form.value = mergeExisting(form.value, data);
     }).catch((err) => {
         emit('error', err);
     }).finally(() => {
@@ -167,7 +163,7 @@ const doLoad = () => {
 };
 
 const reset = () => {
-    nextTick(() => {
+    void nextTick(() => {
         clear();
         if (props.isEditMode) {
             doLoad();

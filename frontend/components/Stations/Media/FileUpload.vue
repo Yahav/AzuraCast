@@ -11,29 +11,21 @@
 <script setup lang="ts">
 import FlowUpload from '~/components/Common/FlowUpload.vue';
 import {computed} from "vue";
+import {HasRelistEmit} from "~/functions/useBaseEditModal.ts";
 
-const props = defineProps({
-    uploadUrl: {
-        type: String,
-        required: true
-    },
-    currentDirectory: {
-        type: String,
-        required: true
-    },
-    searchPhrase: {
-        type: String,
-        required: true
-    },
-    validMimeTypes: {
-        type: Array,
-        default() {
-            return ['audio/*'];
-        }
+const props = withDefaults(
+    defineProps<{
+        uploadUrl: string,
+        currentDirectory: string,
+        searchPhrase: string,
+        validMimeTypes?: string[]
+    }>(),
+    {
+        validMimeTypes: () => ['audio/*']
     }
-});
+);
 
-const emit = defineEmits(['relist']);
+const emit = defineEmits<HasRelistEmit>();
 
 const targetUrl = computed(() => {
     const url = new URL(props.uploadUrl, document.location.href);

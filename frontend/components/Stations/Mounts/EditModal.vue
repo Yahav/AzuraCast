@@ -38,32 +38,28 @@ import MountFormAutoDj from './Form/AutoDj.vue';
 import MountFormAdvanced from './Form/Advanced.vue';
 import MountFormIntro from "./Form/Intro.vue";
 import mergeExisting from "~/functions/mergeExisting";
-import {baseEditModalProps, ModalFormTemplateRef, useBaseEditModal} from "~/functions/useBaseEditModal";
-import {computed, ref} from "vue";
+import {BaseEditModalEmits, BaseEditModalProps, useBaseEditModal} from "~/functions/useBaseEditModal";
+import {computed, useTemplateRef} from "vue";
 import {useNotify} from "~/functions/useNotify";
 import {useTranslate} from "~/vendor/gettext";
 import {useResettableRef} from "~/functions/useResettableRef";
 import ModalForm from "~/components/Common/ModalForm.vue";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tabs from "~/components/Common/Tabs.vue";
+import {FrontendAdapter} from "~/entities/RadioAdapters.ts";
 
-const props = defineProps({
-    ...baseEditModalProps,
-    stationFrontendType: {
-        type: String,
-        required: true
-    },
-    newIntroUrl: {
-        type: String,
-        required: true
-    }
-});
+const props = defineProps<BaseEditModalProps & {
+    stationFrontendType: FrontendAdapter,
+    newIntroUrl: string
+}>();
 
 const {enableAdvancedFeatures} = useAzuraCast();
 
-const emit = defineEmits(['relist', 'needs-restart']);
+const emit = defineEmits<BaseEditModalEmits & {
+    (e: 'needs-restart'): void
+}>();
 
-const $modal = ref<ModalFormTemplateRef>(null);
+const $modal = useTemplateRef('$modal');
 
 const {notifySuccess} = useNotify();
 
@@ -89,7 +85,9 @@ const {
     props,
     emit,
     $modal,
-    {},
+    {
+        intro_file: {}
+    },
     {
         intro_file: null
     },
@@ -99,7 +97,7 @@ const {
             reset();
         },
         populateForm: (data, formRef) => {
-            record.value = data;
+            record.value = mergeExisting(record.value, data as typeof record.value);
             formRef.value = mergeExisting(formRef.value, data);
         },
         onSubmitSuccess: () => {

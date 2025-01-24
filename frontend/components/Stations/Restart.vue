@@ -111,12 +111,9 @@ import {getStationApiUrl} from "~/router";
 import {useRouter} from "vue-router";
 import {useDialog} from "~/functions/useDialog.ts";
 
-const props = defineProps({
-    canReload: {
-        type: Boolean,
-        required: true,
-    }
-});
+const props = defineProps<{
+    canReload: boolean,
+}>();
 
 const reloadUrl = getStationApiUrl('/reload');
 const restartUrl = getStationApiUrl('/restart');
@@ -133,7 +130,7 @@ const router = useRouter();
 const makeApiCall = (uri) => {
     isLoading.value = true;
 
-    axios.post(uri).then((resp) => {
+    void axios.post(uri).then((resp) => {
         notify(resp.data.formatted_message, {
             variant: (resp.data.success) ? 'success' : 'warning'
         });
@@ -154,7 +151,7 @@ const makeApiCall = (uri) => {
 };
 
 const doReload = () => {
-    showAlert({
+    void showAlert({
         title: $gettext('Are you sure?'),
         confirmButtonClass: 'btn-warning',
         confirmButtonText: $gettext('Reload Configuration')
@@ -168,7 +165,7 @@ const doReload = () => {
 }
 
 const doRestart = () => {
-    showAlert({
+    void showAlert({
         title: $gettext('Are you sure?'),
         confirmButtonClass: 'btn-warning',
         confirmButtonText: $gettext('Restart Broadcasting')

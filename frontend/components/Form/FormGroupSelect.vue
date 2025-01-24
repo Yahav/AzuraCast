@@ -9,7 +9,8 @@
         >
             <form-label
                 :is-required="isRequired"
-                v-bind="pickProps(props, formLabelProps)"
+                :advanced="props.advanced"
+                :high-cpu="props.highCpu"
             >
                 <slot
                     name="label"
@@ -56,48 +57,37 @@
     </form-group>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T = ModelFormField">
 import VuelidateError from "./VuelidateError.vue";
-import FormLabel from "~/components/Form/FormLabel.vue";
+import FormLabel, {FormLabelParentProps} from "~/components/Form/FormLabel.vue";
 import FormGroup from "~/components/Form/FormGroup.vue";
-import {formFieldProps, useFormField} from "~/components/Form/useFormField";
+import {FormFieldEmits, FormFieldProps, ModelFormField, useFormField} from "~/components/Form/useFormField";
 import SelectOptions from "~/components/Form/SelectOptions.vue";
 import {useSlots} from "vue";
-import formLabelProps from "~/components/Form/formLabelProps.ts";
-import {pickProps} from "~/functions/pickProps.ts";
+import {NestedFormOptionInput} from "~/functions/objectToFormOptions.ts";
 
-const props = defineProps({
-    ...formFieldProps,
-    ...formLabelProps,
-    id: {
-        type: String,
-        required: true
-    },
-    name: {
-        type: String,
-        default: null
-    },
-    label: {
-        type: String,
-        default: null
-    },
-    description: {
-        type: String,
-        default: null
-    },
-    options: {
-        type: Array,
-        required: true
-    },
-    multiple: {
-        type: Boolean,
-        default: false
-    },
-});
+interface FormGroupSelectProps extends FormFieldProps<T>, FormLabelParentProps {
+    id: string,
+    name?: string,
+    label?: string,
+    description?: string,
+    options: NestedFormOptionInput,
+    multiple?: boolean,
+}
+
+const props = withDefaults(
+    defineProps<FormGroupSelectProps>(),
+    {
+        name: null,
+        label: null,
+        description: null,
+        multiple: false
+    }
+);
 
 const slots = useSlots();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<FormFieldEmits<T>>();
 
-const {model, isVuelidateField, fieldClass, isRequired} = useFormField(props, emit);
+const {model, isVuelidateField, fieldClass, isRequired} = useFormField<T>(props, emit);
 </script>

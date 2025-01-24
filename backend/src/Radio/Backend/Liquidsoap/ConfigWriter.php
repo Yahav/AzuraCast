@@ -18,6 +18,7 @@ use App\Entity\StationPlaylist;
 use App\Entity\StationRemote;
 use App\Entity\StationSchedule;
 use App\Entity\StationStreamerBroadcast;
+use App\Event\Radio\AnnotateNextSong;
 use App\Event\Radio\WriteLiquidsoapConfiguration;
 use App\Radio\Backend\Liquidsoap;
 use App\Radio\Enums\AudioProcessingMethods;
@@ -857,7 +858,7 @@ final class ConfigWriter implements EventSubscriberInterface
             
             radio = fallback(
                 id="live_fallback",
-                track_sensitive=false,
+                track_sensitive=true,
                 replay_metadata=true,
                 transitions=[
                     fun (_, s) -> begin
@@ -1277,14 +1278,18 @@ final class ConfigWriter implements EventSubscriberInterface
     /**
      * Given a value, convert it into an annotation-friendly quoted string.
      */
-    public static function annotateValue(string|int|float|bool $dataVal): string
+    public static function annotateValue(string|int|float|bool $dataVal, bool $preserveType = false): string
     {
-        $strVal = match (true) {
-            'true' === $dataVal || 'false' === $dataVal => $dataVal,
-            is_bool($dataVal) => Types::bool($dataVal, false, true) ? 'true' : 'false',
-            is_numeric($dataVal) && !is_int($dataVal) => self::toFloat($dataVal),
-            default => Types::string($dataVal)
-        };
+        if ($preserveType) {
+            $strVal = Types::string($dataVal);
+        } else {
+            $strVal = match (true) {
+                'true' === $dataVal || 'false' === $dataVal => $dataVal,
+                is_bool($dataVal) => Types::bool($dataVal, false, true) ? 'true' : 'false',
+                is_numeric($dataVal) && !is_int($dataVal) => self::toFloat($dataVal),
+                default => Types::string($dataVal)
+            };
+        }
 
         $strVal = mb_convert_encoding($strVal, 'UTF-8');
         return str_replace(['"', "\n", "\t", "\r"], ['\"', '', '', ''], $strVal);
@@ -1297,11 +1302,21 @@ final class ConfigWriter implements EventSubscriberInterface
      */
     public static function annotateArray(array $values): string
     {
-        $values = array_filter($values, fn($val) => $val !== null);
+        $values = array_filter(
+            $values,
+            fn(string|int|float|bool|null $val, string $key): bool => $val !== null
+                && in_array($key, AnnotateNextSong::ALLOWED_ANNOTATIONS, true),
+            ARRAY_FILTER_USE_BOTH
+        );
 
         $annotations = [];
         foreach ($values as $key => $val) {
-            $annotations[] = $key . '="' . self::annotateValue($val) . '"';
+            $annotatedVal = self::annotateValue(
+                $val,
+                in_array($key, AnnotateNextSong::ALWAYS_STRING_ANNOTATIONS, true)
+            );
+
+            $annotations[] = $key . '="' . $annotatedVal . '"';
         }
 
         return implode(',', $annotations);

@@ -35,7 +35,7 @@
 
                                 <data-table
                                     id="station_streamers"
-                                    ref="$datatable"
+                                    ref="$dataTable"
                                     :fields="fields"
                                     :api-url="listUrl"
                                 >
@@ -112,9 +112,9 @@ import BroadcastsModal from './Streamers/BroadcastsModal.vue';
 import ConnectionInfo from "./Streamers/ConnectionInfo.vue";
 import AlbumArt from "~/components/Common/AlbumArt.vue";
 import {useTranslate} from "~/vendor/gettext";
-import {ref} from "vue";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
-import useHasEditModal, {EditModalTemplateRef} from "~/functions/useHasEditModal";
+import {useTemplateRef} from "vue";
+import useHasDatatable from "~/functions/useHasDatatable";
+import useHasEditModal from "~/functions/useHasEditModal";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getStationApiUrl} from "~/router";
@@ -124,13 +124,11 @@ import AddButton from "~/components/Common/AddButton.vue";
 import TimeZone from "~/components/Stations/Common/TimeZone.vue";
 import ScheduleViewTab from "~/components/Stations/Common/ScheduleViewTab.vue";
 import {EventImpl} from "@fullcalendar/core/internal";
+import {StreamerConnectionInfo} from "~/components/Stations/Streamers/ConnectionInfo.vue";
 
-const props = defineProps({
-    connectionInfo: {
-        type: Object,
-        required: true
-    }
-});
+const props = defineProps<{
+    connectionInfo: StreamerConnectionInfo,
+}>();
 
 const listUrl = getStationApiUrl('/streamers');
 const newArtUrl = getStationApiUrl('/streamers/art');
@@ -146,24 +144,24 @@ const fields: DataTableField[] = [
     {key: 'actions', label: $gettext('Actions'), sortable: false, class: 'shrink'}
 ];
 
-const $datatable = ref<DataTableTemplateRef>(null);
-const {refresh: refreshDatatable} = useHasDatatable($datatable);
+const $dataTable = useTemplateRef('$dataTable');
+const {refresh: refreshDatatable} = useHasDatatable($dataTable);
 
-const $scheduleTab = ref<InstanceType<ScheduleViewTab> | null>(null);
+const $scheduleTab = useTemplateRef('$scheduleTab');
 
 const relist = () => {
     refreshDatatable();
     $scheduleTab.value?.refresh();
 }
 
-const $editModal = ref<EditModalTemplateRef>(null);
+const $editModal = useTemplateRef('$editModal');
 const {doCreate, doEdit} = useHasEditModal($editModal);
 
 const doCalendarClick = (event: EventImpl) => {
     doEdit(event.extendedProps.edit_url);
 };
 
-const $broadcastsModal = ref<InstanceType<typeof BroadcastsModal> | null>(null);
+const $broadcastsModal = useTemplateRef('$broadcastsModal');
 
 const doShowBroadcasts = (listUrl, batchUrl) => {
     $broadcastsModal.value?.open(listUrl, batchUrl);

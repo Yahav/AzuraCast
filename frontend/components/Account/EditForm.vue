@@ -44,30 +44,28 @@
 
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import objectToFormOptions from "~/functions/objectToFormOptions";
 import {computed} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
+import {HasGenericFormProps} from "~/entities/Forms.ts";
+import {objectToSimpleFormOptions} from "~/functions/objectToFormOptions.ts";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    },
-    supportedLocales: {
-        type: Object,
-        required: true
-    }
-});
+interface AccountEditFormProps extends HasGenericFormProps {
+    supportedLocales: Record<string, string>
+}
+
+const props = defineProps<AccountEditFormProps>();
 
 const {$gettext} = useTranslate();
 
 const localeOptions = computed(() => {
-    const localeOptions = objectToFormOptions(props.supportedLocales);
+    const localeOptions = objectToSimpleFormOptions(props.supportedLocales).value;
+
     localeOptions.unshift({
         text: $gettext('Use Browser Default'),
         value: 'default'
     });
+
     return localeOptions;
 });
 

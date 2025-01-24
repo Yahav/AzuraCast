@@ -77,8 +77,6 @@ export interface GridLayoutProps {
 }
 
 const props = withDefaults(defineProps<GridLayoutProps>(), {
-    id: null,
-    apiUrl: null,
     paginated: false,
     loading: false,
     hideOnLoading: true,
@@ -147,7 +145,7 @@ const refresh = () => {
 
     isLoading.value = true;
 
-    return axios.get(props.apiUrl, {params: queryParams}).then((resp) => {
+    axios.get(props.apiUrl, {params: queryParams}).then((resp) => {
         totalRows.value = resp.data.total;
 
         const rows = resp.data.rows;

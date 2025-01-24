@@ -175,11 +175,13 @@ import Icon from '~/components/Common/Icon.vue';
 import PlayButton from "~/components/Common/PlayButton.vue";
 import CardPage from "~/components/Common/CardPage.vue";
 import {IconDownload, IconHeadphones} from "~/components/Common/icons";
+import {ApiNowPlayingStation} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps({
-    station: {
-        type: Object,
-        required: true
-    }
+defineOptions({
+    inheritAttrs: false
 });
+
+const props = defineProps<{
+    station: ApiNowPlayingStation
+}>();
 </script>

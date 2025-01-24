@@ -116,7 +116,7 @@
     </card-page>
 
     <embed-modal
-        v-bind="pickProps($props, embedModalProps)"
+        v-bind="props"
         ref="$embedModal"
     />
 </template>
@@ -124,22 +124,34 @@
 <script setup lang="ts">
 import Icon from '~/components/Common/Icon.vue';
 import EnabledBadge from "~/components/Common/Badges/EnabledBadge.vue";
-import {ref} from "vue";
-import EmbedModal from "~/components/Stations/Profile/EmbedModal.vue";
-import publicPagesPanelProps from "~/components/Stations/Profile/publicPagesPanelProps";
-import embedModalProps from "~/components/Stations/Profile/embedModalProps";
-import {pickProps} from "~/functions/pickProps";
+import {useTemplateRef} from "vue";
+import EmbedModal, {ProfileEmbedModalProps} from "~/components/Stations/Profile/EmbedModal.vue";
 import CardPage from "~/components/Common/CardPage.vue";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import useToggleFeature from "~/components/Stations/Profile/useToggleFeature";
 import {IconBranding, IconCheck, IconClose, IconCode} from "~/components/Common/icons";
 
-const props = defineProps({
-    ...publicPagesPanelProps,
-    ...embedModalProps
+export interface ProfilePublicPagesPanelProps extends ProfileEmbedModalProps {
+    stationSupportsStreamers: boolean,
+    stationSupportsRequests: boolean,
+    enablePublicPage: boolean,
+    enableStreamers: boolean,
+    enableOnDemand: boolean,
+    enableRequests: boolean,
+    publicPageUri: string,
+    publicWebDjUri: string,
+    publicOnDemandUri: string,
+    publicPodcastsUri: string,
+    publicScheduleUri: string
+}
+
+defineOptions({
+    inheritAttrs: false
 });
 
-const $embedModal = ref<InstanceType<typeof EmbedModal> | null>(null);
+const props = defineProps<ProfilePublicPagesPanelProps>();
+
+const $embedModal = useTemplateRef('$embedModal');
 
 const doOpenEmbed = () => {
     $embedModal.value?.open();

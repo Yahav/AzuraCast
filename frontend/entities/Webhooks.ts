@@ -31,7 +31,14 @@ const allTriggersExceptListeners = [
     WebhookTrigger.StationOnline
 ];
 
-export function useTriggerDetails() {
+export interface WebhookTriggerDetail {
+    title: string,
+    description: string,
+}
+
+export type WebhookTriggerDetails = { [key in WebhookTrigger]: WebhookTriggerDetail }
+
+export function useTriggerDetails(): WebhookTriggerDetails {
     const {$gettext} = useTranslate();
 
     return {
@@ -86,7 +93,14 @@ export enum WebhookType {
     MatomoAnalytics = 'matomo_analytics'
 }
 
-export function useTypeDetails() {
+export interface WebhookTypeDetail {
+    title: string,
+    description: string,
+}
+
+export type WebhookTypeDetails = { [key in WebhookType]: WebhookTypeDetail }
+
+export function useTypeDetails(): WebhookTypeDetails {
     const {$gettext} = useTranslate();
 
     return {
@@ -145,7 +159,7 @@ export function useTypeDetails() {
     };
 }
 
-export function getTriggers(type: WebhookType) {
+export function getTriggers(type: WebhookType): WebhookTrigger[] {
     switch (type) {
         case WebhookType.TuneIn:
         case WebhookType.RadioDe:

@@ -64,39 +64,28 @@
 import formatFileSize from '~/functions/formatFileSize';
 import Icon from './Icon.vue';
 import {defaultsDeep, forEach, toInteger} from 'lodash';
-import {onMounted, onUnmounted, reactive, ref} from "vue";
+import {onMounted, onUnmounted, reactive, useTemplateRef} from "vue";
 import Flow from "@flowjs/flow.js";
 import {useAzuraCast} from "~/vendor/azuracast";
 import {useTranslate} from "~/vendor/gettext";
 import {IconUpload} from "~/components/Common/icons";
 import {useEventListener} from "@vueuse/core";
 
-const props = defineProps({
-    targetUrl: {
-        type: String,
-        required: true
-    },
-    allowMultiple: {
-        type: Boolean,
-        default: false
-    },
-    directoryMode: {
-        type: Boolean,
-        default: false
-    },
-    validMimeTypes: {
-        type: Array,
-        default() {
-            return ['*'];
-        }
-    },
-    flowConfiguration: {
-        type: Object,
-        default() {
-            return {};
-        }
+const props = withDefaults(
+    defineProps<{
+        targetUrl: string,
+        allowMultiple?: boolean,
+        directoryMode?: boolean,
+        validMimeTypes?: string[],
+        flowConfiguration?: object,
+    }>(),
+    {
+        allowMultiple: false,
+        directoryMode: false,
+        validMimeTypes: () => ['*'],
+        flowConfiguration: () => ({}),
     }
-});
+);
 
 interface FlowFile {
     uniqueIdentifier: string,
@@ -156,22 +145,27 @@ const files = reactive<{
     }
 });
 
-const $fileBrowseTarget = ref<HTMLButtonElement | null>(null);
-const $fileDropTarget = ref<HTMLDivElement | null>(null);
+const $fileBrowseTarget = useTemplateRef('$fileBrowseTarget');
+
+const $fileDropTarget = useTemplateRef('$fileDropTarget');
 
 const {apiCsrf} = useAzuraCast();
 
 const {$gettext} = useTranslate();
 
-useEventListener($fileDropTarget, 'dragenter', (e) => {
-    if (e.target.classList.contains('file-drop-target')) {
-        e.target.classList.add('drag_over');
+useEventListener($fileDropTarget, 'dragenter', (e: DragEvent) => {
+    const targetElement = e.target as HTMLDivElement;
+
+    if (targetElement.classList.contains('file-drop-target')) {
+        targetElement.classList.add('drag_over');
     }
 });
 
-useEventListener($fileDropTarget, 'dragleave', (e) => {
-    if (e.target.classList.contains('file-drop-target')) {
-        e.target.classList.remove('drag_over');
+useEventListener($fileDropTarget, 'dragleave', (e: DragEvent) => {
+    const targetElement = e.target as HTMLDivElement;
+
+    if (targetElement.classList.contains('file-drop-target')) {
+        targetElement.classList.remove('drag_over');
     }
 });
 

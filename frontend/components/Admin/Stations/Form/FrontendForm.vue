@@ -116,7 +116,7 @@
                         <form-group-select
                             id="edit_form_frontend_banned_countries"
                             :field="v$.frontend_config.banned_countries"
-                            :options="countryOptions"
+                            :options="countries"
                             multiple
                             :label="$gettext('Banned Countries')"
                             :description="$gettext('Select the countries that are not allowed to connect to the streams.')"
@@ -169,42 +169,29 @@
 import FormFieldset from "~/components/Form/FormFieldset.vue";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import {FrontendAdapter} from "~/entities/RadioAdapters";
-import objectToFormOptions from "~/functions/objectToFormOptions";
 import {computed} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
-import {useVModel} from "@vueuse/core";
-import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric, required} from "@vuelidate/validators";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    },
-    isRsasInstalled: {
-        type: Boolean,
-        default: false
-    },
-    isShoutcastInstalled: {
-        type: Boolean,
-        default: false
-    },
-    countries: {
-        type: Object,
-        required: true
-    }
-});
+interface StationFrontendFormProps extends FormTabProps {
+    isRsasInstalled: boolean,
+    isShoutcastInstalled: boolean,
+    countries: Record<string, string>,
+}
+
+const props = defineProps<StationFrontendFormProps>();
+const emit = defineEmits<FormTabEmits>();
 
 const {enableAdvancedFeatures} = useAzuraCast();
 
-const emit = defineEmits(['update:form']);
-const form = useVModel(props, 'form', emit);
-
-const {v$, tabClass} = useVuelidateOnFormTab(
+const {form, v$, tabClass} = useVuelidateOnFormTab(
+    props,
+    emit,
     computed(() => {
         let validations: {
             [key: string | number]: any
@@ -236,7 +223,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
 
         return validations;
     }),
-    form,
     () => {
         let blankForm: {
             [key: string | number]: any
@@ -300,10 +286,6 @@ const frontendTypeOptions = computed(() => {
     });
 
     return frontendOptions;
-});
-
-const countryOptions = computed(() => {
-    return objectToFormOptions(props.countries);
 });
 
 const isLocalFrontend = computed(() => {

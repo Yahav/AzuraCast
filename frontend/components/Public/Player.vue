@@ -11,7 +11,7 @@
                 v-if="showAlbumArt && np.now_playing.song.art"
                 class="now-playing-art"
             >
-                <album-art :src="np.now_playing.song.art"/>
+                <album-art :src="np.now_playing.song.art" />
             </div>
             <div class="now-playing-main">
                 <h6
@@ -90,7 +90,7 @@
                         aria-expanded="false"
                     >
                         {{ currentStream.name }}
-                        <span class="caret"/>
+                        <span class="caret" />
                     </button>
                     <ul
                         class="dropdown-menu"
@@ -112,7 +112,10 @@
                 </div>
             </div>
 
-            <div v-if="showVolume" class="radio-control-volume d-flex align-items-center">
+            <div
+                v-if="showVolume"
+                class="radio-control-volume d-flex align-items-center"
+            >
                 <div class="flex-shrink-0 mx-2">
                     <mute-button
                         class="p-0 text-secondary"
@@ -143,22 +146,38 @@ import PlayButton from "~/components/Common/PlayButton.vue";
 import {computed, nextTick, onMounted, ref, shallowRef, watch} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import useNowPlaying from "~/functions/useNowPlaying";
-import playerProps from "~/components/Public/playerProps";
 import MuteButton from "~/components/Common/MuteButton.vue";
 import AlbumArt from "~/components/Common/AlbumArt.vue";
-import {useAzuraCastStation} from "~/vendor/azuracast";
 import usePlayerVolume from "~/functions/usePlayerVolume";
 import {usePlayerStore} from "~/functions/usePlayerStore.ts";
 import {useEventListener} from "@vueuse/core";
 import useShowVolume from "~/functions/useShowVolume.ts";
+import {ApiNowPlaying} from "~/entities/ApiInterfaces.ts";
+import {NowPlayingProps} from "~/functions/useNowPlaying.ts";
 
-const props = defineProps({
-    ...playerProps
+export interface PlayerProps extends NowPlayingProps {
+    offlineText?: string,
+    showHls?: boolean,
+    showAlbumArt?: boolean,
+    autoplay?: boolean
+}
+
+defineOptions({
+    inheritAttrs: false
 });
 
-const emit = defineEmits(['np_updated']);
+const props = withDefaults(
+    defineProps<PlayerProps>(),
+    {
+        showHls: true,
+        showAlbumArt: true,
+        autoplay: true
+    }
+);
 
-const {offlineText} = useAzuraCastStation();
+const emit = defineEmits<{
+    (e: 'np_updated', np: ApiNowPlaying)
+}>();
 
 const {
     np,
@@ -246,11 +265,11 @@ const switchStream = (new_stream: CurrentStreamDescriptor) => {
 };
 
 if (props.autoplay) {
-    const stop = useEventListener(document, "now-playing", async () => {
-        await nextTick();
-
-        switchStream(currentStream.value);
-        stop();
+    const stop = useEventListener(document, "now-playing", () => {
+        void nextTick(() => {
+            switchStream(currentStream.value);
+            stop();
+        });
     });
 }
 
@@ -258,7 +277,7 @@ onMounted(() => {
     document.dispatchEvent(new CustomEvent("player-ready"));
 });
 
-const onNowPlayingUpdated = (np_new) => {
+const onNowPlayingUpdated = (np_new: ApiNowPlaying) => {
     emit('np_updated', np_new);
 
     // Set a "default" current stream if none exists.
