@@ -65,24 +65,18 @@ import FormGroup from "~/components/Form/FormGroup.vue";
 import FormMarkup from "~/components/Form/FormMarkup.vue";
 import Tab from "~/components/Common/Tab.vue";
 
-const props = defineProps({
-    modelValue: {
-        type: Object,
-        default: null
-    },
-    recordHasIntro: {
-        type: Boolean,
-        required: true
-    },
-    editIntroUrl: {
-        type: String,
-        default: null
-    },
-    newIntroUrl: {
-        type: String,
-        required: true
+const props = withDefaults(
+    defineProps<{
+        modelValue?: object,
+        recordHasIntro: boolean,
+        editIntroUrl?: string,
+        newIntroUrl: string,
+    }>(),
+    {
+        modelValue: null,
+        editIntroUrl: null,
     }
-});
+);
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -106,7 +100,7 @@ const {axios} = useAxios();
 
 const deleteIntro = () => {
     if (props.editIntroUrl) {
-        axios.delete(props.editIntroUrl).then(() => {
+        void axios.delete(props.editIntroUrl).then(() => {
             hasIntro.value = false;
         });
     } else {

@@ -1,11 +1,12 @@
 .outside-card-header {
-  h1, h2, h3, h4 {
-    @include font-size($h2-font-size);
-    margin: 0;
-  }
-
   padding: $card-spacer-y $card-spacer-x;
   margin: 0;
+
+  h1, h2, h3, h4 {
+    margin: 0;
+
+    @include font-size($h2-font-size);
+  }
 
   &:first-child {
     padding-top: ($container-padding-x - $card-spacer-x);
@@ -18,28 +19,29 @@
   background-color: #fff;
 
   .card-title {
-    @include font-size($h4-font-size);
     font-weight: 400;
     margin-bottom: 0;
+
+    @include font-size($h4-font-size);
   }
 
   .card-subtitle {
-    @include font-size($h5-font-size);
     font-weight: normal;
     margin-bottom: 0;
+
+    @include font-size($h5-font-size);
   }
 
   .card-body.alert {
     border-left: 0;
     border-right: 0;
     border-top: 0;
+    border-radius: 0;
+    margin-bottom: 0;
 
     &:last-of-type {
       border-bottom: 0;
     }
-
-    border-radius: 0;
-    margin-bottom: 0;
   }
 
   .card-header {

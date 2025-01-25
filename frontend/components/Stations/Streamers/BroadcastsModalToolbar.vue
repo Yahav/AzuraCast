@@ -20,27 +20,21 @@
 
 <script setup lang="ts">
 import Icon from '~/components/Common/Icon.vue';
-import '~/vendor/sweetalert';
 import {useTranslate} from "~/vendor/gettext";
 import {useAxios} from "~/vendor/axios";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {IconDelete} from "~/components/Common/icons";
 import {computed, h, toRef} from "vue";
 import {forEach, map} from "lodash";
 import {useNotify} from "~/functions/useNotify.ts";
+import {useDialog} from "~/functions/useDialog.ts";
+import {HasRelistEmit} from "~/functions/useBaseEditModal.ts";
 
-const props = defineProps({
-    batchUrl: {
-        type: String,
-        required: true
-    },
-    selectedItems: {
-        type: Array,
-        required: true
-    }
-});
+const props = defineProps<{
+    batchUrl: string,
+    selectedItems: Array<any>,
+}>();
 
-const emit = defineEmits(['relist']);
+const emit = defineEmits<HasRelistEmit>();
 
 const {$gettext} = useTranslate();
 const {axios} = useAxios();
@@ -91,7 +85,7 @@ const handleBatchResponse = (
 }
 
 const doBatch = (action, successMessage, errorMessage) => {
-    axios.put(props.batchUrl, {
+    void axios.put(props.batchUrl, {
         'do': action,
         'rows': map(props.selectedItems, 'id')
     }).then(({data}) => {
@@ -100,17 +94,16 @@ const doBatch = (action, successMessage, errorMessage) => {
     });
 };
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    const numFiles = props.selectedItems.length;
-    const buttonConfirmText = $gettext(
-        'Delete %{ num } broadcasts?',
-        {num: numFiles}
-    );
-
-    confirmDelete({
-        title: buttonConfirmText,
+    void confirmDelete({
+        title: $gettext(
+            'Delete %{num} broadcasts?',
+            {
+                num: String(props.selectedItems.length)
+            }
+        ),
     }).then((result) => {
         if (result.value) {
             doBatch(

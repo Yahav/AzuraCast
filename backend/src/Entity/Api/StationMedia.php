@@ -83,8 +83,8 @@ class StationMedia
     public string $length_text = '0:00';
 
     #[OA\Property(
-        type: 'array',
-        items: new OA\Items(type: 'string', example: 'custom_field_value')
+        description: "An object containing all custom fields, with the key being the value name.",
+        type: "object"
     )]
     public HashMap $custom_fields;
 
@@ -113,6 +113,7 @@ class StationMedia
         $media->album = $row['album'];
         $media->genre = $row['genre'];
         $media->isrc = $row['isrc'];
+        $media->lyrics = $row['lyrics'] ?? null;
 
         $media->length = Types::int($row['length']);
         $media->length_text = self::getLengthText($row['length']);

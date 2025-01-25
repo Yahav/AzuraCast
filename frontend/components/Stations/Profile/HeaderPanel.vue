@@ -42,15 +42,23 @@
 <script setup lang="ts">
 import Icon from '~/components/Common/Icon.vue';
 import PlayButton from "~/components/Common/PlayButton.vue";
-import headerPanelProps from "~/components/Stations/Profile/headerPanelProps";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import {IconEdit} from "~/components/Common/icons";
+import {ApiNowPlayingStation} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps({
-    ...headerPanelProps,
-    station: {
-        type: Object,
-        required: true
-    }
+export interface ProfileHeaderPanelParentProps {
+    stationName: string,
+    stationDescription: string,
+    hasStarted: boolean,
+}
+
+defineOptions({
+    inheritAttrs: false
 });
+
+interface ProfileHeaderPanelProps extends ProfileHeaderPanelParentProps {
+    station: ApiNowPlayingStation
+}
+
+const props = defineProps<ProfileHeaderPanelProps>();
 </script>

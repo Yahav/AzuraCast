@@ -1,10 +1,32 @@
-import useVuelidate from "@vuelidate/core";
+import useVuelidate, {GlobalConfig, Validation, ValidationArgs} from "@vuelidate/core";
 import {useResettableRef} from "~/functions/useResettableRef";
-import {computed, unref} from "vue";
+import {computed, ComputedRef, MaybeRef, unref} from "vue";
 import {useEventBus} from "@vueuse/core";
 import {cloneDeep, merge} from "lodash";
+import {Ref} from "vue-demi";
+import {GenericForm} from "~/entities/Forms.ts";
 
-export function useVuelidateOnForm(validations = {}, blankForm = {}, options = {}) {
+type ValidationFunc<T extends GenericForm = GenericForm> = (options: GlobalConfig) => ValidationArgs<T>
+type BlankFormFunc<T extends GenericForm = GenericForm> = (options: GlobalConfig) => T
+
+export type VuelidateValidations<T extends GenericForm = GenericForm> = ValidationArgs<T> | ValidationFunc<T>
+export type VuelidateBlankForm<T extends GenericForm = GenericForm> = MaybeRef<T> | BlankFormFunc<T>
+
+export type VuelidateObject<T extends GenericForm = GenericForm> = Validation<ValidationArgs<T>, T>
+export type VuelidateRef<T extends GenericForm = GenericForm> = MaybeRef<VuelidateObject<T>>
+
+export function useVuelidateOnForm<T extends GenericForm = GenericForm>(
+    validations: VuelidateValidations<T> = {} as VuelidateValidations<T>,
+    blankForm: VuelidateBlankForm<T> = {} as VuelidateBlankForm<T>,
+    options: GlobalConfig = {}
+): {
+    form: Ref<T>,
+    resetForm: () => void,
+    v$: VuelidateRef<T>,
+    isValid: ComputedRef<boolean>,
+    validate: () => Promise<boolean>,
+    ifValid: (cb: () => void) => void
+} {
     const formEventBus = useEventBus('form_tabs');
 
     // Build the blank form from any children elements to the one using this function.
@@ -51,8 +73,8 @@ export function useVuelidateOnForm(validations = {}, blankForm = {}, options = {
         return v$.value.$validate();
     }
 
-    const ifValid = (cb) => {
-        validate().then((isValid) => {
+    const ifValid = (cb: () => void) => {
+        void validate().then((isValid) => {
             if (!isValid) {
                 return;
             }

@@ -3,7 +3,7 @@
         <div class="col-md-6">
             <type-select-section
                 :title="$gettext('Generic Web Hooks')"
-                :types="buildTypeInfo([
+                :types="reactivePick(typeDetails, [
                     WebhookType.Generic,
                     WebhookType.Email
                 ])"
@@ -12,11 +12,12 @@
 
             <type-select-section
                 :title="$gettext('Social Media')"
-                :types="buildTypeInfo([
+                :types="reactivePick(typeDetails, [
                     WebhookType.Discord,
                     WebhookType.Telegram,
                     WebhookType.GroupMe,
-                    WebhookType.Mastodon
+                    WebhookType.Mastodon,
+                    WebhookType.Bluesky
                 ])"
                 @select="selectType"
             />
@@ -24,7 +25,7 @@
         <div class="col-md-6">
             <type-select-section
                 :title="$gettext('Station Directories')"
-                :types="buildTypeInfo([
+                :types="reactivePick(typeDetails, [
                     WebhookType.TuneIn,
                     WebhookType.RadioDe,
                     WebhookType.RadioReg,
@@ -35,7 +36,7 @@
 
             <type-select-section
                 :title="$gettext('Analytics')"
-                :types="buildTypeInfo([
+                :types="reactivePick(typeDetails, [
                     WebhookType.GoogleAnalyticsV4,
                     WebhookType.MatomoAnalytics
                 ])"
@@ -46,29 +47,19 @@
 </template>
 
 <script setup lang="ts">
-import {WebhookType} from "~/entities/Webhooks";
+import {WebhookType, WebhookTypeDetails} from "~/entities/Webhooks";
 import TypeSelectSection from "~/components/Stations/Webhooks/Form/TypeSelectSection.vue";
-import {get, map} from "lodash";
+import {reactivePick} from "@vueuse/core";
 
-const props = defineProps({
-    typeDetails: {
-        type: Object,
-        required: true
-    }
-});
+const props = defineProps<{
+    typeDetails: WebhookTypeDetails
+}>();
 
-const buildTypeInfo = (types) => map(
-    types,
-    (type) => {
-        return {
-            ...get(props.typeDetails, type),
-            key: type
-        };
-    }
-);
+const emit = defineEmits<{
+    (e: 'select', type: WebhookType): void
+}>();
 
-const emit = defineEmits(['select']);
-const selectType = (type) => {
+const selectType = (type: WebhookType) => {
     emit('select', type);
 }
 </script>

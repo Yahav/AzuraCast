@@ -15,7 +15,7 @@
 
         <data-table
             id="station_queue"
-            ref="$datatable"
+            ref="$dataTable"
             :fields="fields"
             :api-url="listUrl"
             :hide-on-loading="false"
@@ -75,17 +75,17 @@ import DataTable, {DataTableField} from '../Common/DataTable.vue';
 import QueueLogsModal from './Queue/LogsModal.vue';
 import Icon from "~/components/Common/Icon.vue";
 import {useTranslate} from "~/vendor/gettext";
-import {computed, ref} from "vue";
+import {computed, useTemplateRef} from "vue";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
+import useHasDatatable from "~/functions/useHasDatatable";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getStationApiUrl} from "~/router";
 import {IconRemove} from "~/components/Common/icons";
 import {useIntervalFn} from "@vueuse/core";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const listUrl = getStationApiUrl('/queue');
 const clearUrl = getStationApiUrl('/queue/clear');
@@ -104,15 +104,17 @@ const {
     formatTimestampAsRelative
 } = useStationDateTimeFormatter();
 
-const $datatable = ref<DataTableTemplateRef>(null);
-const {relist} = useHasDatatable($datatable);
+const $dataTable = useTemplateRef('$dataTable');
+
+const {relist} = useHasDatatable($dataTable);
 
 useIntervalFn(
     relist,
     computed(() => (document.hidden) ? 60000 : 30000)
 );
 
-const $logsModal = ref<InstanceType<typeof QueueLogsModal> | null>(null);
+const $logsModal = useTemplateRef('$logsModal');
+
 const doShowLogs = (logs) => {
     $logsModal.value?.show(logs);
 };
@@ -122,17 +124,17 @@ const {doDelete} = useConfirmAndDelete(
     relist
 );
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
 const doClear = () => {
-    confirmDelete({
+    void confirmDelete({
         title: $gettext('Clear Upcoming Song Queue?'),
         confirmButtonText: $gettext('Clear'),
     }).then((result) => {
         if (result.value) {
-            axios.post(clearUrl.value).then((resp) => {
+            void axios.post(clearUrl.value).then((resp) => {
                 notifySuccess(resp.data.message);
                 relist();
             });

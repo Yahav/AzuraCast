@@ -54,24 +54,21 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, { DataTableField } from '~/components/Common/DataTable.vue';
+import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
 import EditModal from './CustomFields/EditModal.vue';
 import {get} from 'lodash';
 import {useTranslate} from "~/vendor/gettext";
-import {ref} from "vue";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
-import useHasEditModal, {EditModalTemplateRef} from "~/functions/useHasEditModal";
+import {useTemplateRef} from "vue";
+import useHasDatatable from "~/functions/useHasDatatable";
+import useHasEditModal from "~/functions/useHasEditModal";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
 
-const props = defineProps({
-    autoAssignTypes: {
-        type: Object,
-        required: true
-    }
-});
+const props = defineProps<{
+    autoAssignTypes: Record<string, string>,
+}>();
 
 const listUrl = getApiUrl('/admin/custom_fields');
 
@@ -100,10 +97,10 @@ const fields: DataTableField[] = [
     }
 ];
 
-const $dataTable = ref<DataTableTemplateRef>(null);
+const $dataTable = useTemplateRef('$dataTable');
 const {relist} = useHasDatatable($dataTable);
 
-const $editModal = ref<EditModalTemplateRef>(null);
+const $editModal = useTemplateRef('$editModal');
 const {doCreate, doEdit} = useHasEditModal($editModal);
 
 const {doDelete} = useConfirmAndDelete(

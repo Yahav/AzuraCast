@@ -5,7 +5,7 @@ info:
   license:
     name: 'Apache 2.0'
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 0.20.2
+  version: 0.20.4
 servers:
   -
     url: 'https://demo.azuracast.com/api'
@@ -4182,10 +4182,8 @@ components:
               type: string
               example: '4:00'
             custom_fields:
-              type: array
-              items:
-                type: string
-                example: custom_field_value
+              description: 'An object containing all custom fields, with the key being the value name.'
+              type: object
             extra_metadata:
               type: array
               items: {  }
@@ -4913,6 +4911,18 @@ components:
               type: string
               example: UTC
               nullable: true
+            max_bitrate:
+              description: 'The maximum bitrate at which a station may broadcast, in Kbps. 0 for unlimited'
+              type: integer
+              example: 128
+            max_mounts:
+              description: 'The maximum number of mount points the station can have, 0 for unlimited'
+              type: integer
+              example: 3
+            max_hls_streams:
+              description: 'The maximum number of HLS streams the station can have, 0 for unlimited'
+              type: integer
+              example: 3
             branding_config:
               description: 'An array containing station-specific branding configuration'
               type: object

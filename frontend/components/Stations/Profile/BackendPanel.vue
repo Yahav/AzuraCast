@@ -44,7 +44,7 @@
             <button
                 type="button"
                 class="btn btn-link text-secondary"
-                @click="makeApiCall(backendRestartUri)"
+                @click="doRestart()"
             >
                 <icon :icon="IconUpdate" />
                 <span>
@@ -55,7 +55,7 @@
                 v-if="!backendRunning"
                 type="button"
                 class="btn btn-link text-success"
-                @click="makeApiCall(backendStartUri)"
+                @click="doStart()"
             >
                 <icon :icon="IconPlay" />
                 <span>
@@ -66,7 +66,7 @@
                 v-if="backendRunning"
                 type="button"
                 class="btn btn-link text-danger"
-                @click="makeApiCall(backendStopUri)"
+                @click="doStop()"
             >
                 <icon :icon="IconStop" />
                 <span>
@@ -78,25 +78,36 @@
 </template>
 
 <script setup lang="ts">
-//import {BackendAdapter} from '~/entities/RadioAdapters';
 import Icon from '~/components/Common/Icon.vue';
 import RunningBadge from "~/components/Common/Badges/RunningBadge.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {computed} from "vue";
-import backendPanelProps from "~/components/Stations/Profile/backendPanelProps";
 import CardPage from "~/components/Common/CardPage.vue";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import {IconPlay, IconStop, IconUpdate} from "~/components/Common/icons";
+import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
 
-const props = defineProps({
-    ...backendPanelProps,
-    backendRunning: {
-        type: Boolean,
-        required: true
-    }
+import {BackendAdapter} from '~/entities/RadioAdapters';
+
+export interface ProfileBackendPanelParentProps {
+    numSongs: number,
+    numPlaylists: number,
+    backendType: BackendAdapter,
+    hasStarted: boolean,
+    backendRestartUri: string,
+    backendStartUri: string,
+    backendStopUri: string,
+}
+
+defineOptions({
+    inheritAttrs: false
 });
 
-const emit = defineEmits(['api-call']);
+interface ProfileBackendPanelProps extends ProfileBackendPanelParentProps {
+    backendRunning: boolean,
+}
+
+const props = defineProps<ProfileBackendPanelProps>();
 
 const {$gettext, $ngettext} = useTranslate();
 
@@ -105,14 +116,18 @@ const langTotalTracks = computed(() => {
         '%{numSongs} uploaded song',
         '%{numSongs} uploaded songs',
         props.numSongs,
-        {numSongs: props.numSongs}
+        {
+            numSongs: String(props.numSongs)
+        }
     );
 
     const numPlaylists = $ngettext(
         '%{numPlaylists} playlist',
         '%{numPlaylists} playlists',
         props.numPlaylists,
-        {numPlaylists: props.numPlaylists}
+        {
+            numPlaylists: String(props.numPlaylists)
+        }
     );
 
     return $gettext(
@@ -124,14 +139,29 @@ const langTotalTracks = computed(() => {
     );
 });
 
-// const backendName = computed(() => {
-//     if (props.backendType === BackendAdapter.Liquidsoap) {
-//         return 'Liquidsoap';
-//     }
-//     return '';
-// });
+const doRestart = useMakeApiCall(
+    props.backendRestartUri,
+    {
+        title: $gettext('Restart service?'),
+        confirmButtonText: $gettext('Restart')
+    }
+);
 
-const makeApiCall = (uri) => {
-    emit('api-call', uri);
-};
+const doStart = useMakeApiCall(
+    props.backendStartUri,
+    {
+        title: $gettext('Start service?'),
+        confirmButtonText: $gettext('Start'),
+        confirmButtonClass: 'btn-success'
+    }
+);
+
+const doStop = useMakeApiCall(
+    props.backendStopUri,
+    {
+        title: $gettext('Stop service?'),
+        confirmButtonText: $gettext('Stop'),
+        confirmButtonClass: 'btn-danger'
+    }
+);
 </script>

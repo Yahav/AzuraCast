@@ -56,16 +56,21 @@
 
 <script setup lang="ts">
 import Icon from '~/components/Common/Icon.vue';
-import requestsPanelProps from "~/components/Stations/Profile/requestsPanelProps";
 import EnabledBadge from "~/components/Common/Badges/EnabledBadge.vue";
 import CardPage from "~/components/Common/CardPage.vue";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import useToggleFeature from "~/components/Stations/Profile/useToggleFeature";
 import {IconCheck, IconClose, IconLogs} from "~/components/Common/icons";
 
-const props = defineProps({
-    ...requestsPanelProps
+export interface ProfileRequestPanelProps {
+    enableRequests: boolean,
+}
+
+defineOptions({
+    inheritAttrs: false
 });
+
+const props = defineProps<ProfileRequestPanelProps>();
 
 const toggleRequests = useToggleFeature('enable_requests', !props.enableRequests);
 </script>

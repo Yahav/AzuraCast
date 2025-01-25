@@ -30,12 +30,12 @@
 <script setup lang="ts">
 import StreamingLogModal from "~/components/Common/StreamingLogModal.vue";
 import LogList from "~/components/Common/LogList.vue";
-import {ref} from "vue";
+import {useTemplateRef} from "vue";
 import {getStationApiUrl} from "~/router";
 
 const logsUrl = getStationApiUrl('/logs');
 
-const $modal = ref<InstanceType<typeof StreamingLogModal> | null>(null);
+const $modal = useTemplateRef('$modal');
 
 const viewLog = (url, isStreaming) => {
     $modal.value?.show(url, isStreaming);

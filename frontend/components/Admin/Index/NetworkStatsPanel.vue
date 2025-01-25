@@ -46,9 +46,10 @@ import Tab from "~/components/Common/Tab.vue";
 import Tabs from "~/components/Common/Tabs.vue";
 import {isObject} from "lodash";
 import NetworkStatsTable from "~/components/Admin/Index/NetworkStatsTable.vue";
+import {AdminStats} from "~/components/Admin/Index.vue";
 
 const props = defineProps<{
-    stats: object
+    stats: AdminStats
 }>();
 
 const getNetworkInterfaceTableFields = (interfaceData) => Object.keys(interfaceData);
@@ -60,7 +61,8 @@ const getNetworkInterfaceTableItems = (interfaceData) => {
         const key = data[0];
         let value: any = data[1];
 
-        if (isObject(value)) {
+        if (isObject(value) && "readable" in value) {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string,@typescript-eslint/restrict-plus-operands
             value = value.readable + '/s';
         }
 

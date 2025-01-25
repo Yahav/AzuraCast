@@ -79,7 +79,7 @@
                                 </form-group-field>
                             </fieldset>
 
-                            <div class="buttons">
+                            <div class="buttons mt-3">
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
@@ -106,12 +106,12 @@
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import {computed, onMounted, ref} from "vue";
 import {useVuelidateOnForm} from "~/functions/useVuelidateOnForm";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {useAxios} from "~/vendor/axios";
 import {useTranslate} from "~/vendor/gettext";
 import Loading from "~/components/Common/Loading.vue";
 import CardPage from "~/components/Common/CardPage.vue";
 import {getApiUrl} from "~/router";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const apiUrl = getApiUrl('/admin/geolite');
 
@@ -131,7 +131,7 @@ const {$gettext} = useTranslate();
 
 const langInstalledVersion = computed(() => {
     return $gettext(
-        'GeoLite version "%{ version }" is currently installed.',
+        'GeoLite version "%{version}" is currently installed.',
         {
             version: version.value
         }
@@ -143,7 +143,7 @@ const {axios} = useAxios();
 const doFetch = () => {
     isLoading.value = true;
 
-    axios.get(apiUrl.value).then((resp) => {
+    void axios.get(apiUrl.value).then((resp) => {
         form.value.key = resp.data.key;
         version.value = resp.data.version;
         isLoading.value = false;
@@ -155,7 +155,7 @@ onMounted(doFetch);
 const doUpdate = () => {
     isLoading.value = true;
 
-    axios.post(apiUrl.value, {
+    void axios.post(apiUrl.value, {
         geolite_license_key: form.value.key
     }).then((resp) => {
         version.value = resp.data.version;
@@ -164,10 +164,13 @@ const doUpdate = () => {
     });
 };
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    confirmDelete().then((result) => {
+    void confirmDelete({
+        title: $gettext('Remove GeoLite license key?'),
+        confirmButtonText: $gettext('Remove Key')
+    }).then((result) => {
         if (result.value) {
             form.value.key = null;
             doUpdate();

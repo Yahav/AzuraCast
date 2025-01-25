@@ -36,10 +36,10 @@
                                 @click="doCreate"
                             />
                         </div>
-
+                        
                         <data-table
                             id="station_playlists"
-                            ref="$datatable"
+                            ref="$dataTable"
                             paginated
                             :fields="fields"
                             :api-url="listUrl"
@@ -90,13 +90,12 @@
                                     </span>
                                 </div>
                             </template>
-                            <template #cell(priority)="{ item }">
-                                <span class="visually-hidden">{{ $gettext('Priority') }}: </span>
-                                {{ null === item.priority ? $gettext('Unset') : item.priority }}
-                            </template>
                             <template #cell(scheduling)="{ item }">
                                 <template v-if="!item.is_enabled">
                                     {{ $gettext('Disabled') }}
+                                </template>
+                                <template v-else-if="item.source !== 'songs'">
+                                    {{ $gettext('Remote URL') }}
                                 </template>
                                 <template v-else-if="item.type === 'default'">
                                     {{ $gettext('General Rotation') }}<br>
@@ -264,19 +263,11 @@
                         </data-table>
                     </div>
                 </tab>
-                <tab
-                    id="schedule_view"
-                    :label="$gettext('Schedule View')"
-                >
-                    <div class="card-body-flush">
-                        <schedule
-                            ref="$schedule"
-                            :timezone="timezone"
-                            :schedule-url="scheduleUrl"
-                            @click="doCalendarClick"
-                        />
-                    </div>
-                </tab>
+                <schedule-view-tab
+                    ref="$scheduleTab"
+                    :schedule-url="scheduleUrl"
+                    @click="doCalendarClick"
+                />
             </tabs>
         </div>
     </section>
@@ -307,7 +298,6 @@
 
 <script setup lang="ts">
 import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
-import Schedule from '~/components/Common/ScheduleView.vue';
 import EditModal from './Playlists/EditModal.vue';
 import ReorderModal from './Playlists/ReorderModal.vue';
 import ImportModal from './Playlists/ImportModal.vue';
@@ -315,13 +305,12 @@ import QueueModal from './Playlists/QueueModal.vue';
 import CloneModal from './Playlists/CloneModal.vue';
 import ApplyToModal from "./Playlists/ApplyToModal.vue";
 import {useTranslate} from "~/vendor/gettext";
-import {ref} from "vue";
-import useHasEditModal, {EditModalTemplateRef} from "~/functions/useHasEditModal";
+import {useTemplateRef} from "vue";
+import useHasEditModal from "~/functions/useHasEditModal";
 import {useMayNeedRestart} from "~/functions/useMayNeedRestart";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
-import {useAzuraCastStation} from "~/vendor/azuracast";
 import {useLuxon} from "~/vendor/luxon";
 import {getStationApiUrl} from "~/router";
 import TimeZone from "~/components/Stations/Common/TimeZone.vue";
@@ -330,24 +319,21 @@ import Tab from "~/components/Common/Tab.vue";
 import AddButton from "~/components/Common/AddButton.vue";
 import {IconContract, IconExpand} from "~/components/Common/icons.ts";
 import Icon from "~/components/Common/Icon.vue";
+import ScheduleViewTab from "~/components/Stations/Common/ScheduleViewTab.vue";
+import useHasDatatable from "~/functions/useHasDatatable.ts";
+import {EventImpl} from "@fullcalendar/core/internal";
 
-const props = defineProps({
-    useManualAutoDj: {
-        type: Boolean,
-        required: true
-    },
-});
+const props = defineProps<{
+    useManualAutoDj: boolean
+}>();
 
 const listUrl = getStationApiUrl('/playlists');
 const scheduleUrl = getStationApiUrl('/playlists/schedule');
-
-const {timezone} = useAzuraCastStation();
 
 const {$gettext} = useTranslate();
 
 const fields: DataTableField[] = [
     {key: 'name', isRowHeader: true, label: $gettext('Playlist'), sortable: true},
-        {key: 'priority', label: $gettext('Priority'), sortable: false},
     {key: 'scheduling', label: $gettext('Scheduling'), sortable: false},
     {key: 'num_songs', label: $gettext('# Songs'), sortable: false},
     {key: 'actions', label: $gettext('Actions'), sortable: false, class: 'shrink'}
@@ -364,45 +350,48 @@ const formatLength = (length) => {
     return duration.rescale().toHuman();
 };
 
-const $datatable = ref<InstanceType<typeof DataTable> | null>(null);
-const $schedule = ref<InstanceType<typeof Schedule> | null>(null);
+const $dataTable = useTemplateRef('$dataTable');
+const {refresh: refreshDatatable} = useHasDatatable($dataTable);
+
+const $scheduleTab = useTemplateRef('$scheduleTab');
 
 const relist = () => {
-    $datatable.value?.refresh();
-};
+    refreshDatatable();
+    $scheduleTab.value?.refresh();
+}
 
-const $editModal = ref<EditModalTemplateRef>(null);
+const $editModal = useTemplateRef('$editModal');
 const {doCreate, doEdit} = useHasEditModal($editModal);
 
-const doCalendarClick = (event) => {
+const doCalendarClick = (event: EventImpl) => {
     doEdit(event.extendedProps.edit_url);
 };
 
-const $reorderModal = ref<InstanceType<typeof ReorderModal> | null>(null);
+const $reorderModal = useTemplateRef('$reorderModal');
 
 const doReorder = (url) => {
     $reorderModal.value?.open(url);
 };
 
-const $queueModal = ref<InstanceType<typeof QueueModal> | null>(null);
+const $queueModal = useTemplateRef('$queueModal');
 
 const doQueue = (url) => {
     $queueModal.value?.open(url);
 };
 
-const $importModal = ref<InstanceType<typeof ImportModal> | null>(null);
+const $importModal = useTemplateRef('$importModal');
 
 const doImport = (url) => {
     $importModal.value?.open(url);
 };
 
-const $cloneModal = ref<InstanceType<typeof CloneModal> | null>(null);
+const $cloneModal = useTemplateRef('$cloneModal');
 
 const doClone = (name, url) => {
     $cloneModal.value?.open(name, url);
 };
 
-const $applyToModal = ref<InstanceType<typeof ApplyToModal> | null>(null);
+const $applyToModal = useTemplateRef('$applyToModal');
 
 const doApplyTo = (url) => {
     $applyToModal.value?.open(url);
@@ -422,7 +411,7 @@ const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
 const doModify = (url) => {
-    axios.put(url).then((resp) => {
+    void axios.put(url).then((resp) => {
         mayNeedRestart();
 
         notifySuccess(resp.data.message);

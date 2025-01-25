@@ -28,10 +28,13 @@
                         >
                             <date-range-dropdown
                                 v-model="dateRange"
-                                time-picker
-                                :min-date="minDate"
-                                :max-date="maxDate"
-                                :tz="timezone"
+                                :options="{
+                                    timezone: timezone,
+                                    enableTimePicker: true,
+                                    minDate: minDate,
+                                    maxDate: maxDate,
+                                }"
+                                class="btn-dark"
                             />
                         </div>
                     </div>
@@ -109,7 +112,7 @@
 
                     <data-table
                         id="station_listeners"
-                        ref="$datatable"
+                        ref="$dataTable"
                         paginated
                         handle-client-side
                         :fields="fields"
@@ -188,12 +191,12 @@ import StationReportsListenersMap from "./Listeners/Map.vue";
 import Icon from "~/components/Common/Icon.vue";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import DateRangeDropdown from "~/components/Common/DateRangeDropdown.vue";
-import {computed, ComputedRef, nextTick, onMounted, Ref, ref, ShallowRef, shallowRef, watch} from "vue";
+import {computed, ComputedRef, nextTick, onMounted, Ref, ref, ShallowRef, shallowRef, useTemplateRef, watch} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useAxios} from "~/vendor/axios";
 import {getStationApiUrl} from "~/router";
 import {IconDesktopWindows, IconDownload, IconRouter, IconSmartphone} from "~/components/Common/icons";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable";
+import useHasDatatable from "~/functions/useHasDatatable";
 import {ListenerFilters, ListenerTypeFilter} from "~/components/Stations/Reports/Listeners/listenerFilters.ts";
 import {filter} from "lodash";
 import formatTime from "~/functions/formatTime.ts";
@@ -201,13 +204,11 @@ import ListenerFiltersBar from "./Listeners/FiltersBar.vue";
 import {ApiListener} from "~/entities/ApiInterfaces.ts";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import {useLuxon} from "~/vendor/luxon.ts";
+import {useAzuraCastStation} from "~/vendor/azuracast.ts";
 
-const props = defineProps({
-    attribution: {
-        type: String,
-        required: true
-    }
-});
+const props = defineProps<{
+    attribution: string
+}>();
 
 const apiUrl = getStationApiUrl('/listeners');
 
@@ -215,6 +216,8 @@ const isLive = ref<boolean>(true);
 const listeners: ShallowRef<ApiListener[]> = shallowRef([]);
 
 const {DateTime} = useLuxon();
+
+const {timezone} = useAzuraCastStation();
 const {
     now,
     formatTimestampAsDateTime
@@ -338,8 +341,8 @@ const totalListenerHours = computed(() => {
 
 const {axios} = useAxios();
 
-const $datatable = ref<DataTableTemplateRef>(null);
-const {navigate} = useHasDatatable($datatable);
+const $dataTable = useTemplateRef('$dataTable');
+const {navigate} = useHasDatatable($dataTable);
 
 const hasFilters: ComputedRef<boolean> = computed(() => {
     return null !== filters.value.minLength
@@ -405,6 +408,6 @@ onMounted(updateListeners);
 
 const setIsLive = (newValue: boolean) => {
     isLive.value = newValue;
-    nextTick(updateListeners);
+    void nextTick(updateListeners);
 };
 </script>

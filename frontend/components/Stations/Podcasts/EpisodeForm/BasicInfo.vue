@@ -35,11 +35,11 @@
                 :label="$gettext('Publish At')"
                 :description="$gettext('The date and time when the episode should be published.')"
             >
-                <template #default="slotProps">
+                <template #default="{id, model, fieldClass}">
                     <publish-at-fields
-                        :id="slotProps.id"
-                        v-model="slotProps.field.$model"
-                        :class="slotProps.class"
+                        :id="id"
+                        v-model="model.$model"
+                        :class="fieldClass"
                     />
                 </template>
             </form-group-field>
@@ -80,23 +80,17 @@
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
-import {useVModel} from "@vueuse/core";
-import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import PublishAtFields from "~/components/Stations/Podcasts/Common/PublishAtFields.vue";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    }
-});
-
-const emit = defineEmits(['update:form']);
-const form = useVModel(props, 'form', emit);
+const props = defineProps<FormTabProps>();
+const emit = defineEmits<FormTabEmits>();
 
 const {v$, tabClass} = useVuelidateOnFormTab(
+    props,
+    emit,
     {
         title: {required},
         link: {},
@@ -106,7 +100,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
         season_number: {},
         episode_number: {}
     },
-    form,
     {
         title: '',
         link: '',

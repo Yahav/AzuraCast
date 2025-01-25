@@ -1,27 +1,16 @@
 import NowPlaying from '~/entities/NowPlaying';
 import {computed, onMounted, Ref, ref, ShallowRef, shallowRef, watch} from "vue";
-import {useEventSource, useIntervalFn} from "@vueuse/core";
+import {reactiveComputed, useEventSource, useIntervalFn} from "@vueuse/core";
 import {ApiNowPlaying} from "~/entities/ApiInterfaces.ts";
 import {getApiUrl} from "~/router.ts";
 import {useAxios} from "~/vendor/axios.ts";
 import formatTime from "~/functions/formatTime.ts";
 
-export const nowPlayingProps = {
-    stationShortName: {
-        type: String,
-        required: true,
-    },
-    useStatic: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
-    useSse: {
-        type: Boolean,
-        required: false,
-        default: false
-    },
-};
+export interface NowPlayingProps {
+    stationShortName: string,
+    useStatic?: boolean,
+    useSse?: boolean
+}
 
 interface SsePayload {
     data: {
@@ -30,7 +19,13 @@ interface SsePayload {
     }
 }
 
-export default function useNowPlaying(props) {
+export default function useNowPlaying(initialProps: NowPlayingProps) {
+    const props = reactiveComputed(() => ({
+        useStatic: false,
+        useSse: false,
+        ...initialProps
+    }));
+
     const np: ShallowRef<ApiNowPlaying> = shallowRef(NowPlaying);
     const npTimestamp: Ref<number> = ref(0);
 
@@ -157,7 +152,7 @@ export default function useNowPlaying(props) {
         };
 
         const checkTime = () => {
-            axiosSilent.get(timeUri.value, axiosNoCacheConfig).then((response) => {
+            void axiosSilent.get(timeUri.value, axiosNoCacheConfig).then((response) => {
                 currentTime.value = response.data.timestamp;
             }).finally(() => {
                 setTimeout(checkTime, (!document.hidden) ? 300000 : 600000);

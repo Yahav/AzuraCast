@@ -141,8 +141,8 @@ import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import Loading from "~/components/Common/Loading.vue";
 import CardPage from "~/components/Common/CardPage.vue";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {getApiUrl} from "~/router";
+import {useDialog} from "~/functions/useDialog.ts";
 
 const apiUrl = getApiUrl('/admin/stereo_tool');
 
@@ -153,7 +153,7 @@ const {$gettext} = useTranslate();
 
 const langInstalledVersion = computed(() => {
     return $gettext(
-        'Stereo Tool version %{ version } is currently installed.',
+        'Stereo Tool version %{version} is currently installed.',
         {
             version: version.value
         }
@@ -170,18 +170,21 @@ const {axios} = useAxios();
 
 const relist = () => {
     isLoading.value = true;
-    axios.get(apiUrl.value).then((resp) => {
+    void axios.get(apiUrl.value).then((resp) => {
         version.value = resp.data.version;
         isLoading.value = false;
     });
 };
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    confirmDelete().then((result) => {
+    void confirmDelete({
+        title: $gettext('Uninstall Stereo Tool?'),
+        confirmButtonText: $gettext('Uninstall')
+    }).then((result) => {
         if (result.value) {
-            axios.delete(apiUrl.value).then(relist);
+            void axios.delete(apiUrl.value).then(relist);
         }
     });
 }

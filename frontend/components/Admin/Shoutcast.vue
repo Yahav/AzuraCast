@@ -68,6 +68,7 @@
 
                         <flow-upload
                             :target-url="apiUrl"
+                            :valid-mime-types="['.tar.gz']"
                             @complete="relist"
                         />
                     </div>
@@ -95,7 +96,7 @@ const {$gettext} = useTranslate();
 
 const langInstalledVersion = computed(() => {
     return $gettext(
-        'Shoutcast version "%{ version }" is currently installed.',
+        'Shoutcast version "%{version}" is currently installed.',
         {
             version: version.value
         }
@@ -106,7 +107,7 @@ const {axios} = useAxios();
 
 const relist = () => {
     isLoading.value = true;
-    axios.get(apiUrl.value).then((resp) => {
+    void axios.get(apiUrl.value).then((resp) => {
         version.value = resp.data.version;
         isLoading.value = false;
     });

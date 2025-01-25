@@ -33,29 +33,24 @@
 
 <script setup lang="ts">
 import Icon from '~/components/Common/Icon.vue';
-import '~/vendor/sweetalert';
 import {useTranslate} from "~/vendor/gettext";
 import {useAxios} from "~/vendor/axios";
-import {useSweetAlert} from "~/vendor/sweetalert";
 import {IconDelete, IconEdit} from "~/components/Common/icons";
 import {computed, toRef} from "vue";
 import useHandlePodcastBatchResponse from "~/components/Stations/Podcasts/useHandlePodcastBatchResponse.ts";
 import {map} from "lodash";
+import {useDialog} from "~/functions/useDialog.ts";
 
-const props = defineProps({
-    batchUrl: {
-        type: String,
-        required: true
-    },
-    selectedItems: {
-        type: Array,
-        required: true
-    },
-    podcastIsManual: {
-        type: Boolean,
-        default: true
+const props = withDefaults(
+    defineProps<{
+        batchUrl: string,
+        selectedItems: Array<any>,
+        podcastIsManual: boolean,
+    }>(),
+    {
+        podcastIsManual: true,
     }
-});
+);
 
 const emit = defineEmits(['relist', 'batch-edit']);
 
@@ -71,7 +66,7 @@ const hasSelectedItems = computed(() => {
 const {handleBatchResponse} = useHandlePodcastBatchResponse();
 
 const doBatch = (action, successMessage, errorMessage) => {
-    axios.put(props.batchUrl, {
+    void axios.put(props.batchUrl, {
         'do': action,
         'episodes': map(props.selectedItems, 'id')
     }).then(({data}) => {
@@ -80,17 +75,16 @@ const doBatch = (action, successMessage, errorMessage) => {
     });
 };
 
-const {confirmDelete} = useSweetAlert();
+const {confirmDelete} = useDialog();
 
 const doDelete = () => {
-    const numFiles = props.selectedItems.length;
-    const buttonConfirmText = $gettext(
-        'Delete %{ num } episodes?',
-        {num: numFiles}
-    );
-
-    confirmDelete({
-        title: buttonConfirmText,
+    void confirmDelete({
+        title: $gettext(
+            'Delete %{num} episodes?',
+            {
+                num: String(props.selectedItems.length)
+            }
+        ),
     }).then((result) => {
         if (result.value) {
             doBatch(

@@ -47,20 +47,11 @@ import FormGroup from "~/components/Form/FormGroup.vue";
 import FormFile from "~/components/Form/FormFile.vue";
 import {useLightbox} from "~/vendor/lightbox";
 
-const props = defineProps({
-    id: {
-        type: String,
-        required: true
-    },
-    apiUrl: {
-        type: String,
-        required: true
-    },
-    caption: {
-        type: String,
-        required: true
-    }
-});
+const props = defineProps<{
+    id: string,
+    apiUrl: string,
+    caption: string,
+}>();
 
 const isLoading = ref(true);
 const isUploaded = ref(false);
@@ -71,7 +62,7 @@ const {axios} = useAxios();
 const relist = () => {
     isLoading.value = true;
 
-    axios.get(props.apiUrl).then((resp) => {
+    void axios.get(props.apiUrl).then((resp) => {
         isUploaded.value = resp.data.is_uploaded;
         url.value = resp.data.url;
 
@@ -89,13 +80,13 @@ const uploaded = (newFile) => {
     const formData = new FormData();
     formData.append('file', newFile);
 
-    axios.post(props.apiUrl, formData).finally(() => {
+    void axios.post(props.apiUrl, formData).finally(() => {
         relist();
     });
 };
 
 const clear = () => {
-    axios.delete(props.apiUrl).finally(() => {
+    void axios.delete(props.apiUrl).finally(() => {
         relist();
     });
 };

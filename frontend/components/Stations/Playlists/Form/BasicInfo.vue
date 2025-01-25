@@ -107,19 +107,6 @@
                     />
                 </div>
 
-                <div class="row g-3">
-                    <form-group-field
-                        id="form_edit_priority"
-                        class="col-md-12"
-                        :field="v$.priority"
-                        input-type="number"
-                        :input-attrs="{min: '0', max: '150'}"
-                        clearable
-                        :label="$gettext('Playlist Priority')"
-                        :description="$gettext('When multiple playlists are eligible to play, higher priority playlists prevent lower priority playlists from playing.')"
-                    />
-                </div>
-
                 <form-fieldset v-show="form.type === 'default'">
                     <template #label>
                         {{ $gettext('General Rotation') }}
@@ -246,22 +233,16 @@ import {map, range} from "lodash";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import {useTranslate} from "~/vendor/gettext";
-import {useVModel} from "@vueuse/core";
-import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    }
-});
-
-const emit = defineEmits(['update:form']);
-const form = useVModel(props, 'form', emit);
+const props = defineProps<FormTabProps>();
+const emit = defineEmits<FormTabEmits>();
 
 const {v$, tabClass} = useVuelidateOnFormTab(
+    props,
+    emit,
     {
         name: {required},
         is_enabled: {},
@@ -270,7 +251,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
         type: {},
         source: {},
         order: {},
-        priority: {},
         remote_url: {},
         remote_type: {},
         remote_buffer: {},
@@ -281,7 +261,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
         include_in_requests: {},
         avoid_duplicates: {}
     },
-    form,
     {
         name: '',
         is_enabled: true,
@@ -290,7 +269,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
         type: 'default',
         source: 'songs',
         order: 'shuffle',
-        priority: null,
         remote_url: null,
         remote_type: 'stream',
         remote_buffer: 0,
@@ -384,7 +362,7 @@ const weightOptions = map(
     (val) => {
         return {
             value: val,
-            text: val
+            text: String(val)
         }
     }
 );

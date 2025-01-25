@@ -47,10 +47,10 @@
                             :id="'form_edit_'+row.field_name"
                             :field="v$[row.field_name]"
                         >
-                            <template #default="slotProps">
+                            <template #default="{id, model}">
                                 <codemirror-textarea
-                                    :id="slotProps.id"
-                                    v-model="slotProps.field.$model"
+                                    :id="id"
+                                    v-model="model.$model"
                                     mode="liquidsoap"
                                 />
                             </template>
@@ -122,7 +122,7 @@ const {axios} = useAxios();
 
 const relist = () => {
     isLoading.value = true;
-    axios.get(settingsUrl.value).then((resp) => {
+    void axios.get(settingsUrl.value).then((resp) => {
         config.value = resp.data.config;
         sections.value = resp.data.sections;
 
@@ -139,7 +139,7 @@ const {notifySuccess} = useNotify();
 
 const submit = () => {
     ifValid(() => {
-        axios({
+        void axios({
             method: 'PUT',
             url: settingsUrl.value,
             data: form.value,

@@ -28,17 +28,18 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-5">
+            <div
+                v-if="showVolume"
+                class="col-md-5"
+            >
                 <div class="inline-volume-controls d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-inverse"
-                            :title="$gettext('Mute')"
-                            @click="volume = 0"
-                        >
-                            <icon :icon="IconVolumeOff" />
-                        </button>
+                    <div class="flex-shrink-0 mx-2">
+                        <mute-button
+                            class="p-0"
+                            :volume="volume"
+                            :is-muted="isMuted"
+                            @toggle-mute="toggleMute"
+                        />
                     </div>
                     <div class="flex-fill mx-1">
                         <input
@@ -51,16 +52,6 @@
                             step="1"
                         >
                     </div>
-                    <div class="flex-shrink-0">
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-inverse"
-                            :title="$gettext('Full Volume')"
-                            @click="volume = 100"
-                        >
-                            <icon :icon="IconVolumeUp" />
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -72,26 +63,17 @@ import WS from 'wavesurfer.js';
 import timeline from 'wavesurfer.js/dist/plugins/timeline.js';
 import regions from 'wavesurfer.js/dist/plugins/regions.js';
 import getLogarithmicVolume from '~/functions/getLogarithmicVolume';
-import Icon from './Icon.vue';
 import {onMounted, onUnmounted, ref, watch} from "vue";
 import {useAxios} from "~/vendor/axios";
 import usePlayerVolume from "~/functions/usePlayerVolume";
-import {IconVolumeOff, IconVolumeUp} from "~/components/Common/icons";
+import useShowVolume from "~/functions/useShowVolume.ts";
+import MuteButton from "~/components/Common/MuteButton.vue";
 
-const props = defineProps({
-    audioUrl: {
-        type: String,
-        required: true
-    },
-    waveformUrl: {
-        type: String,
-        required: true
-    },
-    waveformCacheUrl: {
-        type: String,
-        default: null
-    }
-});
+const props = defineProps<{
+    audioUrl: string,
+    waveformUrl: string,
+    waveformCacheUrl?: string,
+}>();
 
 const emit = defineEmits(['ready']);
 
@@ -99,6 +81,14 @@ let wavesurfer = null;
 let wsRegions = null;
 
 const volume = usePlayerVolume();
+const showVolume = useShowVolume();
+
+const isMuted = ref(false);
+
+const toggleMute = () => {
+    isMuted.value = !isMuted.value;
+}
+
 const zoom = ref(0);
 
 watch(zoom, (val) => {
@@ -107,6 +97,10 @@ watch(zoom, (val) => {
 
 watch(volume, (val) => {
     wavesurfer?.setVolume(getLogarithmicVolume(val));
+});
+
+watch(isMuted, (val) => {
+    wavesurfer?.setMuted(val);
 });
 
 const isExternalJson = ref(false);
@@ -133,7 +127,7 @@ const cacheWaveformRemotely = () => {
         data: peaks
     };
 
-    axiosSilent.post(props.waveformCacheUrl, dataToCache);
+    void axiosSilent.post(props.waveformCacheUrl, dataToCache);
 };
 
 onMounted(() => {
@@ -143,16 +137,9 @@ onMounted(() => {
         progressColor: '#4081CF',
     });
 
-    wavesurfer.registerPlugin(timeline.create({
-        primaryColor: '#222',
-        secondaryColor: '#888',
-        primaryFontColor: '#222',
-        secondaryFontColor: '#888'
-    }));
+    wavesurfer.registerPlugin(timeline.create());
 
-    wsRegions = wavesurfer.registerPlugin(regions.create({
-        regions: []
-    }));
+    wsRegions = wavesurfer.registerPlugin(regions.create());
 
     wavesurfer.on('ready', () => {
         wavesurfer.setVolume(getLogarithmicVolume(volume.value));

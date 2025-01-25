@@ -133,7 +133,7 @@
                 <button
                     type="button"
                     class="btn btn-link text-secondary"
-                    @click="makeApiCall(frontendRestartUri)"
+                    @click="doRestart"
                 >
                     <icon :icon="IconUpdate" />
                     <span>
@@ -144,7 +144,7 @@
                     v-if="!frontendRunning"
                     type="button"
                     class="btn btn-link text-success"
-                    @click="makeApiCall(frontendStartUri)"
+                    @click="doStart()"
                 >
                     <icon :icon="IconPlay" />
                     <span>
@@ -155,7 +155,7 @@
                     v-if="frontendRunning"
                     type="button"
                     class="btn btn-link text-danger"
-                    @click="makeApiCall(frontendStopUri)"
+                    @click="doStop()"
                 >
                     <icon :icon="IconStop" />
                     <span>
@@ -168,27 +168,41 @@
 </template>
 
 <script setup lang="ts">
-import {FrontendAdapter} from '~/entities/RadioAdapters';
 import CopyToClipboardButton from '~/components/Common/CopyToClipboardButton.vue';
 import Icon from '~/components/Common/Icon.vue';
 import RunningBadge from "~/components/Common/Badges/RunningBadge.vue";
 import {computed} from "vue";
-import frontendPanelProps from "~/components/Stations/Profile/frontendPanelProps";
 import {useTranslate} from "~/vendor/gettext";
 import CardPage from "~/components/Common/CardPage.vue";
 import {StationPermission, userAllowedForStation} from "~/acl";
 import useOptionalStorage from "~/functions/useOptionalStorage";
 import {IconMoreHoriz, IconPlay, IconStop, IconUpdate} from "~/components/Common/icons";
+import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
 
-const props = defineProps({
-    ...frontendPanelProps,
-    frontendRunning: {
-        type: Boolean,
-        required: true
-    }
+import {FrontendAdapter} from "~/entities/RadioAdapters.ts";
+
+export interface ProfileFrontendPanelParentProps {
+    frontendType: FrontendAdapter,
+    frontendAdminUri: string,
+    frontendAdminPassword: string,
+    frontendSourcePassword: string,
+    frontendRelayPassword: string,
+    frontendPort: number,
+    frontendRestartUri: string,
+    frontendStartUri: string,
+    frontendStopUri: string,
+    hasStarted: boolean
+}
+
+defineOptions({
+    inheritAttrs: false
 });
 
-const emit = defineEmits(['api-call']);
+interface ProfileFrontendPanelProps extends ProfileFrontendPanelParentProps {
+    frontendRunning: boolean,
+}
+
+const props = defineProps<ProfileFrontendPanelProps>();
 
 const credentialsVisible = useOptionalStorage<boolean>('station_show_frontend_credentials', false);
 
@@ -201,19 +215,48 @@ const langShowHideCredentials = computed(() => {
 });
 
 const frontendName = computed(() => {
-    if (props.frontendType === FrontendAdapter.Icecast) {
-        return 'Icecast';
-    } else if (props.frontendType === FrontendAdapter.Shoutcast) {
-        return 'Shoutcast';
+    switch (props.frontendType) {
+        case FrontendAdapter.Icecast:
+            return 'Icecast';
+
+        case FrontendAdapter.Rsas:
+            return 'Rocket Streaming Audio Server (RSAS)';
+
+        case FrontendAdapter.Shoutcast:
+            return 'Shoutcast';
+
+        default:
+            return '';
     }
-    return '';
 });
 
 const isShoutcast = computed(() => {
     return props.frontendType === FrontendAdapter.Shoutcast;
 });
 
-const makeApiCall = (uri) => {
-    emit('api-call', uri);
-};
+const doRestart = useMakeApiCall(
+    props.frontendRestartUri,
+    {
+        title: $gettext('Restart service?'),
+        confirmButtonText: $gettext('Restart')
+    }
+);
+
+const doStart = useMakeApiCall(
+    props.frontendStartUri,
+    {
+        title: $gettext('Start service?'),
+        confirmButtonText: $gettext('Start'),
+        confirmButtonClass: 'btn-success'
+    }
+);
+
+const doStop = useMakeApiCall(
+    props.frontendStopUri,
+    {
+        title: $gettext('Stop service?'),
+        confirmButtonText: $gettext('Stop'),
+        confirmButtonClass: 'btn-danger'
+    }
+);
 </script>

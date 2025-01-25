@@ -31,7 +31,14 @@ const allTriggersExceptListeners = [
     WebhookTrigger.StationOnline
 ];
 
-export function useTriggerDetails() {
+export interface WebhookTriggerDetail {
+    title: string,
+    description: string,
+}
+
+export type WebhookTriggerDetails = { [key in WebhookTrigger]: WebhookTriggerDetail }
+
+export function useTriggerDetails(): WebhookTriggerDetails {
     const {$gettext} = useTranslate();
 
     return {
@@ -81,11 +88,19 @@ export enum WebhookType {
     Telegram = 'telegram',
     GroupMe = 'groupme',
     Mastodon = 'mastodon',
+    Bluesky = 'bluesky',
     GoogleAnalyticsV4 = 'google_analytics_v4',
     MatomoAnalytics = 'matomo_analytics'
 }
 
-export function useTypeDetails() {
+export interface WebhookTypeDetail {
+    title: string,
+    description: string,
+}
+
+export type WebhookTypeDetails = { [key in WebhookType]: WebhookTypeDetail }
+
+export function useTypeDetails(): WebhookTypeDetails {
     const {$gettext} = useTranslate();
 
     return {
@@ -129,6 +144,10 @@ export function useTypeDetails() {
             title: $gettext('Mastodon Post'),
             description: $gettext('Automatically publish to a Mastodon instance.')
         },
+        [WebhookType.Bluesky]: {
+            title: $gettext('Bluesky Post'),
+            description: $gettext('Automatically publish to Bluesky.')
+        },
         [WebhookType.GoogleAnalyticsV4]: {
             title: $gettext('Google Analytics V4 Integration'),
             description: $gettext('Send stream listener details to Google Analytics.')
@@ -140,8 +159,8 @@ export function useTypeDetails() {
     };
 }
 
-export function getTriggers(type: WebhookType) {
-    switch(type) {
+export function getTriggers(type: WebhookType): WebhookTrigger[] {
+    switch (type) {
         case WebhookType.TuneIn:
         case WebhookType.RadioDe:
         case WebhookType.RadioReg:

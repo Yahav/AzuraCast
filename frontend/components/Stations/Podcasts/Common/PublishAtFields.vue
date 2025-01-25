@@ -27,18 +27,19 @@ import {ref, toRef, watch} from "vue";
 import {useLuxon} from "~/vendor/luxon.ts";
 import {useAzuraCastStation} from "~/vendor/azuracast.ts";
 
-const props = defineProps({
-    id: {
-        type: String,
-        required: true,
-    },
-    modelValue: {
-        type: Number,
-        default: null
+const props = withDefaults(
+    defineProps<{
+        id: string,
+        modelValue?: string | number | null
+    }>(),
+    {
+        modelValue: null
     }
-});
+);
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: number | null)
+}>();
 
 const publishDate = ref<string>('');
 const publishTime = ref<string>('');
@@ -48,7 +49,7 @@ const {timezone} = useAzuraCastStation();
 
 watch(toRef(props, 'modelValue'), (publishAt) => {
     if (publishAt !== null) {
-        const publishDateTime = DateTime.fromSeconds(publishAt, {zone: timezone});
+        const publishDateTime = DateTime.fromSeconds(Number(publishAt), {zone: timezone});
         publishDate.value = publishDateTime.toISODate();
         publishTime.value = publishDateTime.toISOTime({
             suppressMilliseconds: true,

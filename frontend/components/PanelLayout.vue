@@ -222,59 +222,23 @@ import {useAxios} from "~/vendor/axios.ts";
 import logo from '~/caster_logo.svg';
 
 
-const props = defineProps({
-  instanceName: {
-    type: String,
-    required: true
-  },
-  userDisplayName: {
-    type: String,
-    required: true
-  },
-  homeUrl: {
-    type: String,
-    required: true,
-  },
-  profileUrl: {
-    type: String,
-    required: true,
-  },
-  adminUrl: {
-    type: String,
-    required: true
-  },
-  logoutUrl: {
-    type: String,
-    required: true
-  },
-  showAdmin: {
-    type: Boolean,
-    default: false
-  },
-  version: {
-    type: String,
-    required: true
-  },
-  platform: {
-      type: String,
-      required: true
-  },
-  hasStarted: {
-    type: Boolean,
-    required: false,
-    default: null
-  },
-  needsRestart: {
-    type: Boolean,
-    required: false,
-    default: null
-  },
-  stationName: {
-    type: String,
-    required: false,
-    default: null,
-  }
-});
+
+export interface PanelLayoutProps {
+    instanceName: string,
+    userDisplayName: string,
+    homeUrl: string,
+    profileUrl: string,
+    adminUrl: string,
+    logoutUrl: string,
+    showAdmin: boolean,
+    version: string,
+    platform: string,
+    hasStarted: boolean,
+    needsRestart: boolean,
+    stationName: string,
+}
+
+const props = defineProps<PanelLayoutProps>();
 
 const slots = useSlots();
 
@@ -316,8 +280,9 @@ watch(
 
 useProvidePlayerStore('global');
 
-onMounted(async () => {
-    await nextTick();
-    document.dispatchEvent(new CustomEvent("vue-ready"));
+onMounted(() => {
+    void nextTick(() => {
+        document.dispatchEvent(new CustomEvent("vue-ready"));
+    });
 });
 </script>

@@ -19,7 +19,7 @@
                         v-if="!isPlaying || isPaused"
                         type="button"
                         class="btn btn-sm btn-success"
-                        @click="play"
+                        @click="play()"
                     >
                         <icon :icon="IconPlayCircle" />
                     </button>
@@ -104,7 +104,7 @@
                         class="custom-file-input files"
                         accept="audio/*"
                         multiple
-                        @change="addNewFiles($event.target.files)"
+                        @change="onFileSelected"
                     >
                     <label
                         :for="id + '_files'"
@@ -187,12 +187,9 @@ import {useWebDjSource} from "~/components/Public/WebDJ/useWebDjSource";
 import {useInjectWebcaster} from "~/components/Public/WebDJ/useWebcaster";
 import {IconFastForward, IconFastRewind, IconPauseCircle, IconPlayCircle, IconStop} from "~/components/Common/icons";
 
-const props = defineProps({
-    id: {
-        type: String,
-        required: true
-    }
-});
+const props = defineProps<{
+    id: string
+}>();
 
 const isLeftPlaylist = computed(() => {
     return props.id === 'playlist_1';
@@ -272,8 +269,11 @@ const langHeader = computed(() => {
         : $gettext('Playlist 2');
 });
 
-const addNewFiles = (newFiles) => {
-    forEach(newFiles, (file) => {
+const onFileSelected = (e: Event) => {
+    const eventTarget = e.target as HTMLInputElement;
+
+    forEach(eventTarget.files, (file) => {
+        // @ts-expect-error Weird custom function from taglib. Don't worry about it.
         file.readTaglibMetadata((data) => {
             files.value.push({
                 file: file,
@@ -282,9 +282,15 @@ const addNewFiles = (newFiles) => {
             });
         });
     });
-};
+}
 
-const selectFile = (options = {}) => {
+interface PlayOptions {
+    isAutoPlay?: boolean,
+    backward?: boolean,
+    fileIndex?: number
+}
+
+const selectFile = (options: PlayOptions = {}) => {
     if (files.value.length === 0) {
         return;
     }
@@ -314,7 +320,12 @@ const selectFile = (options = {}) => {
     return files.value[fileIndex.value];
 };
 
-const play = (options = {}) => {
+const play = (initialOptions: PlayOptions = {}) => {
+    const options = {
+        isAutoPlay: false,
+        ...initialOptions,
+    };
+
     const file = selectFile(options);
 
     if (!file) {

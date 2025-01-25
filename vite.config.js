@@ -63,6 +63,14 @@ export default defineConfig({
         chunkSizeWarningLimit: '1m',
         outDir: resolve(__dirname, './web/static/vite_dist')
     },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                quietDeps: true,
+                silenceDeprecations: ['legacy-js-api']
+            }
+        }
+    },
     server: {
         strictPort: true,
         host: true,
@@ -83,8 +91,19 @@ export default defineConfig({
     },
     plugins: [
         vue(),
-        eslint({
-            fix: true
-        })
+        {
+            ...eslint(),
+            apply: 'build',
+        },
+        {
+            ...eslint({
+                cache: true,
+                cacheLocation: '/var/azuracast/www_tmp/.eslintcache',
+                failOnWarning: false,
+                failOnError: false,
+            }),
+            apply: 'serve',
+            enforce: 'post'
+        }
     ],
 })

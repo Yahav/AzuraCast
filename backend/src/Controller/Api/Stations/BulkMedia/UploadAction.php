@@ -39,12 +39,6 @@ final class UploadAction implements SingleActionInterface
         'genre',
         'lyrics',
         'isrc',
-        'amplify',
-        'fade_overlap',
-        'fade_in',
-        'fade_out',
-        'cue_in',
-        'cue_out',
     ];
 
     public function __construct(
@@ -213,7 +207,7 @@ final class UploadAction implements SingleActionInterface
             } elseif ('playlists' === $key) {
                 $hasPlaylists = true;
                 if (null !== $value) {
-                    foreach (explode(',', $value) as $playlistName) {
+                    foreach (explode(', ', $value) as $playlistName) {
                         $playlistShortName = StationPlaylist::generateShortName($playlistName);
                         if (isset($playlistsByName[$playlistShortName])) {
                             /** @var int $playlistId */

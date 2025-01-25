@@ -69,20 +69,18 @@ import InvisibleSubmitButton from "~/components/Common/InvisibleSubmitButton.vue
 import AccountApiKeyNewKey from "./ApiKeyNewKey.vue";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import {required} from '@vuelidate/validators';
-import {nextTick, ref} from "vue";
+import {nextTick, ref, useTemplateRef} from "vue";
 import {useVuelidateOnForm} from "~/functions/useVuelidateOnForm";
 import {useAxios} from "~/vendor/axios";
 import Modal from "~/components/Common/Modal.vue";
-import {ModalTemplateRef, useHasModal} from "~/functions/useHasModal.ts";
+import {useHasModal} from "~/functions/useHasModal.ts";
+import {HasRelistEmit} from "~/functions/useBaseEditModal.ts";
 
-const props = defineProps({
-    createUrl: {
-        type: String,
-        required: true
-    }
-});
+const props = defineProps<{
+    createUrl: string,
+}>();
 
-const emit = defineEmits(['relist']);
+const emit = defineEmits<HasRelistEmit>();
 
 const error = ref(null);
 const newKey = ref(null);
@@ -102,7 +100,7 @@ const clearContents = () => {
     newKey.value = null;
 };
 
-const $modal = ref<ModalTemplateRef>(null);
+const $modal = useTemplateRef('$modal');
 const {show, hide} = useHasModal($modal);
 
 const create = () => {
@@ -110,10 +108,10 @@ const create = () => {
     show();
 };
 
-const $field = ref<InstanceType<typeof FormGroupField> | null>(null);
+const $field = useTemplateRef('$field');
 
 const onShown = () => {
-    nextTick(() => {
+    void nextTick(() => {
         $field.value?.focus();
     })
 };

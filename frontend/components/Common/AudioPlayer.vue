@@ -9,32 +9,30 @@
 <script setup lang="ts">
 import getLogarithmicVolume from '~/functions/getLogarithmicVolume';
 import Hls from 'hls.js';
-import {computed, nextTick, onMounted, onScopeDispose, ref, toRef, watch} from "vue";
+import {computed, nextTick, onMounted, onScopeDispose, ref, toRef, useTemplateRef, watch} from "vue";
 import {usePlayerStore} from "~/functions/usePlayerStore.ts";
 import {watchThrottled} from "@vueuse/core";
 
-const props = defineProps({
-    title: {
-        type: String,
-        default: null
-    },
-    volume: {
-        type: Number,
-        default: 55
-    },
-    isMuted: {
-        type: Boolean,
-        default: false
+const props = withDefaults(
+    defineProps<{
+        title?: string,
+        volume?: number,
+        isMuted?: boolean
+    }>(),
+    {
+        volume: 55,
+        isMuted: false
     }
-});
+);
 
-const emit = defineEmits([
-  'update:duration',
-  'update:currentTime',
-  'update:progress'
-]);
+const emit = defineEmits<{
+    (e: 'update:duration', value: number): void,
+    (e: 'update:currentTime', value: number): void,
+    (e: 'update:progress', value: number): void
+}>();
 
-const $audio = ref(null);
+const $audio = useTemplateRef('$audio');
+
 const hls = ref(null);
 const duration = ref(0);
 const currentTime = ref(0);
@@ -74,7 +72,7 @@ const stop = () => {
 const play = () => {
     if (isPlaying.value) {
         stop();
-        nextTick(() => {
+        void nextTick(() => {
             play();
         });
         return;
@@ -82,7 +80,7 @@ const play = () => {
 
     isPlaying.value = true;
 
-    nextTick(() => {
+    void nextTick(() => {
         // Handle audio errors.
         $audio.value.onerror = (e) => {
             if (e.target.error.code === e.target.error.MEDIA_ERR_NETWORK && $audio.value.src !== '') {

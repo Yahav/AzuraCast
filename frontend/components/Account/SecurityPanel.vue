@@ -138,11 +138,11 @@ import AccountChangePasswordModal from "~/components/Account/ChangePasswordModal
 import {useAxios} from "~/vendor/axios.ts";
 import {getApiUrl} from "~/router.ts";
 import useRefreshableAsyncState from "~/functions/useRefreshableAsyncState.ts";
-import {ref} from "vue";
+import {useTemplateRef} from "vue";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete.ts";
 import {useTranslate} from "~/vendor/gettext.ts";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
-import useHasDatatable, {DataTableTemplateRef} from "~/functions/useHasDatatable.ts";
+import useHasDatatable from "~/functions/useHasDatatable.ts";
 import PasskeyModal from "~/components/Account/PasskeyModal.vue";
 import {GlobalPermission, userAllowed} from "~/acl.ts";
 
@@ -161,16 +161,14 @@ const {state: security, isLoading: securityLoading, execute: reloadSecurity} = u
     },
 );
 
+const $changePasswordModal = useTemplateRef('$changePasswordModal');
 const isAdministrator = userAllowed(GlobalPermission.All);
-
-
-const $changePasswordModal = ref<InstanceType<typeof AccountChangePasswordModal> | null>(null);
 
 const doChangePassword = () => {
     $changePasswordModal.value?.open();
 };
 
-const $twoFactorModal = ref<InstanceType<typeof AccountTwoFactorModal> | null>(null);
+const $twoFactorModal = useTemplateRef('$twoFactorModal');
 
 const enableTwoFactor = () => {
     $twoFactorModal.value?.open();
@@ -201,7 +199,7 @@ const passkeyFields: DataTableField[] = [
     }
 ];
 
-const $dataTable = ref<DataTableTemplateRef>(null);
+const $dataTable = useTemplateRef('$dataTable');
 const {relist: reloadPasskeys} = useHasDatatable($dataTable);
 
 const {doDelete: deletePasskey} = useConfirmAndDelete(
@@ -209,7 +207,7 @@ const {doDelete: deletePasskey} = useConfirmAndDelete(
     reloadPasskeys
 );
 
-const $passkeyModal = ref<InstanceType<typeof PasskeyModal> | null>(null);
+const $passkeyModal = useTemplateRef('$passkeyModal');
 
 const doAddPasskey = () => {
     $passkeyModal.value?.create();

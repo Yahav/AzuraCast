@@ -67,7 +67,7 @@
 
         <data-table
             id="station_media"
-            ref="$datatable"
+            ref="$dataTable"
             selectable
             paginated
             select-fields
@@ -77,7 +77,7 @@
             @row-selected="onRowSelected"
             @filtered="onFiltered"
         >
-            <template #cell(path)="{ item }: { item: ApiFileList }">
+            <template #cell(path)="{ item }">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 pe-2">
                         <template v-if="item.type === FileTypes.Media">
@@ -159,10 +159,10 @@
                 </div>
             </template>
             <!-- eslint-disable-next-line -->
-            <template #cell(media.length)="{ item }: { item: ApiFileList }">
+            <template #cell(media.length)="{ item }">
                 {{ item.media?.length_text }}
             </template>
-            <template #cell(size)="{ item }: { item: ApiFileList }">
+            <template #cell(size)="{ item }">
                 <template v-if="!item.size">
                     &nbsp;
                 </template>
@@ -170,7 +170,7 @@
                     {{ formatFileSize(item.size) }}
                 </template>
             </template>
-            <template #cell(playlists)="{ item }: { item: ApiFileList }">
+            <template #cell(playlists)="{ item }">
                 <template v-if="item.media?.playlists?.length > 0">
                     <template
                         v-for="(playlist, index) in item.media.playlists"
@@ -203,12 +203,12 @@
                     &nbsp;
                 </template>
             </template>
-            <template #cell(commands)="{ item }: { item: ApiFileList }">
+            <template #cell(commands)="{ item }">
                 <template v-if="item.media?.links?.self">
                     <button
                         type="button"
                         class="btn btn-sm btn-primary"
-                        @click="edit(item.media.links.self, item.media.links.art, item.media.links.play, item.media.links.waveform)"
+                        @click="edit(item.media.links.self)"
                     >
                         {{ $gettext('Edit') }}
                     </button>
@@ -270,42 +270,43 @@ import Icon from '~/components/Common/Icon.vue';
 import AlbumArt from '~/components/Common/AlbumArt.vue';
 import PlayButton from "~/components/Common/PlayButton.vue";
 import {useTranslate} from "~/vendor/gettext";
-import {computed, ref, watch} from "vue";
+import {computed, ref, useTemplateRef, watch} from "vue";
 import {forEach, map, partition} from "lodash";
 import formatFileSize from "../../functions/formatFileSize";
 import InfoCard from "~/components/Common/InfoCard.vue";
 import {getStationApiUrl} from "~/router";
 import {useRoute, useRouter} from "vue-router";
 import {IconFile, IconFolder, IconImage} from "~/components/Common/icons";
-import {DataTableTemplateRef} from "~/functions/useHasDatatable.ts";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import {ApiFileList, CustomField, FileTypes} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps({
-    initialPlaylists: {
-        type: Array,
-        required: false,
-        default: () => []
-    },
-    customFields: {
-        type: Array,
-        required: false,
-        default: () => []
-    },
-    validMimeTypes: {
-        type: Array,
-        required: false,
-        default: () => []
-    },
-    showSftp: {
-        type: Boolean,
-        default: true
-    },
-    supportsImmediateQueue: {
-        type: Boolean,
-        required: true
+export interface MediaSelectedItems {
+    all: ApiFileList[],
+    files: string[],
+    directories: string[]
+}
+
+export interface MediaInitialPlaylist {
+    id: number,
+    name: string
+}
+
+const props = withDefaults(
+    defineProps<{
+        initialPlaylists?: MediaInitialPlaylist[],
+        customFields?: CustomField[],
+        validMimeTypes?: string[],
+        showSftp?: boolean,
+        supportsImmediateQueue?: boolean,
+    }>(),
+    {
+        initialPlaylists: () => [],
+        customFields: () => [],
+        validMimeTypes: () => [],
+        showSftp: true,
+        supportsImmediateQueue: true
     }
-});
+);
 
 const listUrl = getStationApiUrl('/files/list');
 const batchUrl = getStationApiUrl('/files/batch');
@@ -319,8 +320,8 @@ const {$gettext} = useTranslate();
 
 const {formatTimestampAsDateTime} = useStationDateTimeFormatter();
 
-const fields = computed<DataTableField[]>(() => {
-    const fields: DataTableField[] = [
+const fields = computed<DataTableField<ApiFileList>[]>(() => {
+    const fields: DataTableField<ApiFileList>[] = [
         {key: 'path', isRowHeader: true, label: $gettext('Name'), sortable: true},
         {key: 'media.title', label: $gettext('Title'), sortable: true, selectable: true, visible: false},
         {
@@ -385,8 +386,8 @@ const fields = computed<DataTableField[]>(() => {
     return fields;
 });
 
-const playlists = ref(props.initialPlaylists);
-const selectedItems = ref({
+const playlists = ref<MediaInitialPlaylist[]>(props.initialPlaylists);
+const selectedItems = ref<MediaSelectedItems>({
     all: [],
     files: [],
     directories: []
@@ -394,8 +395,8 @@ const selectedItems = ref({
 const currentDirectory = ref('');
 const searchPhrase = ref('');
 
-const onRowSelected = (items) => {
-    const splitItems = partition(items, (row: ApiFileList) => row.type === FileTypes.Directory);
+const onRowSelected = (items: ApiFileList[]) => {
+    const splitItems = partition(items, (row) => row.type === FileTypes.Directory);
 
     selectedItems.value = {
         all: items,
@@ -404,24 +405,24 @@ const onRowSelected = (items) => {
     };
 };
 
-const $datatable = ref<DataTableTemplateRef>(null);
+const $dataTable = useTemplateRef('$dataTable');
 
 const onTriggerNavigate = () => {
-    $datatable.value?.navigate();
+    $dataTable.value?.navigate();
 };
 
 const filter = (newFilter) => {
-    $datatable.value?.setFilter(newFilter);
+    $dataTable.value?.setFilter(newFilter);
 };
 
-const $quota = ref<InstanceType<typeof StationsCommonQuota> | null>(null);
+const $quota = useTemplateRef('$quota');
 
 const onTriggerRelist = () => {
     $quota.value?.update();
-    $datatable.value?.relist();
+    $dataTable.value?.relist();
 };
 
-const onAddPlaylist = (row) => {
+const onAddPlaylist = (row: MediaInitialPlaylist) => {
     playlists.value.push(row);
 };
 
@@ -429,25 +430,25 @@ const onFiltered = (newFilter) => {
     searchPhrase.value = newFilter;
 };
 
-const $renameModal = ref<InstanceType<typeof RenameModal> | null>(null);
+const $renameModal = useTemplateRef('$renameModal');
 
 const rename = (path) => {
     $renameModal.value?.open(path);
 };
 
-const $editModal = ref<InstanceType<typeof EditModal> | null>(null);
+const $editModal = useTemplateRef('$editModal');
 
 const edit = (recordUrl: string) => {
     $editModal.value?.open(recordUrl);
 };
 
-const $newDirectoryModal = ref<InstanceType<typeof NewDirectoryModal> | null>(null);
+const $newDirectoryModal = useTemplateRef('$newDirectoryModal');
 
 const createDirectory = () => {
     $newDirectoryModal.value?.open();
 }
 
-const $moveFilesModal = ref<InstanceType<typeof MoveFilesModal> | null>(null);
+const $moveFilesModal = useTemplateRef('$moveFilesModal');
 
 const moveFiles = () => {
     $moveFilesModal.value?.open();
@@ -465,7 +466,7 @@ const router = useRouter();
 const route = useRoute();
 
 const changeDirectory = (newDir) => {
-    router.push({
+    void router.push({
         name: 'stations:files:index',
         params: {
             path: newDir
@@ -476,7 +477,10 @@ const changeDirectory = (newDir) => {
 watch(
     () => route.params,
     async (newParams) => {
-        const path = newParams.path ?? '';
+        let path = newParams.path ?? '';
+        if (Array.isArray(path)) {
+            path = path.join('');
+        }
 
         if (isFilterString(path)) {
             await router.push({

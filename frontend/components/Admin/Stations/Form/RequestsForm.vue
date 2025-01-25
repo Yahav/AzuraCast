@@ -46,25 +46,6 @@
                     :label="$gettext('Request Last Played Threshold (Minutes)')"
                     :description="$gettext('This specifies the minimum time (in minutes) between a song playing on the radio and being available to request again. Set to 0 for no threshold.')"
                 />
-
-                <form-group-field
-                    id="form_edit_request_priority"
-                    class="col-md-6"
-                    :field="v$.request_priority"
-                    input-type="number"
-                    :input-attrs="{min: '0', max: '150'}"
-                    clearable
-                    :label="$gettext('Request Priority')"
-                    :description="$gettext('If using playlist priorities, this specifies the priority of incoming requests. Leave blank to put requests at the highest priority.')"
-                />
-
-                <form-group-checkbox
-                    id="form_edit_requests_follow_format"
-                    class="col-md-6"
-                    :field="v$.requests_follow_format"
-                    :label="$gettext('Force Requests to Follow Playlist Rules')"
-                    :description="$gettext('Enable this setting to only queue incoming requests once the playlist they belong to would normally play; if disabled, requests can play regardless of the playback rules of the playlist they belong to.')"
-                />
             </div>
         </form-fieldset>
         <backend-disabled v-else />
@@ -78,40 +59,25 @@ import {BackendAdapter} from "~/entities/RadioAdapters";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
 import BackendDisabled from "./Common/BackendDisabled.vue";
 import {computed} from "vue";
-import {useVModel} from "@vueuse/core";
-import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 
-const props = defineProps({
-    form: {
-        type: Object,
-        required: true
-    },
-    station: {
-        type: Object,
-        required: true
-    }
-});
+const props = defineProps<FormTabProps>();
+const emit = defineEmits<FormTabEmits>();
 
-const emit = defineEmits(['update:form']);
-const form = useVModel(props, 'form', emit);
-
-const {v$, tabClass} = useVuelidateOnFormTab(
+const {form, v$, tabClass} = useVuelidateOnFormTab(
+    props,
+    emit,
     {
         enable_requests: {},
         request_delay: {numeric},
         request_threshold: {numeric},
-        request_priority: {numeric},
-        requests_follow_format: {}
     },
-    form,
     {
         enable_requests: false,
         request_delay: 5,
         request_threshold: 15,
-        request_priority: null,
-        requests_follow_format: false
     }
 );
 

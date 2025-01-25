@@ -1,5 +1,9 @@
 import {useInjectWebDjNode} from "~/components/Public/WebDJ/useWebDjNode";
 
+interface StreamAudioSourceWithStop extends MediaStreamAudioSourceNode {
+    stop?(): void
+}
+
 export function useWebDjSource() {
     const {context} = useInjectWebDjNode();
 
@@ -32,7 +36,7 @@ export function useWebDjSource() {
                 el.pause();
                 return el.remove();
             };
-            source.pause = () => el.pause;
+            source.pause = () => el.pause();
             source.seek = (percent) => {
                 const time = percent * parseFloat(audio.length);
                 el.currentTime = time;
@@ -44,13 +48,13 @@ export function useWebDjSource() {
     };
 
     const createMicrophoneSource = (audioDeviceId, cb) => {
-        navigator.mediaDevices.getUserMedia({
+        void navigator.mediaDevices.getUserMedia({
             video: false,
             audio: {
                 deviceId: audioDeviceId
             }
         }).then((stream) => {
-            const source = context.value.createMediaStreamSource(stream);
+            const source: StreamAudioSourceWithStop = context.value.createMediaStreamSource(stream);
             source.stop = () => {
                 const ref = stream.getAudioTracks();
                 return (ref !== null)

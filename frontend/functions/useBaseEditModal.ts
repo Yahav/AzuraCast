@@ -1,47 +1,76 @@
-import {computed, nextTick, Ref, ref, toRef} from "vue";
+import {computed, ComputedRef, nextTick, Ref, ref, toRef} from "vue";
 import mergeExisting from "~/functions/mergeExisting";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
-import {useVuelidateOnForm} from "~/functions/useVuelidateOnForm";
+import {
+    useVuelidateOnForm,
+    VuelidateBlankForm,
+    VuelidateRef,
+    VuelidateValidations
+} from "~/functions/useVuelidateOnForm";
 import ModalForm from "~/components/Common/ModalForm.vue";
+import {AxiosRequestConfig} from "axios";
+import {GlobalConfig} from "@vuelidate/core";
+import {GenericForm} from "~/entities/Forms.ts";
 
-export type ModalFormTemplateRef = InstanceType<typeof ModalForm> | null;
+export type ModalFormTemplateRef = InstanceType<typeof ModalForm>;
 
-export const baseEditModalProps = {
-    createUrl: {
-        type: String,
-        required: true
-    }
-};
+export interface BaseEditModalProps {
+    createUrl?: string
+}
 
-export function useBaseEditModal(
-    props,
-    emit,
+export interface HasRelistEmit {
+    (e: 'relist'): void
+}
+
+export type BaseEditModalEmits = HasRelistEmit;
+
+export interface BaseEditModalOptions<T extends GenericForm = GenericForm> extends GlobalConfig {
+    resetForm?(originalResetForm: () => void): void,
+
+    clearContents?(resetForm: () => void): void,
+
+    populateForm?(data: Partial<T>, form: Ref<T>): void,
+
+    getSubmittableFormData?(form: Ref<T>, isEditMode: ComputedRef<boolean>): Record<string, any>,
+
+    buildSubmitRequest?(): AxiosRequestConfig,
+
+    onSubmitSuccess?(): void,
+
+    onSubmitError?(error: any): void,
+}
+
+export function useBaseEditModal<T extends GenericForm = GenericForm>(
+    props: BaseEditModalProps,
+    emit: BaseEditModalEmits,
     $modal: Ref<ModalFormTemplateRef>,
-    validations = {},
-    blankForm = {},
-    userOptions = {}
-) {
+    validations?: VuelidateValidations<T>,
+    blankForm?: VuelidateBlankForm<T>,
+    options: BaseEditModalOptions<T> = {}
+): {
+    loading: Ref<boolean>,
+    error: Ref<any>,
+    editUrl: Ref<string>,
+    isEditMode: ComputedRef<boolean>,
+    form: Ref<T>,
+    v$: VuelidateRef<T>,
+    resetForm: () => void,
+    clearContents: () => void,
+    create: () => void,
+    edit: (recordUrl: string) => void,
+    doSubmit: () => void,
+    close: () => void
+} {
     const createUrl = toRef(props, 'createUrl');
 
-    const loading = ref(false);
-    const error = ref(null);
-    const editUrl = ref(null);
+    const loading: Ref<boolean> = ref<boolean>(false);
+    const error: Ref<any> = ref(null);
+    const editUrl: Ref<string> = ref<string>(null);
 
-    const isEditMode = computed(() => {
+    const isEditMode: ComputedRef<boolean> = computed(() => {
         return editUrl.value !== null;
     });
-
-    const options = {
-        resetForm: null,
-        clearContents: null,
-        populateForm: null,
-        getSubmittableFormData: null,
-        buildSubmitRequest: null,
-        onSubmitSuccess: null,
-        onSubmitError: null,
-        ...userOptions
-    };
 
     const {
         form,
@@ -53,17 +82,19 @@ export function useBaseEditModal(
         options
     );
 
-    const resetForm = () => {
+    const resetForm = (): void => {
         if (typeof options.resetForm === 'function') {
-            return options.resetForm(originalResetForm);
+            options.resetForm(originalResetForm);
+            return;
         }
 
         originalResetForm();
     };
 
-    const clearContents = () => {
+    const clearContents = (): void => {
         if (typeof options.clearContents === 'function') {
-            return options.clearContents(resetForm);
+            options.clearContents(resetForm);
+            return;
         }
 
         resetForm();
@@ -73,19 +104,20 @@ export function useBaseEditModal(
         editUrl.value = null;
     };
 
-    const create = () => {
+    const create = (): void => {
         clearContents();
 
         $modal.value.show();
 
-        nextTick(() => {
+        void nextTick(() => {
             resetForm();
         });
     };
 
-    const populateForm = (data) => {
+    const populateForm = (data: Partial<T>): void => {
         if (typeof options.populateForm === 'function') {
-            return options.populateForm(data, form);
+            options.populateForm(data, form);
+            return;
         }
 
         form.value = mergeExisting(form.value, data);
@@ -94,7 +126,7 @@ export function useBaseEditModal(
     const {notifySuccess} = useNotify();
     const {axios} = useAxios();
 
-    const doLoad = () => {
+    const doLoad = (): void => {
         loading.value = true;
 
         axios.get(editUrl.value).then((resp) => {
@@ -106,19 +138,19 @@ export function useBaseEditModal(
         });
     };
 
-    const edit = (recordUrl) => {
+    const edit = (recordUrl: string): void => {
         clearContents();
 
         editUrl.value = recordUrl;
         $modal.value.show();
 
-        nextTick(() => {
+        void nextTick(() => {
             resetForm();
             doLoad();
         })
     };
 
-    const getSubmittableFormData = () => {
+    const getSubmittableFormData = (): Record<string, any> => {
         if (typeof options.getSubmittableFormData === 'function') {
             return options.getSubmittableFormData(form, isEditMode);
         }
@@ -126,7 +158,7 @@ export function useBaseEditModal(
         return form.value;
     };
 
-    const buildSubmitRequest = () => {
+    const buildSubmitRequest = (): AxiosRequestConfig => {
         if (typeof options.buildSubmitRequest === 'function') {
             return options.buildSubmitRequest();
         }
@@ -142,13 +174,14 @@ export function useBaseEditModal(
         };
     };
 
-    const close = () => {
+    const close = (): void => {
         $modal.value.hide();
     };
 
-    const onSubmitSuccess = () => {
+    const onSubmitSuccess = (): void => {
         if (typeof options.onSubmitSuccess === 'function') {
-            return options.onSubmitSuccess();
+            options.onSubmitSuccess();
+            return;
         }
 
         notifySuccess();
@@ -156,15 +189,16 @@ export function useBaseEditModal(
         close();
     };
 
-    const onSubmitError = (err) => {
+    const onSubmitError = (err: any): void => {
         if (typeof options.onSubmitError === 'function') {
-            return options.onSubmitError(err);
+            options.onSubmitError(err);
+            return;
         }
 
         error.value = err.response.data.message;
     };
 
-    const doSubmit = () => {
+    const doSubmit = (): void => {
         v$.value.$touch();
         v$.value.$validate().then((isValid) => {
             if (!isValid) {

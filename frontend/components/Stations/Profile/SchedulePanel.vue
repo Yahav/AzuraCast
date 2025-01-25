@@ -47,12 +47,13 @@ import CardPage from "~/components/Common/CardPage.vue";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import {useLuxon} from "~/vendor/luxon.ts";
 
-const props = defineProps({
-    scheduleItems: {
-        type: Array<any>,
-        required: true
-    }
+defineOptions({
+    inheritAttrs: false
 });
+
+const props = defineProps<{
+    scheduleItems: Array<any>
+}>();
 
 const {DateTime} = useLuxon();
 const {
