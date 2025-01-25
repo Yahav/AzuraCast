@@ -9,10 +9,10 @@
                 :id="id"
                 class="card-title"
             >
-                {{ $gettext('Broadcasting Service') }}
-
-                <running-badge :running="frontendRunning" />
-                <br>
+                <div class="d-flex justify-content-between">
+                    {{ $gettext('Broadcasting Service') }}
+                    <running-badge :running="frontendRunning" />
+                </div>
                 <small>{{ frontendName }}</small>
             </h3>
         </template>

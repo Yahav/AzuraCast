@@ -11,6 +11,7 @@ use App\Doctrine\Repository;
 use App\Entity\Station;
 use App\Entity\StationHlsStream;
 use App\Entity\StationMount;
+use App\Entity\StationRemote;
 use App\Flysystem\ExtendedFilesystemInterface;
 use App\Flysystem\StationFilesystems;
 use App\Radio\Enums\StreamFormats;
@@ -109,7 +110,7 @@ final class StationRepository extends Repository
         // Create default mountpoints if station supports them.
         if ($station->getFrontendType()->supportsMounts()) {
             $record = new StationMount($station);
-            $record->setName('/radio.mp3');
+            $record->setName('/radio');
             $record->setIsDefault(true);
             $record->setEnableAutodj(true);
             $record->setAutodjFormat(StreamFormats::Mp3);

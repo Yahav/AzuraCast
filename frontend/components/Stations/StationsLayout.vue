@@ -1,5 +1,5 @@
 <template>
-    <panel-layout v-bind="panelProps">
+    <panel-layout v-bind="{...panelProps, ...stationPropsForPanel}">
         <template #sidebar>
             <sidebar/>
         </template>

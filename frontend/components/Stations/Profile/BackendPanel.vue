@@ -6,12 +6,10 @@
         <template #header="{id}">
             <h3
                 :id="id"
-                class="card-title"
+                class="card-title d-flex justify-content-between"
             >
                 {{ $gettext('AutoDJ Service') }}
                 <running-badge :running="backendRunning" />
-                <br>
-                <small>{{ backendName }}</small>
             </h3>
         </template>
 
@@ -133,19 +131,12 @@ const langTotalTracks = computed(() => {
     );
 
     return $gettext(
-        'LiquidSoap is currently shuffling from %{songs} and %{playlists}.',
+        'AutoDJ is currently shuffling from %{songs} and %{playlists}.',
         {
             songs: numSongs,
             playlists: numPlaylists
         }
     );
-});
-
-const backendName = computed(() => {
-    if (props.backendType === BackendAdapter.Liquidsoap) {
-        return 'Liquidsoap';
-    }
-    return '';
 });
 
 const doRestart = useMakeApiCall(

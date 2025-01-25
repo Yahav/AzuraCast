@@ -11,12 +11,13 @@ import {useGettext} from "vue3-gettext";
 
 const props = defineProps<{
     running: boolean,
+    extraClasses: string,
 }>();
 
 const badgeClass = computed(() => {
     return (props.running)
-        ? 'text-bg-success'
-        : 'text-bg-danger';
+        ? props.extraClasses +' '+'text-bg-success'
+        : props.extraClasses +' '+'text-bg-danger';
 });
 
 const {$gettext} = useGettext();

@@ -2,6 +2,7 @@
 [data-bs-theme="light"] {
   --public-page-bg: url('/static/img/hexbg.webp');
   --scrollbar-color: #{$gray-400};
+
 }
 
 @include color-mode(dark, true) {
@@ -19,7 +20,13 @@
   --bs-info-bg-subtle: #bbdefb;
   --bs-info-text-emphasis: #2C363D;
 
+
   .table-striped {
     --bs-table-striped-bg: #2b2e37;
   }
+}
+
+body {
+  font-stretch: normal;
+  font-optical-sizing: auto;
 }

@@ -10,7 +10,7 @@
                 <col style="width: 20%;">
             </colgroup>
             <template v-if="station.mounts.length > 0">
-                <thead>
+                <thead class="no-border">
                     <tr>
                         <th colspan="2">
                             {{ $gettext('Local Streams') }}
@@ -58,7 +58,7 @@
             </template>
 
             <template v-if="station.remotes.length > 0">
-                <thead>
+                <thead class="no-border">
                     <tr>
                         <th colspan="2">
                             {{ $gettext('Remote Relays') }}
@@ -106,7 +106,7 @@
             </template>
 
             <template v-if="station.hls_enabled">
-                <thead>
+                <thead class="no-border">
                     <tr>
                         <th colspan="2">
                             {{ $gettext('HTTP Live Streaming (HLS)') }}

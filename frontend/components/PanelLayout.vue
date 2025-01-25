@@ -28,17 +28,21 @@
             class="navbar-brand ms-0 me-auto"
             :href="homeUrl"
         >
-            azura<strong>cast</strong>
-            <small v-if="instanceName">{{ instanceName }}</small>
+            <img
+                :src="logo"
+                alt="Caster.fm"
+                style="height:40px;"
+            >
         </a>
 
         <div id="radio-player-controls" />
 
         <div class="dropdown ms-3 d-inline-flex align-items-center">
-            <div class="me-2">
-                {{ userDisplayName }}
-            </div>
-
+            <div id="station-time-wrapper" />
+            <clock
+                v-if="stationName !==null "
+                :station-name="stationName"
+            />
             <button
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -49,7 +53,7 @@
             >
                 <icon
                     :icon="IconMenuOpen"
-                    class="lg"
+                    class="xl"
                 />
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -83,33 +87,23 @@
                         {{ $gettext('My Account') }}
                     </a>
                 </li>
-                <li>
-                    <a
-                        class="dropdown-item theme-switcher"
-                        href="#"
-                        @click.prevent="toggleTheme"
-                    >
-                        <icon :icon="IconInvertColors" />
-                        {{ $gettext('Switch Theme') }}
-                    </a>
-                </li>
+                <!--                <li>-->
+                <!--                    <a-->
+                <!--                        class="dropdown-item theme-switcher"-->
+                <!--                        href="#"-->
+                <!--                        @click.prevent="toggleTheme"-->
+                <!--                    >-->
+                <!--                        <icon :icon="IconInvertColors" />-->
+                <!--                        {{ $gettext('Switch Theme') }}-->
+                <!--                    </a>-->
+                <!--                </li>-->
                 <li class="dropdown-divider">
                     &nbsp;
                 </li>
                 <li>
                     <a
                         class="dropdown-item"
-                        href="/docs/"
-                        target="_blank"
-                    >
-                        <icon :icon="IconSupport" />
-                        {{ $gettext('Documentation') }}
-                    </a>
-                </li>
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="/docs/help/troubleshooting/"
+                        href="https://www.caster.fm/help/pro-plan/"
                         target="_blank"
                     >
                         <icon :icon="IconHelp" />
@@ -148,6 +142,49 @@
     >
         <main id="main">
             <div class="container">
+                <template v-if="hasStarted !== null && needsRestart !== null && userAllowedForStation(StationPermission.Broadcasting)">
+                    <div
+                        v-if="hasStarted !== null && !hasStarted"
+                        class="navdrawer-alert bg-success text-white mb-3 mb-3 d-flex align-items-center"
+                    >
+                        <icon
+                            :icon="IconWarning"
+                            class="lg me-3 ms-4"
+                        />
+                        <router-link
+                            :to="{name: 'stations:restart:index'}"
+                            :class="'alert-link'"
+                        >
+                            <h4 class="fw-bold">
+                                {{ $gettext('Start Station') }}
+                            </h4>
+                            <div>
+                                {{ $gettext('Ready to start broadcasting? Click to start your station.') }}
+                            </div>
+                        </router-link>
+                    </div>
+                    <div
+                        v-else-if="needsRestart !== null && needsRestart"
+                        class="alert alert-warning bg-warning text-warning-emphasis mb-3 d-flex align-items-center"
+                    >
+                        <icon
+                            :icon="IconWarning"
+                            class="lg me-3"
+                        />
+                        <router-link
+                            :to="{name: 'stations:restart:index'}"
+                            :class="'alert-link'"
+                        >
+                            <h4 class="fw-bold">
+                                {{ $gettext('Reload to Apply Changes') }}
+                            </h4>
+                            <div>
+                                {{ $gettext('Your station has changes that require a reload to apply.') }}
+                            </div>
+                        </router-link>
+                    </div>
+                </template>
+
                 <slot />
             </div>
         </main>
@@ -155,40 +192,36 @@
         <footer id="footer">
             {{ $gettext('Powered by') }}
             <a
-                href="https://www.azuracast.com/"
+                href="https://www.caster.fm/"
                 target="_blank"
-            >AzuraCast</a>
-            &bull;
-            <span v-html="version" />
-            &bull;
-            <span v-html="platform" /><br>
-            {{ $gettext('Like our software?') }}
-            <a
-                href="https://donate.azuracast.com/"
-                target="_blank"
-            >
-                {{ $gettext('Donate to support AzuraCast!') }}
-            </a>
+            >Caster.fm</a>
         </footer>
     </div>
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, useSlots, watch} from "vue";
+import {nextTick, onMounted, ref, /*ref,*/ useSlots, watch} from "vue";
 import Icon from "~/components/Common/Icon.vue";
-import useTheme from "~/functions/theme";
+//import useTheme from "~/functions/theme";
 import {
     IconAccountCircle,
     IconExitToApp,
     IconHelp,
     IconHome,
-    IconInvertColors,
+    //IconInvertColors,
     IconMenu,
     IconMenuOpen,
-    IconSettings,
-    IconSupport
+    IconSettings, IconWarning,
 } from "~/components/Common/icons";
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
+import {StationPermission, userAllowedForStation} from "~/acl.ts";
+import Clock from "~/components/Stations/Clock.vue";
+import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";
+import {getStationApiUrl} from "~/router.ts";
+import {useAxios} from "~/vendor/axios.ts";
+import logo from '~/caster_logo.svg';
+
+
 
 export interface PanelLayoutProps {
     instanceName: string,
@@ -199,7 +232,10 @@ export interface PanelLayoutProps {
     logoutUrl: string,
     showAdmin: boolean,
     version: string,
-    platform: string
+    platform: string,
+    hasStarted: boolean,
+    needsRestart: boolean,
+    stationName: string,
 }
 
 const props = defineProps<PanelLayoutProps>();
@@ -214,7 +250,25 @@ const handleSidebar = () => {
     }
 }
 
-const {toggleTheme} = useTheme();
+//const {toggleTheme} = useTheme();
+
+
+const restartEventBus = useRestartEventBus();
+
+const needsRestart = ref(props.needsRestart);
+const {axios} = useAxios();
+
+restartEventBus.on((forceRestart: boolean): void => {
+    const restartStatusUrl = getStationApiUrl('/restart-status');
+    if (forceRestart) {
+        needsRestart.value = true;
+    } else {
+        axios.get(restartStatusUrl.value).then((resp) => {
+            needsRestart.value = resp.data.needs_restart;
+        });
+    }
+});
+
 
 watch(
     () => slots.sidebar,

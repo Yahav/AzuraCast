@@ -85,7 +85,8 @@ abstract class AbstractFrontend extends AbstractLocalAdapter
 
         if (
             $useRadioProxy
-            || 'https' === $baseUrl->getScheme()
+            // Disable proxy for HTTPS URLs since Icecast served at HTTPS as well.
+            //|| 'https' === $baseUrl->getScheme()
             || (!$this->environment->isProduction() && !$this->environment->isDocker())
         ) {
             // Web proxy support.

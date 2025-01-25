@@ -42,7 +42,7 @@
                 </div>
             </template>
 
-            <form-fieldset>
+            <form-fieldset v-if="isAdministrator">
                 <template #label>
                     {{ $gettext('Audio Processing') }}
                 </template>
@@ -208,7 +208,7 @@
                 </template>
             </form-fieldset>
 
-            <form-fieldset v-if="enableAdvancedFeatures">
+            <form-fieldset v-if="enableAdvancedFeatures && isAdministrator">
                 <template #label>
                     {{ $gettext('Advanced Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -225,7 +225,7 @@
                     >
                         <template #description>
                             {{
-                                $gettext('This mode disables AzuraCast\'s AutoDJ management, using Liquidsoap itself to manage song playback. "next song" and some other features will not be available.')
+                                $gettext('This mode disables AutoDJ management, using Liquidsoap itself to manage song playback. "next song" and some other features will not be available.')
                             }}
                         </template>
                     </form-group-checkbox>
@@ -308,6 +308,7 @@ import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/use
 import {decimal, numeric, required} from "@vuelidate/validators";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 interface StationBackendFormProps extends FormTabProps {
     isStereoToolInstalled: boolean
@@ -317,6 +318,7 @@ const props = defineProps<StationBackendFormProps>();
 const emit = defineEmits<FormTabEmits>();
 
 const {enableAdvancedFeatures} = useAzuraCast();
+const isAdministrator = userAllowed(GlobalPermission.All);
 
 const {form, v$, tabClass} = useVuelidateOnFormTab(
     props,
@@ -329,14 +331,6 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
             backend_config: {
                 crossfade_type: {},
                 crossfade: {decimal},
-                write_playlists_to_liquidsoap: {},
-                audio_processing_method: {},
-                post_processing_include_live: {},
-                master_me_preset: {},
-                master_me_loudness_target: {},
-                stereo_tool_license_key: {},
-                enable_auto_cue: {},
-                enable_replaygain_metadata: {}
             },
         };
 
@@ -345,14 +339,40 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
                 ...validations,
                 backend_config: {
                     ...validations.backend_config,
-                    telnet_port: {numeric},
-                    autodj_queue_length: {},
-                    use_manual_autodj: {},
-                    charset: {},
-                    performance_mode: {},
-                    duplicate_prevention_time_range: {},
                 },
             };
+        }
+
+        if (isAdministrator) {
+            validations = {
+                ...validations,
+                backend_config: {
+                    ...validations.backend_config,
+                    write_playlists_to_liquidsoap: {},
+                    audio_processing_method: {},
+                    post_processing_include_live: {},
+                    master_me_preset: {},
+                    master_me_loudness_target: {},
+                    stereo_tool_license_key: {},
+                    enable_auto_cue: {},
+                    enable_replaygain_metadata: {}
+                },
+            };
+
+            if (enableAdvancedFeatures) {
+                validations = {
+                    ...validations,
+                    backend_config: {
+                        ...validations.backend_config,
+                        telnet_port: {numeric},
+                        autodj_queue_length: {},
+                        use_manual_autodj: {},
+                        charset: {},
+                        performance_mode: {},
+                        duplicate_prevention_time_range: {},
+                    },
+                };
+            }
         }
 
         return validations;
@@ -365,14 +385,6 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
             backend_config: {
                 crossfade_type: 'normal',
                 crossfade: 2,
-                write_playlists_to_liquidsoap: true,
-                audio_processing_method: AudioProcessingMethod.None,
-                post_processing_include_live: true,
-                master_me_preset: MasterMePreset.MusicGeneral,
-                master_me_loudness_target: -16,
-                stereo_tool_license_key: '',
-                enable_auto_cue: false,
-                enable_replaygain_metadata: false
             },
         };
 
@@ -381,14 +393,40 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
                 ...blankForm,
                 backend_config: {
                     ...blankForm.backend_config,
-                    telnet_port: '',
-                    autodj_queue_length: 3,
-                    use_manual_autodj: false,
-                    charset: 'UTF-8',
-                    performance_mode: 'disabled',
-                    duplicate_prevention_time_range: 120,
                 }
             };
+        }
+
+        if (isAdministrator) {
+            blankForm = {
+                ...blankForm,
+                backend_config: {
+                    ...blankForm.backend_config,
+                    write_playlists_to_liquidsoap: true,
+                    audio_processing_method: AudioProcessingMethod.None,
+                    post_processing_include_live: true,
+                    master_me_preset: MasterMePreset.MusicGeneral,
+                    master_me_loudness_target: -16,
+                    stereo_tool_license_key: '',
+                    enable_auto_cue: false,
+                    enable_replaygain_metadata: false
+                }
+            };
+
+            if (enableAdvancedFeatures) {
+                blankForm = {
+                    ...blankForm,
+                    backend_config: {
+                        ...blankForm.backend_config,
+                        telnet_port: '',
+                        autodj_queue_length: 3,
+                        use_manual_autodj: false,
+                        charset: 'UTF-8',
+                        performance_mode: 'disabled',
+                        duplicate_prevention_time_range: 120,
+                    }
+                };
+            }
         }
 
         return blankForm;

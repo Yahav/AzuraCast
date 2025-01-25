@@ -10,6 +10,7 @@
             />
 
             <form-group-field
+                v-if="isAdministrator"
                 id="form_email"
                 class="mb-3"
                 tabindex="2"
@@ -49,6 +50,7 @@ import {useTranslate} from "~/vendor/gettext";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import {HasGenericFormProps} from "~/entities/Forms.ts";
 import {objectToSimpleFormOptions} from "~/functions/objectToFormOptions.ts";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 interface AccountEditFormProps extends HasGenericFormProps {
     supportedLocales: Record<string, string>
@@ -57,6 +59,8 @@ interface AccountEditFormProps extends HasGenericFormProps {
 const props = defineProps<AccountEditFormProps>();
 
 const {$gettext} = useTranslate();
+
+const isAdministrator = userAllowed(GlobalPermission.All);
 
 const localeOptions = computed(() => {
     const localeOptions = objectToSimpleFormOptions(props.supportedLocales).value;

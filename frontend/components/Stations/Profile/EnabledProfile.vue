@@ -1,9 +1,4 @@
 <template>
-    <profile-header
-        v-bind="props"
-        :station="profileInfo.station"
-    />
-
     <div
         id="profile"
         class="row row-of-cards"
@@ -12,6 +7,7 @@
             <template v-if="hasStarted">
                 <profile-now-playing
                     v-bind="props"
+                    :station="profileInfo.station"
                 />
 
                 <profile-schedule
@@ -64,7 +60,6 @@
 
 <script setup lang="ts">
 import ProfileStreams from './StreamsPanel.vue';
-import ProfileHeader, {ProfileHeaderPanelParentProps} from './HeaderPanel.vue';
 import ProfileNowPlaying, {ProfileNowPlayingPanelProps} from './NowPlayingPanel.vue';
 import ProfileSchedule from './SchedulePanel.vue';
 import ProfileRequests, {ProfileRequestPanelProps} from './RequestsPanel.vue';

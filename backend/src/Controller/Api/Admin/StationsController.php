@@ -402,7 +402,6 @@ class StationsController extends AbstractApiCrudController
             } catch (Throwable) {
             }
         }
-
         return $station;
     }
 

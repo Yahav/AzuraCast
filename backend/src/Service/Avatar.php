@@ -16,6 +16,7 @@ final class Avatar
 
     public const int DEFAULT_SIZE = 64;
 
+    // @TODO: Change this to another url
     public const string DEFAULT_AVATAR = 'https://www.azuracast.com/img/avatar.png';
 
     public const string SERVICE_LIBRAVATAR = 'libravatar';
