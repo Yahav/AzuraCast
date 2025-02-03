@@ -9,10 +9,13 @@
 import {computed} from "vue";
 import {useGettext} from "vue3-gettext";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     running: boolean,
-    extraClasses: string,
-}>();
+    extraClasses?: string,
+}>(), {
+    extraClasses: ''
+});
+
 
 const badgeClass = computed(() => {
     return (props.running)

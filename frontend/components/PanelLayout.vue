@@ -40,8 +40,8 @@
         <div class="dropdown ms-3 d-inline-flex align-items-center">
             <div id="station-time-wrapper" />
             <clock
-                v-if="stationName !==null "
-                :station-name="stationName"
+                v-if="name !== null"
+                :station-name="name"
             />
             <button
                 aria-expanded="false"
@@ -144,7 +144,7 @@
             <div class="container">
                 <template v-if="hasStarted !== null && needsRestart !== null && userAllowedForStation(StationPermission.Broadcasting)">
                     <div
-                        v-if="hasStarted !== null && !hasStarted"
+                        v-if="!hasStarted"
                         class="navdrawer-alert bg-success text-white mb-3 mb-3 d-flex align-items-center"
                     >
                         <icon
@@ -164,7 +164,7 @@
                         </router-link>
                     </div>
                     <div
-                        v-else-if="needsRestart !== null && needsRestart"
+                        v-else-if="needsRestart"
                         class="alert alert-warning bg-warning text-warning-emphasis mb-3 d-flex align-items-center"
                     >
                         <icon
@@ -213,6 +213,7 @@ import {
     IconMenuOpen,
     IconSettings, IconWarning,
 } from "~/components/Common/icons";
+import {useAzuraCastStation} from "~/vendor/azuracast";
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
 import {StationPermission, userAllowedForStation} from "~/acl.ts";
 import Clock from "~/components/Stations/Clock.vue";
@@ -221,7 +222,16 @@ import {getStationApiUrl} from "~/router.ts";
 import {useAxios} from "~/vendor/axios.ts";
 import logo from '~/caster_logo.svg';
 
+const station = useAzuraCastStation()
 
+let name, hasStarted, initialNeedsRestart;
+if (station) {
+    ({ name, hasStarted, needsRestart: initialNeedsRestart } = station);
+} else {
+    name = null;
+    hasStarted = null;
+    initialNeedsRestart = null;
+}
 
 export interface PanelLayoutProps {
     instanceName: string,
@@ -233,12 +243,10 @@ export interface PanelLayoutProps {
     showAdmin: boolean,
     version: string,
     platform: string,
-    hasStarted: boolean,
-    needsRestart: boolean,
-    stationName: string,
 }
 
-const props = defineProps<PanelLayoutProps>();
+defineProps<PanelLayoutProps>();
+
 
 const slots = useSlots();
 
@@ -255,7 +263,7 @@ const handleSidebar = () => {
 
 const restartEventBus = useRestartEventBus();
 
-const needsRestart = ref(props.needsRestart);
+const needsRestart = ref<boolean>(initialNeedsRestart);
 const {axios} = useAxios();
 
 restartEventBus.on((forceRestart: boolean): void => {

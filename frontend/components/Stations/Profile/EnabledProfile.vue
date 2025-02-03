@@ -77,7 +77,6 @@ import useAutoRefreshingAsyncState from "~/functions/useAutoRefreshingAsyncState
 
 interface EnabledProfileProps extends ProfileBackendPanelParentProps,
     ProfileFrontendPanelParentProps,
-    ProfileHeaderPanelParentProps,
     ProfileNowPlayingPanelProps,
     ProfileRequestPanelProps,
     ProfilePublicPagesPanelProps,

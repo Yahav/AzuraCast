@@ -1,5 +1,5 @@
 <template>
-    <panel-layout v-bind="{...panelProps, ...stationPropsForPanel}">
+    <panel-layout v-bind="panelProps">
         <template #sidebar>
             <sidebar/>
         </template>
@@ -22,8 +22,8 @@ import HeaderInlinePlayer from "~/components/HeaderInlinePlayer.vue";
 import {useTemplateRef} from "vue";
 import {useProvideLightbox} from "~/vendor/lightbox.ts";
 
-const {panelProps} = useAzuraCast();
 
+const {panelProps} = useAzuraCast();
 const $lightbox = useTemplateRef('$lightbox');
 
 useProvideLightbox($lightbox);
