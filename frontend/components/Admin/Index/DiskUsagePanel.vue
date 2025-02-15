@@ -42,11 +42,11 @@
 <script setup lang="ts">
 import {AdminStats} from "~/components/Admin/Index.vue";
 
-const props = defineProps<{
+defineProps<{
     stats: AdminStats,
 }>();
 
-const getPercent = (amount, total) => {
-    return ((amount / total) * 100) + '%';
+const getPercent = (amount: string | number, total: string | number) => {
+    return ((Number(amount) / Number(total)) * 100) + '%';
 }
 </script>

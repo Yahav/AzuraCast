@@ -8,7 +8,7 @@ FROM mariadb:lts-noble AS mariadb
 #
 # Built-in docs build step
 #
-FROM ghcr.io/azuracast/azuracast.com:builtin AS docs
+FROM ghcr.io/azuracast/azuracast.com:builtin@sha256:3db4181a02aeffdb16c44d7997a040b0f817a0937ad831d060799935f50d6d6b AS docs
 
 #
 # Icecast-KH with AzuraCast customizations build step
@@ -38,7 +38,7 @@ COPY --from=icecast /usr/local/share/icecast /usr/local/share/icecast
 #
 # Final build image
 #
-FROM php:8.3-fpm-bookworm AS pre-final
+FROM php:8.4-fpm-bookworm AS pre-final
 
 ENV TZ="UTC" \
     LANGUAGE="en_US.UTF-8" \

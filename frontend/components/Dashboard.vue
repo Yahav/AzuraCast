@@ -244,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import Icon from '~/components/Common/Icon.vue';
+import Icon from "~/components/Common/Icon.vue";
 import PlayButton from "~/components/Common/PlayButton.vue";
 import AlbumArt from "~/components/Common/AlbumArt.vue";
 import {useAxios} from "~/vendor/axios";
@@ -263,7 +263,7 @@ import {getApiUrl} from "~/router.ts";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import useHasDatatable from "~/functions/useHasDatatable.ts";
 
-const props = defineProps<{
+defineProps<{
     profileUrl: string,
     adminUrl: string,
     showAdmin: boolean,

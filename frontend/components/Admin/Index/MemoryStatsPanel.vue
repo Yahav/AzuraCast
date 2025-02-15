@@ -68,7 +68,7 @@ import MemoryStatsHelpModal from "~/components/Admin/Index/MemoryStatsHelpModal.
 import {IconInfo} from "~/components/Common/icons.ts";
 import {AdminStats} from "~/components/Admin/Index.vue";
 
-const props = defineProps<{
+defineProps<{
     stats: AdminStats,
 }>();
 
@@ -78,7 +78,7 @@ const showMemoryStatsHelpModal = () => {
     $memoryStatsHelpModal.value?.create();
 };
 
-const getPercent = (amount, total) => {
-    return ((amount / total) * 100) + '%';
+const getPercent = (amount: string | number, total: string | number) => {
+    return ((Number(amount) / Number(total)) * 100) + '%';
 }
 </script>

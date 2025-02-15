@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Utilities\Time;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
-use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
 
 #[
@@ -33,14 +33,14 @@ class StationRequest implements
     #[ORM\Column(nullable: false, insertable: false, updatable: false)]
     protected int $track_id;
 
-    #[ORM\Column]
-    protected int $timestamp;
+    #[ORM\Column(type: 'datetime_immutable', precision: 6)]
+    protected CarbonImmutable $timestamp;
 
     #[ORM\Column]
     protected bool $skip_delay = false;
 
-    #[ORM\Column]
-    protected int $played_at = 0;
+    #[ORM\Column(type: 'datetime_immutable', precision: 6, nullable: true)]
+    protected ?CarbonImmutable $played_at = null;
 
     #[ORM\Column(length: 40)]
     protected string $ip;
@@ -48,13 +48,13 @@ class StationRequest implements
     public function __construct(
         Station $station,
         StationMedia $track,
-        string $ip = null,
+        ?string $ip = null,
         bool $skipDelay = false
     ) {
         $this->station = $station;
         $this->track = $track;
 
-        $this->timestamp = time();
+        $this->timestamp = Time::nowUtc();
         $this->skip_delay = $skipDelay;
         $this->ip = $ip ?? $_SERVER['REMOTE_ADDR'];
     }
@@ -69,7 +69,7 @@ class StationRequest implements
         return $this->track;
     }
 
-    public function getTimestamp(): int
+    public function getTimestamp(): CarbonImmutable
     {
         return $this->timestamp;
     }
@@ -79,14 +79,14 @@ class StationRequest implements
         return $this->skip_delay;
     }
 
-    public function getPlayedAt(): int
+    public function getPlayedAt(): ?CarbonImmutable
     {
         return $this->played_at;
     }
 
-    public function setPlayedAt(int $playedAt): void
+    public function setPlayedAt(mixed $playedAt): void
     {
-        $this->played_at = $playedAt;
+        $this->played_at = Time::toNullableUtcCarbonImmutable($playedAt);
     }
 
     public function getIp(): string
@@ -94,14 +94,14 @@ class StationRequest implements
         return $this->ip;
     }
 
-    public function shouldPlayNow(CarbonInterface $now = null): bool
+    public function shouldPlayNow(?CarbonInterface $now = null): bool
     {
         if ($this->skip_delay) {
             return true;
         }
 
         $station = $this->station;
-        $stationTz = new DateTimeZone($station->getTimezone());
+        $stationTz = $station->getTimezoneObject();
 
         if (null === $now) {
             $now = CarbonImmutable::now($stationTz);
@@ -110,7 +110,6 @@ class StationRequest implements
         $thresholdMins = (int)$station->getRequestDelay();
         $thresholdMins += random_int(0, $thresholdMins);
 
-        $cued = CarbonImmutable::createFromTimestamp($this->timestamp);
-        return $now->subMinutes($thresholdMins)->gt($cued);
+        return $now->subMinutes($thresholdMins)->gt($this->timestamp);
     }
 }

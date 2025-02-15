@@ -262,8 +262,10 @@ final class StationPlaylistMediaRepository extends Repository
         );
     }
 
-    public function resetQueue(StationPlaylist $playlist, CarbonInterface $now = null): void
-    {
+    public function resetQueue(
+        StationPlaylist $playlist,
+        ?CarbonInterface $now = null
+    ): void {
         if (PlaylistSources::Songs !== $playlist->getSource()) {
             throw new InvalidArgumentException('Playlist must contain songs.');
         }
@@ -313,7 +315,7 @@ final class StationPlaylistMediaRepository extends Repository
 
         $now = $now ?? CarbonImmutable::now($playlist->getStation()->getTimezoneObject());
 
-        $playlist->setQueueResetAt($now->getTimestamp());
+        $playlist->setQueueResetAt($now);
         $this->em->persist($playlist);
         $this->em->flush();
     }

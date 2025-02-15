@@ -86,25 +86,26 @@ import {computed, onMounted, reactive, ref} from "vue";
 import {useAxios} from "~/vendor/axios";
 import Loading from "~/components/Common/Loading.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {getApiUrl} from "~/router";
+import {GenericForm} from "~/entities/Forms.ts";
+import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
+import {omit} from "lodash";
 
-interface StationsAdminFormProps extends FormTabProps {
+const props = defineProps<{
     isEditMode: boolean,
-}
+}>();
 
-const props = defineProps<StationsAdminFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<GenericForm>('form', {required: true});
 
 const storageLocationApiUrl = getApiUrl('/admin/stations/storage-locations');
 
 const {enableAdvancedFeatures} = useAzuraCast();
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     computed(() => {
         let validations: {
             [key: string | number]: any
@@ -158,18 +159,12 @@ const storageLocationOptions = reactive({
     podcasts_storage_location: {}
 });
 
-const filterLocations = (group) => {
+const filterLocations = (group: SimpleFormOptionInput): SimpleFormOptionInput => {
     if (!props.isEditMode) {
         return group;
     }
 
-    const newGroup = {};
-    for (const oldKey in group) {
-        if (oldKey !== "") {
-            newGroup[oldKey] = group[oldKey];
-        }
-    }
-    return newGroup;
+    return omit(group, [""]);
 }
 
 const {axios} = useAxios();

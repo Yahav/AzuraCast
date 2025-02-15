@@ -25,31 +25,27 @@
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import Tab from "~/components/Common/Tab.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab.ts";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab.ts";
 import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
 import {Permission} from "~/components/Admin/Permissions/EditModal.vue";
 import {required} from "@vuelidate/validators";
+import {DeepPartial} from "utility-types";
 
-type T = Permission;
-
-interface PermissionGlobalFormProps extends FormTabProps<T> {
+defineProps<{
     globalPermissions: SimpleFormOptionInput,
-}
+}>();
 
-const props = defineProps<PermissionGlobalFormProps>();
-
-const emit = defineEmits<FormTabEmits<T>>();
+const form = defineModel<Permission>('form', {required: true});
 
 const {v$} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     {
         'name': {required},
         'permissions': {
             'global': {},
         }
     },
-    () => ({
+    (): DeepPartial<Permission> => ({
         'name': '',
         'permissions': {
             'global': [],

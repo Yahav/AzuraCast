@@ -29,10 +29,31 @@
 </template>
 
 <script setup lang="ts">
-import {get} from "lodash";
+import {get, isObject, mapValues} from "lodash";
+import {computed} from "vue";
 
 const props = defineProps<{
-    fields: string[],
-    data: Record<string, any>,
+    row: object,
 }>();
+
+const fields = computed<string[]>(() => {
+    return Object.keys(props.row);
+});
+
+interface HasReadable {
+    readable: string
+}
+
+const data = computed(() => {
+    const items = mapValues(
+        props.row,
+        (value: HasReadable | string) => {
+            return (isObject(value) && value.readable)
+                ? value.readable + '/s'
+                : value;
+        }
+    );
+
+    return [items];
+});
 </script>

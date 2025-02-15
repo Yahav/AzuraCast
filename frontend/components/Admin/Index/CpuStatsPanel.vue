@@ -141,7 +141,7 @@ import {upperFirst} from "lodash";
 import {IconInfo} from "~/components/Common/icons.ts";
 import {AdminStats} from "~/components/Admin/Index.vue";
 
-const props = defineProps<{
+defineProps<{
     stats: AdminStats,
 }>();
 
@@ -150,8 +150,8 @@ const showCpuStatsHelpModal = () => {
     $cpuStatsHelpModal.value?.create();
 };
 
-const formatCpuName = (cpuName) => upperFirst(cpuName);
+const formatCpuName = (cpuName: string) => upperFirst(cpuName);
 
-const formatPercentageString = (value) => value + '%';
+const formatPercentageString = (value: string | number) => value + '%';
 
 </script>

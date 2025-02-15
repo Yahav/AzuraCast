@@ -72,8 +72,8 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
-import EditModal from './Mounts/EditModal.vue';
+import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
+import EditModal from "~/components/Stations/Mounts/EditModal.vue";
 import {useMayNeedRestart} from "~/functions/useMayNeedRestart";
 import {useTranslate} from "~/vendor/gettext";
 import {useTemplateRef} from "vue";
@@ -86,7 +86,7 @@ import {getStationApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
 import {FrontendAdapter} from "~/entities/RadioAdapters.ts";
 
-const props = defineProps<{
+defineProps<{
     stationFrontendType: FrontendAdapter
 }>();
 
