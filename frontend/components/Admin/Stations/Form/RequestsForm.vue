@@ -55,16 +55,15 @@
 <script setup lang="ts">
 import FormFieldset from "~/components/Form/FormFieldset.vue";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import {BackendAdapters} from "~/entities/RadioAdapters";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
 import BackendDisabled from "~/components/Admin/Stations/Form/Common/BackendDisabled.vue";
 import {computed} from "vue";
 import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
-import {GenericForm} from "~/entities/Forms.ts";
+import {ApiGenericForm, BackendAdapters} from "~/entities/ApiInterfaces.ts";
 
-const form = defineModel<GenericForm>('form', {required: true});
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,

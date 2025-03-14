@@ -85,16 +85,15 @@ import RunningBadge from "~/components/Common/Badges/RunningBadge.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {computed} from "vue";
 import CardPage from "~/components/Common/CardPage.vue";
-import {StationPermissions, userAllowedForStation} from "~/acl";
+import {userAllowedForStation} from "~/acl";
 import {IconPlay, IconStop, IconUpdate} from "~/components/Common/icons";
 import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
-import {BackendAdapter, BackendAdapters} from "~/entities/RadioAdapters";
+import {BackendAdapters, StationPermissions} from "~/entities/ApiInterfaces.ts";
 
 export interface ProfileBackendPanelParentProps {
     numSongs: number,
     numPlaylists: number,
-    backendType: BackendAdapter,
-    hasStarted: boolean,
+    backendType: BackendAdapters,
     backendRestartUri: string,
     backendStartUri: string,
     backendStopUri: string,
@@ -106,6 +105,7 @@ defineOptions({
 
 interface ProfileBackendPanelProps extends ProfileBackendPanelParentProps {
     backendRunning: boolean,
+    hasStarted: boolean,
 }
 
 const props = defineProps<ProfileBackendPanelProps>();

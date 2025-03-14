@@ -7,6 +7,8 @@ namespace App\Console\Command\Dev;
 use App\Console\Command\CommandAbstract;
 use App\Container\EnvironmentAwareTrait;
 use App\Container\LoggerAwareTrait;
+use App\OpenApi\AddXEnumNames;
+use App\OpenApi\MakeAllFieldsRequired;
 use App\Utilities\Types;
 use App\Version;
 use OpenApi\Annotations\OpenApi;
@@ -60,21 +62,25 @@ final class GenerateApiDocsCommand extends CommandAbstract
         define('AZURACAST_API_NAME', 'AzuraCast Public Demo Server');
         define('AZURACAST_VERSION', $version ?? Version::STABLE_VERSION);
 
-        $finder = Util::finder(
-            [
-                $this->environment->getBackendDirectory() . '/src/OpenApi.php',
-                $this->environment->getBackendDirectory() . '/src/Entity',
-                $this->environment->getBackendDirectory() . '/src/Controller/Api',
-            ],
-            [
-                'bootstrap',
-                'locale',
-                'templates',
-            ]
-        );
+        $srcDir = $this->environment->getBackendDirectory() . '/src';
 
-        return Generator::scan($finder, [
-            'logger' => $this->logger,
+        $finder = Util::finder([
+            $srcDir . '/OpenApi.php', // OpenAPI Core Spec
+            $srcDir . '/Controller', // API Routes
+            $srcDir . '/Entity', // API Interfaces
+            $srcDir . '/Enums', // Enums
+            $srcDir . '/Radio/Enums', // Enums
+            $srcDir . '/Webhook/Enums', // Enums
+        ], [
+            'Migration',
         ]);
+
+        $generator = new Generator($this->logger);
+
+        $pipeline = $generator->getProcessorPipeline();
+        $pipeline->add(new AddXEnumNames());
+        $pipeline->add(new MakeAllFieldsRequired());
+
+        return $generator->generate($finder);
     }
 }

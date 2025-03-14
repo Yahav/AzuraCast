@@ -35,47 +35,40 @@ use Throwable;
     OA\Get(
         path: '/admin/stations',
         operationId: 'adminGetStations',
-        description: 'List all current stations in the system.',
-        security: OpenApi::API_KEY_SECURITY,
-        tags: ['Administration: Stations'],
+        summary: 'List all current stations in the system.',
+        tags: [OpenApi::TAG_ADMIN_STATIONS],
         responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Success',
+            new OpenApi\Response\Success(
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/Station')
+                    items: new OA\Items(ref: Station::class)
                 )
             ),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\GenericError(),
         ]
     ),
     OA\Post(
         path: '/admin/stations',
         operationId: 'adminAddStation',
-        description: 'Create a new station.',
-        security: OpenApi::API_KEY_SECURITY,
+        summary: 'Create a new station.',
         requestBody: new OA\RequestBody(
-            content: new OA\JsonContent(ref: '#/components/schemas/Station')
+            content: new OA\JsonContent(ref: Station::class)
         ),
-        tags: ['Administration: Stations'],
+        tags: [OpenApi::TAG_ADMIN_STATIONS],
         responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Success',
-                content: new OA\JsonContent(ref: '#/components/schemas/Station')
+            new OpenApi\Response\Success(
+                content: new OA\JsonContent(ref: Station::class)
             ),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\GenericError(),
         ]
     ),
     OA\Get(
         path: '/admin/station/{id}',
         operationId: 'adminGetStation',
-        description: 'Retrieve details for a single station.',
-        security: OpenApi::API_KEY_SECURITY,
-        tags: ['Administration: Stations'],
+        summary: 'Retrieve details for a single station.',
+        tags: [OpenApi::TAG_ADMIN_STATIONS],
         parameters: [
             new OA\Parameter(
                 name: 'id',
@@ -86,25 +79,22 @@ use Throwable;
             ),
         ],
         responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Success',
-                content: new OA\JsonContent(ref: '#/components/schemas/Station')
+            new OpenApi\Response\Success(
+                content: new OA\JsonContent(ref: Station::class)
             ),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_NOT_FOUND, response: 404),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\NotFound(),
+            new OpenApi\Response\GenericError(),
         ]
     ),
     OA\Put(
         path: '/admin/station/{id}',
         operationId: 'adminEditStation',
-        description: 'Update details of a single station.',
-        security: OpenApi::API_KEY_SECURITY,
+        summary: 'Update details of a single station.',
         requestBody: new OA\RequestBody(
-            content: new OA\JsonContent(ref: '#/components/schemas/Station')
+            content: new OA\JsonContent(ref: Station::class)
         ),
-        tags: ['Administration: Stations'],
+        tags: [OpenApi::TAG_ADMIN_STATIONS],
         parameters: [
             new OA\Parameter(
                 name: 'id',
@@ -115,18 +105,17 @@ use Throwable;
             ),
         ],
         responses: [
-            new OA\Response(ref: OpenApi::REF_RESPONSE_SUCCESS, response: 200),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_NOT_FOUND, response: 404),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\Success(),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\NotFound(),
+            new OpenApi\Response\GenericError(),
         ]
     ),
     OA\Delete(
         path: '/admin/station/{id}',
         operationId: 'adminDeleteStation',
-        description: 'Delete a single station.',
-        security: OpenApi::API_KEY_SECURITY,
-        tags: ['Administration: Stations'],
+        summary: 'Delete a single station.',
+        tags: [OpenApi::TAG_ADMIN_STATIONS],
         parameters: [
             new OA\Parameter(
                 name: 'id',
@@ -137,10 +126,10 @@ use Throwable;
             ),
         ],
         responses: [
-            new OA\Response(ref: OpenApi::REF_RESPONSE_SUCCESS, response: 200),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_NOT_FOUND, response: 404),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\Success(),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\NotFound(),
+            new OpenApi\Response\GenericError(),
         ]
     )
 ]

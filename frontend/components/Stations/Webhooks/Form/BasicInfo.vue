@@ -46,16 +46,16 @@ import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import {useTranslate} from "~/vendor/gettext.ts";
-import {getTriggers, WebhookTriggerDetails, WebhookType} from "~/entities/Webhooks.ts";
+import {getTriggers, WebhookTriggerDetails} from "~/entities/Webhooks.ts";
 import {computed} from "vue";
-import {GenericForm} from "~/entities/Forms.ts";
+import {ApiGenericForm, WebhookTypes} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<{
-    type: WebhookType | null
+    type: WebhookTypes | null
     triggerDetails: WebhookTriggerDetails
 }>();
 
-const form = defineModel<GenericForm>('form', {required: true});
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,

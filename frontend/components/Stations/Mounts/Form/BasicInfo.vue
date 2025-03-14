@@ -104,20 +104,19 @@
 </template>
 
 <script setup lang="ts">
-import {FrontendAdapter, FrontendAdapters} from "~/entities/RadioAdapters";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
 import {computed} from "vue";
 import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
-import {GenericForm} from "~/entities/Forms.ts";
+import {ApiGenericForm, FrontendAdapters} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<{
-    stationFrontendType: FrontendAdapter
+    stationFrontendType: FrontendAdapters
 }>();
 
-const form = defineModel<GenericForm>('form', {required: true});
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const isIcecast = computed(() => {
     return FrontendAdapters.Icecast === props.stationFrontendType;

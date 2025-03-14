@@ -115,12 +115,12 @@ import useHasEditModal from "~/functions/useHasEditModal";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
-import {useTriggerDetails, useTypeDetails, WebhookTrigger, WebhookType} from "~/entities/Webhooks";
+import {useTriggerDetails, useTypeDetails} from "~/entities/Webhooks";
 import CardPage from "~/components/Common/CardPage.vue";
 import {useAzuraCastStation} from "~/vendor/azuracast";
 import {getApiUrl, getStationApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
-import {HasLinks, StationWebhook} from "~/entities/ApiInterfaces.ts";
+import {ApiTaskWithLog, HasLinks, StationWebhook, WebhookTriggers, WebhookTypes} from "~/entities/ApiInterfaces.ts";
 
 const listUrl = getStationApiUrl('/webhooks');
 
@@ -152,15 +152,15 @@ const getToggleVariant = (record: Row) => {
         : 'btn-success';
 };
 
-const isWebhookSupported = (key: WebhookType) => {
+const isWebhookSupported = (key: WebhookTypes) => {
     return (key in langTypeDetails);
 }
 
-const getWebhookName = (key: WebhookType) => {
+const getWebhookName = (key: WebhookTypes) => {
     return get(langTypeDetails, [key, 'title'], '');
 };
 
-const getTriggerNames = (triggers: WebhookTrigger[]) => {
+const getTriggerNames = (triggers: WebhookTriggers[]) => {
     return map(triggers, (trigger) => {
         return get(langTriggerDetails, [trigger, 'title'], '');
     });
@@ -184,10 +184,9 @@ const doToggle = (url: string) => {
 
 const $logModal = useTemplateRef('$logModal');
 
-const doTest = (url: string) => {
-    void axios.put(url).then((resp) => {
-        $logModal.value?.show(resp.data.links.log);
-    });
+const doTest = async (url: string) => {
+    const {data} = await axios.put<ApiTaskWithLog>(url);
+    $logModal.value?.show(data.logUrl);
 };
 
 const {doDelete} = useConfirmAndDelete(

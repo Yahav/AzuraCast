@@ -9,9 +9,10 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(
     schema: 'Api_Time',
+    required: ['*'],
     type: 'object'
 )]
-final class Time
+final readonly class Time
 {
     #[OA\Property(
         description: 'The current UNIX timestamp',

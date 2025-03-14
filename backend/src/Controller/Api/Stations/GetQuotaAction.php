@@ -17,31 +17,46 @@ use Psr\Http\Message\ResponseInterface;
 
 #[
     OA\Get(
-        path: '/station/{station_id}/quota/{type}',
+        path: '/station/{station_id}/quota',
         operationId: 'getQuota',
-        description: 'Get the current usage and quota for a given station storage location.',
-        security: OpenApi::API_KEY_SECURITY,
-        tags: ['Stations: General'],
+        summary: 'Get the current usage and quota for a given station storage location.',
+        tags: [OpenApi::TAG_STATIONS],
+        parameters: [
+            new OA\Parameter(ref: OpenApi::REF_STATION_ID_REQUIRED),
+        ],
+        responses: [
+            new OpenApi\Response\Success(
+                content: new OA\JsonContent(
+                    ref: StationQuota::class,
+                )
+            ),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\GenericError(),
+        ]
+    ),
+    OA\Get(
+        path: '/station/{station_id}/quota/{type}',
+        operationId: 'getQuotaOfType',
+        summary: 'Get the current usage and quota for a given station storage location.',
+        tags: [OpenApi::TAG_STATIONS],
         parameters: [
             new OA\Parameter(ref: OpenApi::REF_STATION_ID_REQUIRED),
             new OA\Parameter(
                 name: 'type',
                 description: 'The storage location type (i.e. station_media, station_recordings, station_podcasts)',
                 in: 'path',
-                required: false,
-                schema: new OA\Schema(type: 'string', default: 'station_media')
+                required: true,
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Success',
+            new OpenApi\Response\Success(
                 content: new OA\JsonContent(
-                    ref: '#/components/schemas/Api_StationQuota',
+                    ref: StationQuota::class,
                 )
             ),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\GenericError(),
         ]
     ),
 ]

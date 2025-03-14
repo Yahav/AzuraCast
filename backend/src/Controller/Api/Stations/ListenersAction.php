@@ -29,24 +29,21 @@ use RuntimeException;
     OA\Get(
         path: '/station/{station_id}/listeners',
         operationId: 'getStationListeners',
-        description: 'Return detailed information about current listeners.',
-        security: OpenApi::API_KEY_SECURITY,
-        tags: ['Stations: Listeners'],
+        summary: 'Return detailed information about current listeners.',
+        tags: [OpenApi::TAG_STATIONS_REPORTS],
         parameters: [
             new OA\Parameter(ref: OpenApi::REF_STATION_ID_REQUIRED),
         ],
         responses: [
-            new OA\Response(
-                response: 200,
-                description: 'Success',
+            new OpenApi\Response\Success(
                 content: new OA\JsonContent(
                     type: 'array',
-                    items: new OA\Items(ref: '#/components/schemas/Api_Listener')
+                    items: new OA\Items(ref: ApiListener::class)
                 )
             ),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_ACCESS_DENIED, response: 403),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_NOT_FOUND, response: 404),
-            new OA\Response(ref: OpenApi::REF_RESPONSE_GENERIC_ERROR, response: 500),
+            new OpenApi\Response\AccessDenied(),
+            new OpenApi\Response\NotFound(),
+            new OpenApi\Response\GenericError(),
         ]
     )
 ]

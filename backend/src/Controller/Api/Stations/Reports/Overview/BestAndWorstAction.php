@@ -10,9 +10,27 @@ use App\Entity\Song;
 use App\Entity\SongHistory;
 use App\Http\Response;
 use App\Http\ServerRequest;
+use App\OpenApi;
 use App\Utilities\DateRange;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 
+#[OA\Get(
+    path: '/station/{station_id}/reports/overview/best-and-worst',
+    operationId: 'getStationReportBestAndWorst',
+    summary: 'Get the "Best and Worst Performing Songs" report for a station.',
+    tags: [OpenApi::TAG_STATIONS_REPORTS],
+    parameters: [
+        new OA\Parameter(ref: OpenApi::REF_STATION_ID_REQUIRED),
+    ],
+    responses: [
+        // TODO API Response
+        new OpenApi\Response\Success(),
+        new OpenApi\Response\AccessDenied(),
+        new OpenApi\Response\NotFound(),
+        new OpenApi\Response\GenericError(),
+    ]
+)]
 final class BestAndWorstAction extends AbstractReportAction
 {
     public function __construct(
@@ -67,13 +85,11 @@ final class BestAndWorstAction extends AbstractReportAction
         ];
 
         $stats = [];
-        $baseUrl = $request->getRouter()->getBaseUrl();
 
         foreach ($rawStats as $category => $rawRows) {
             $stats[$category] = array_map(
-                function ($row) use ($station, $baseUrl) {
-                    $song = ($this->songApiGenerator)(Song::createFromArray($row), $station);
-                    $song->resolveUrls($baseUrl);
+                function ($row) use ($station) {
+                    $song = $this->songApiGenerator->__invoke(Song::createFromArray($row), $station);
 
                     return [
                         'song' => $song,
@@ -112,12 +128,9 @@ final class BestAndWorstAction extends AbstractReportAction
             ->setMaxResults(10)
             ->getArrayResult();
 
-        $baseUrl = $request->getRouter()->getBaseUrl();
-
         return array_map(
-            function ($row) use ($station, $baseUrl) {
-                $song = ($this->songApiGenerator)(Song::createFromArray($row), $station);
-                $song->resolveUrls($baseUrl);
+            function ($row) use ($station) {
+                $song = $this->songApiGenerator->__invoke(Song::createFromArray($row), $station);
 
                 return [
                     'song' => $song,
