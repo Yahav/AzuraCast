@@ -11,6 +11,163 @@ release channel, you can take advantage of these new features and fixes.
 
 ---
 
+# AzuraCast 0.21.0 (Mar 12, 2025)
+
+## New Features/Changes
+
+- **Support for Rocket Streaming Audio Server (RSAS)**: RSAS is a popular, closed-source drop-in replacement for
+  Icecast, and AzuraCast now supports uploading the RSAS binary and license key, and selecting RSAS as a broadcasting
+  frontend, directly within the web UI.
+
+- **Update to Liquidsoap 2.3.1**: We have worked closely with the maintainers of Liquidsoap and members of the radio
+  community to test and refine the next big version of Liquidsoap, our underlying broadcast manager, and they have
+  released 2.3.1 as a stable release. We're planning on using this version moving forward, first in Rolling Release for
+  testing and then in Stable builds. Some custom code may require modification from previous versions, but a majority of
+  code should work unmodified.
+
+- **Bluesky Post Webhook**: You can now add a web hook that, when dispatched, creates a new post on Bluesky.
+
+- You can now navigate from week to week on the "Schedule" tab of Playlist/Streamer admin pages, as well as switch to "
+  Day" view.
+
+## Code Quality/Technical Changes
+
+- Schema/API Changes: We have greatly expanded the documentation of our over 250 API endpoints and now have over 90%
+  full documentation of API request bodies and responses. In the process of documenting our API endpoints, we have found
+  several endpoints with similar responses or unclear response types, and fixed these issues. If you built applications
+  that depended on undocumented API endpoints, you should review the updated API documentation (visible at `/api` on
+  any installation) to ensure no changes are necessary in your code.
+
+- Schema/API Change: Several date/time fields have been made more precise to allow for storing higher-precision
+  timestamps. Tables affected include `AuditLog`, `Listener`, `Relay`, `SongHistory`, `StationQueue`, `StationRequest`
+  and `StationStreamerBroadcast`. Public-facing APIs still use UNIX timestamps in seconds for backward compatibility,
+  but several internal APIs have updated to use the ISO 8601 datetime format. When submitting changes to these entities,
+  you can still submit UNIX timestamps and they will be accepted as well as the ISO 8601 format.
+
+- API Change: The Permissions API endpoint will now return station permissions as an array (i.e.
+  `station: [{id: 1, permissions: ["foo"]]`) instead of an object (i.e. `station: { 1: ["foo"] }`). Please update any
+  calling code accordingly. You can still submit new permissions in either format and it will be accepted.
+
+- Backups to local filesystems will now back directly up to the destination file, instead of writing to a temp file and
+  copying it; this avoids doubling up on disk space requirements, prevents temp files from remaining on the filesystem
+  and allows you to mount a larger custom backup storage location without issues.
+
+- All web hooks can now have rate limits set for them, so they only dispatch once in the time specified, in case
+  third-party services need to receive updates less frequently.
+
+- Volume controls are hidden on iOS, as volume is immutable on that platform.
+
+- AzuraCast will now detect a rename in a radio station's base directory and automatically shut down services pointing
+  to the original directory, move relevant files to the new directory (and storage locations, if appropriate), then
+  start up services in the new directory seamlessly with a single rename step.
+
+- Similar to the above, AzuraCast will detect a rename in the station's "short code" (i.e. `my_radio_station`) and
+  update the custom `/listen/my_radio_station` URLs immediately to match.
+
+## Bug Fixes
+
+- Fixed a bug where extra metadata (fade-in/out, cue-in/out, etc.) would not save on the Bulk Media Editor import.
+
+- Fixed a bug where extra metadata (fade-in/out, cue-in/out, etc.) could contain invalid values (i.e. -1) that would
+  cause the track to skip when playing.
+
+- Fixed a bug where file uploads would fail if the user navigated to a different directory while uploading the file.
+
+---
+
+# AzuraCast 0.20.4 (Nov 23, 2024)
+
+Due to bug reports relating to the updated AutoDJ scheduler, we're reverting the relevant code back to the code as it
+previously existed in versions 0.20.2 and earlier. This is the sole change in this
+version of the application.
+
+**Technical note:** This is the last stable version of AzuraCast to use the Liquidsoap 2.2.x version series.
+
+---
+
+# AzuraCast 0.20.3 (Nov 17, 2024)
+
+## New Features/Changes
+
+- Installation administrators can now specify a maximum bitrate for AutoDJ mount points and remote relays, as well as a
+  maximum number of mount points and HLS streams. This can help multi-tenant AzuraCast installations avoid situations
+  where individual stations consume excessive resources.
+
+- You can now specify a priority value for playlists and song requests. If two playlists are set to play at the same
+  time, the higher-priority playlist will always play first. This also lets you prevent requests from always pre-empting
+  playlists by setting them to a lower priority, or forcing them to adhere to the priority rules of the playlists
+  themselves.
+
+- Automatically block bad crawlers, spammers and bots by setting `NGINX_BLOCK_BOTS=true` in `azuracast.env`. This
+  feature is powered by
+  the [Nginx Ultimate Bad Bot Blocker](https://github.com/mitchellkrogza/nginx-ultimate-bad-bot-blocker). If enabled,
+  the rules will automatically be updated daily to ensure up-to-date protection.
+
+## Code Quality/Technical Changes
+
+- Significant work has been done on the AutoDJ scheduler. While this work continues, we believe we have reached a stable
+  state where the updated scheduler can reliably be used in a majority of cases.
+
+- A majority of AzuraCast's custom Liquidsoap configuration has been moved to a "Common Runtime" file to improve
+  cacheability and maintainability. You may need to update your Liquidsoap custom configuration if you use any. Note
+  that this will be the last stable release before Liquidsoap 2.3.x ships, which will also require modification of
+  custom code.
+
+## Bug Fixes
+
+- Fixed a bug preventing song lyrics from persisting when editing media.
+
+- Fixed an error that caused the "Live Connected" webhook to dispatch when a DJ disconnects.
+
+---
+
+# AzuraCast 0.20.2 (Aug 1, 2024)
+
+## New Features/Changes
+
+- The streamer broadcasts list is now paginated and you can delete broadcasts in bulk.
+
+- A new setting in the "AutoDJ" tab of the station profile has been added: "Write Playlists to Liquidsoap". This
+  setting, enabled by default, controls whether non-essential (basically, fallback) playlists are defined in
+  Liquidsoap's configuration. Defining these playlists can give you more robust protection against AutoDJ failure, but
+  will greatly increase your initial CPU load if using ReplayGain or AutoCue. Most stations can safely disable this
+  feature to see a significant bump in performance when restarting their stations.
+
+- We now expose a Prometheus metrics endpoint at `GET /api/prometheus`. Prometheus is a popular tool for consuming
+  time-series data; metrics provided by AzuraCast include CPU load, disk and memory usage, and total and unique
+  listeners per-stream and per-station.
+
+## Code Quality/Technical Changes
+
+- We have rewritten the app startup process when the container is started or restarted. The new process is managed by
+  a "launcher" program that waits for core services to be available before starting others. This should dramatically cut
+  down on the number of HTTP 502 "Bad Gateway" errors seen in both web browsers and application logs during startup.
+
+- We continue to work with Moonbase59, maintainer of the AutoCue library we use, to update to the latest version as it
+  is being very rapidly iterated upon.
+
+- We now store a much larger amount of extra metadata associated with each media row; rather than create individual
+  database migrations for each update, we've moved this data into an `extra_metadata` field. If you're calling
+  media-related APIs, update your code accordingly. Currently, this field only includes metadata prefixed with `liq_`
+  or `replaygain_`, used by Liquidsoap, Replaygain, and AutoCue to significantly improve performance.
+
+- When using the Visual Cue Editor, if our script can't generate a waveform for a media file and the frontend javascript
+  library does it instead, we'll cache that generated waveform so future requests load instantly.
+
+- The application code has been restructured so that `package.json` is at the project root (like `composer.json`),
+  backend PHP application code is located in the `backend` folder, and frontend Vue/JS/SCSS code is located in
+  the `frontend` folder. This should not impact normal operations or plugins.
+
+- A minor change has been made to how the CSS styles the "Powered by AzuraCast" footer on public and private pages; the
+  new setup uses Flexbox to achieve a "sticky" footer without complicated CSS rules. If you're using custom CSS, you may
+  need to update your code to reflect this change.
+
+## Bug Fixes
+
+- API calls will always prefer to return JSON, even if not specified by the requesting client.
+
+---
+
 # AzuraCast 0.20.1 (Jun 2, 2024)
 
 ## New Features/Changes
@@ -697,7 +854,7 @@ multi-tenant installations (i.e. resellers). Upgrading is strongly recommended i
 
 - Fixed a bug where the station could not be skipped if a Remote URL playlist was enabled.
 
-- Fixed a bug with logging (Liquidsoap, Docker, etc) to reduce CPU load issues. 
+- Fixed a bug with logging (Liquidsoap, Docker, etc) to reduce CPU load issues.
 
 - Fixed missing city fields in listener data.
 
