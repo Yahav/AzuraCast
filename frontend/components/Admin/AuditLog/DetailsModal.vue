@@ -40,13 +40,17 @@
 import Modal from "~/components/Common/Modal.vue";
 import {ref, useTemplateRef} from "vue";
 import {useHasModal} from "~/functions/useHasModal.ts";
+import {DeepRequired} from "utility-types";
+import {ApiAdminAuditLogChangeset} from "~/entities/ApiInterfaces.ts";
 
 const $modal = useTemplateRef('$modal');
 const {show} = useHasModal($modal);
 
-const changes = ref(null);
+type AuditLogChanges = DeepRequired<ApiAdminAuditLogChangeset>
 
-const open = (newChanges) => {
+const changes = ref<AuditLogChanges[] | null>(null);
+
+const open = (newChanges: AuditLogChanges[]) => {
     changes.value = newChanges;
     show();
 };

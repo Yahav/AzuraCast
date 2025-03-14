@@ -244,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import Icon from '~/components/Common/Icon.vue';
+import Icon from "~/components/Common/Icon.vue";
 import PlayButton from "~/components/Common/PlayButton.vue";
 import AlbumArt from "~/components/Common/AlbumArt.vue";
 import {useAxios} from "~/vendor/axios";
@@ -262,8 +262,9 @@ import UserInfoPanel from "~/components/Account/UserInfoPanel.vue";
 import {getApiUrl} from "~/router.ts";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import useHasDatatable from "~/functions/useHasDatatable.ts";
+import {ApiDashboard, ApiNotification} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps<{
+defineProps<{
     profileUrl: string,
     adminUrl: string,
     showAdmin: boolean,
@@ -288,12 +289,12 @@ const langShowHideCharts = computed(() => {
 
 const {axios} = useAxios();
 
-const {state: notifications, isLoading: notificationsLoading} = useAsyncState(
-    () => axios.get(notificationsUrl.value).then((r) => r.data),
+const {state: notifications, isLoading: notificationsLoading} = useAsyncState<ApiNotification[]>(
+    async () => (await axios.get<ApiNotification[]>(notificationsUrl.value)).data,
     []
 );
 
-const stationFields: DataTableField[] = [
+const stationFields: DataTableField<ApiDashboard>[] = [
     {
         key: 'play_button',
         label: '',

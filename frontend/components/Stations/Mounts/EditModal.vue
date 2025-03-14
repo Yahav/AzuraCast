@@ -33,10 +33,10 @@
 </template>
 
 <script setup lang="ts">
-import MountFormBasicInfo from './Form/BasicInfo.vue';
-import MountFormAutoDj from './Form/AutoDj.vue';
-import MountFormAdvanced from './Form/Advanced.vue';
-import MountFormIntro from "./Form/Intro.vue";
+import MountFormBasicInfo from "~/components/Stations/Mounts/Form/BasicInfo.vue";
+import MountFormAutoDj from "~/components/Stations/Mounts/Form/AutoDj.vue";
+import MountFormAdvanced from "~/components/Stations/Mounts/Form/Advanced.vue";
+import MountFormIntro from "~/components/Stations/Mounts/Form/Intro.vue";
 import mergeExisting from "~/functions/mergeExisting";
 import {BaseEditModalEmits, BaseEditModalProps, useBaseEditModal} from "~/functions/useBaseEditModal";
 import {computed, useTemplateRef} from "vue";
@@ -46,11 +46,11 @@ import {useResettableRef} from "~/functions/useResettableRef";
 import ModalForm from "~/components/Common/ModalForm.vue";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tabs from "~/components/Common/Tabs.vue";
-import {FrontendAdapter} from "~/entities/RadioAdapters.ts";
+import {FrontendAdapters} from "~/entities/ApiInterfaces.ts";
 import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 const props = defineProps<BaseEditModalProps & {
-    stationFrontendType: FrontendAdapter,
+    stationFrontendType: FrontendAdapters,
     newIntroUrl: string
 }>();
 

@@ -170,32 +170,31 @@
 <script setup lang="ts">
 import FormFieldset from "~/components/Form/FormFieldset.vue";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import {FrontendAdapter} from "~/entities/RadioAdapters";
 import {computed} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric, required} from "@vuelidate/validators";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
+import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
+import {ApiGenericForm, FrontendAdapters} from "~/entities/ApiInterfaces.ts";
 import {GlobalPermission, userAllowed} from "~/acl.ts";
 
-interface StationFrontendFormProps extends FormTabProps {
+const props = defineProps<{
     isRsasInstalled: boolean,
     isShoutcastInstalled: boolean,
     countries: Record<string, string>,
-}
+}>();
 
-const props = defineProps<StationFrontendFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {enableAdvancedFeatures} = useAzuraCast();
 const isAdministrator = userAllowed(GlobalPermission.All);
 
-const {form, v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+const {v$, tabClass} = useVuelidateOnFormTab(
+    form,
     computed(() => {
         let validations: {
             [key: string | number]: any
@@ -237,7 +236,7 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
         let blankForm: {
             [key: string | number]: any
         } = {
-            frontend_type: FrontendAdapter.Icecast,
+            frontend_type: FrontendAdapters.Icecast,
             frontend_config: {
                 sc_license_id: '',
                 sc_user_id: '',
@@ -274,42 +273,42 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
 
 const {$gettext} = useTranslate();
 
-const frontendTypeOptions = computed(() => {
-    const frontendOptions = [
+const frontendTypeOptions = computed<SimpleFormOptionInput>(() => {
+    const frontendOptions: SimpleFormOptionInput = [
         {
             text: $gettext('Use Icecast 2.4 on this server.'),
-            value: FrontendAdapter.Icecast
+            value: FrontendAdapters.Icecast
         },
     ];
 
     if (props.isRsasInstalled) {
         frontendOptions.push({
             text: $gettext('Use Rocket Streaming Audio Server (RSAS) on this server.'),
-            value: FrontendAdapter.Rsas
+            value: FrontendAdapters.Rsas
         });
     }
 
     if (props.isShoutcastInstalled) {
         frontendOptions.push({
             text: $gettext('Use Shoutcast DNAS 2 on this server.'),
-            value: FrontendAdapter.Shoutcast
+            value: FrontendAdapters.Shoutcast
         });
     }
 
     frontendOptions.push({
         text: $gettext('Do not use a local broadcasting service.'),
-        value: FrontendAdapter.Remote
+        value: FrontendAdapters.Remote
     });
 
     return frontendOptions;
 });
 
 const isLocalFrontend = computed(() => {
-    return form.value.frontend_type !== FrontendAdapter.Remote;
+    return form.value.frontend_type !== FrontendAdapters.Remote;
 });
 
 const isShoutcastFrontend = computed(() => {
-    return form.value.frontend_type === FrontendAdapter.Shoutcast;
+    return form.value.frontend_type === FrontendAdapters.Shoutcast;
 });
 
 const clearCountries = () => {

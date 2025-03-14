@@ -173,7 +173,7 @@
             <template #cell(playlists)="{ item }">
                 <template v-if="item.media?.playlists?.length > 0">
                     <template
-                        v-for="(playlist, index) in item.media.playlists"
+                        v-for="(playlist, index) in item.media.playlists as ApiStationMediaPlaylist[]"
                         :key="playlist.id"
                     >
                         <a
@@ -257,28 +257,28 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
-import MediaToolbar from './Media/MediaToolbar.vue';
-import Breadcrumb from './Media/Breadcrumb.vue';
-import FileUpload from './Media/FileUpload.vue';
-import NewDirectoryModal from './Media/NewDirectoryModal.vue';
-import MoveFilesModal from './Media/MoveFilesModal.vue';
-import RenameModal from './Media/RenameModal.vue';
-import EditModal from './Media/EditModal.vue';
+import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
+import MediaToolbar from "~/components/Stations/Media/MediaToolbar.vue";
+import Breadcrumb from "~/components/Stations/Media/Breadcrumb.vue";
+import FileUpload from "~/components/Stations/Media/FileUpload.vue";
+import NewDirectoryModal from "~/components/Stations/Media/NewDirectoryModal.vue";
+import MoveFilesModal from "~/components/Stations/Media/MoveFilesModal.vue";
+import RenameModal from "~/components/Stations/Media/RenameModal.vue";
+import EditModal from "~/components/Stations/Media/EditModal.vue";
 import StationsCommonQuota from "~/components/Stations/Common/Quota.vue";
-import Icon from '~/components/Common/Icon.vue';
-import AlbumArt from '~/components/Common/AlbumArt.vue';
+import Icon from "~/components/Common/Icon.vue";
+import AlbumArt from "~/components/Common/AlbumArt.vue";
 import PlayButton from "~/components/Common/PlayButton.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {computed, ref, useTemplateRef, watch} from "vue";
 import {forEach, map, partition} from "lodash";
-import formatFileSize from "../../functions/formatFileSize";
+import formatFileSize from "~/functions/formatFileSize";
 import InfoCard from "~/components/Common/InfoCard.vue";
 import {getStationApiUrl} from "~/router";
 import {useRoute, useRouter} from "vue-router";
 import {IconFile, IconFolder, IconImage} from "~/components/Common/icons";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
-import {ApiFileList, CustomField, FileTypes} from "~/entities/ApiInterfaces.ts";
+import {ApiFileList, ApiStationMediaPlaylist, CustomField, FileTypes} from "~/entities/ApiInterfaces.ts";
 
 export interface MediaSelectedItems {
     all: ApiFileList[],
@@ -320,8 +320,10 @@ const {$gettext} = useTranslate();
 
 const {formatTimestampAsDateTime} = useStationDateTimeFormatter();
 
-const fields = computed<DataTableField<ApiFileList>[]>(() => {
-    const fields: DataTableField<ApiFileList>[] = [
+type Row = ApiFileList;
+
+const fields = computed<DataTableField<Row>[]>(() => {
+    const fields: DataTableField<Row>[] = [
         {key: 'path', isRowHeader: true, label: $gettext('Name'), sortable: true},
         {key: 'media.title', label: $gettext('Title'), sortable: true, selectable: true, visible: false},
         {
@@ -411,7 +413,7 @@ const onTriggerNavigate = () => {
     $dataTable.value?.navigate();
 };
 
-const filter = (newFilter) => {
+const filter = (newFilter: string) => {
     $dataTable.value?.setFilter(newFilter);
 };
 
@@ -426,7 +428,7 @@ const onAddPlaylist = (row: MediaInitialPlaylist) => {
     playlists.value.push(row);
 };
 
-const onFiltered = (newFilter) => {
+const onFiltered = (newFilter: string) => {
     searchPhrase.value = newFilter;
 };
 
@@ -459,13 +461,13 @@ const requestConfig = (config) => {
     return config;
 };
 
-const isFilterString = (str) =>
+const isFilterString = (str: string) =>
     (str.substring(0, 9) === 'playlist:' || str.substring(0, 8) === 'special:');
 
 const router = useRouter();
 const route = useRoute();
 
-const changeDirectory = (newDir) => {
+const changeDirectory = (newDir: string) => {
     void router.push({
         name: 'stations:files:index',
         params: {

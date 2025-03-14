@@ -62,21 +62,20 @@
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import {computed} from "vue";
 import Tab from "~/components/Common/Tab.vue";
+import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
 
-interface StreamersBasicInfoFormProps extends FormTabProps {
+const props = defineProps<{
     isEditMode: boolean,
-}
+}>();
 
-const props = defineProps<StreamersBasicInfoFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     computed(() => {
         return {
             streamer_username: {required},

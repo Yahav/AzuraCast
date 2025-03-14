@@ -72,7 +72,7 @@ import useSlotsExcept from "~/functions/useSlotsExcept";
 import Modal from "~/components/Common/Modal.vue";
 import {useHasModal} from "~/functions/useHasModal.ts";
 
-const props = withDefaults(
+withDefaults(
     defineProps<{
         title: string,
         size?: string,
@@ -93,7 +93,11 @@ const props = withDefaults(
     }
 );
 
-const emit = defineEmits(['submit', 'shown', 'hidden']);
+const emit = defineEmits<{
+    (e: 'submit'): void,
+    (e: 'shown'): void,
+    (e: 'hidden'): void
+}>();
 
 const doSubmit = () => {
     emit('submit');

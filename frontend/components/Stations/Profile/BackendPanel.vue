@@ -19,7 +19,7 @@
             </p>
 
             <div
-                v-if="userAllowedForStation(StationPermission.Media)"
+                v-if="userAllowedForStation(StationPermissions.Media)"
                 class="buttons"
             >
                 <router-link
@@ -38,7 +38,7 @@
         </div>
 
         <template
-            v-if="userAllowedForStation(StationPermission.Broadcasting) && hasStarted"
+            v-if="userAllowedForStation(StationPermissions.Broadcasting) && hasStarted"
             #footer_actions
         >
             <button
@@ -78,22 +78,20 @@
 </template>
 
 <script setup lang="ts">
-import Icon from '~/components/Common/Icon.vue';
+import Icon from "~/components/Common/Icon.vue";
 import RunningBadge from "~/components/Common/Badges/RunningBadge.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {computed} from "vue";
 import CardPage from "~/components/Common/CardPage.vue";
-import {StationPermission, userAllowedForStation} from "~/acl";
+import {userAllowedForStation} from "~/acl";
 import {IconPlay, IconStop, IconUpdate} from "~/components/Common/icons";
 import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
-
-import {BackendAdapter} from '~/entities/RadioAdapters';
+import {BackendAdapters, StationPermissions} from "~/entities/ApiInterfaces.ts";
 
 export interface ProfileBackendPanelParentProps {
     numSongs: number,
     numPlaylists: number,
-    backendType: BackendAdapter,
-    hasStarted: boolean,
+    backendType: BackendAdapters,
     backendRestartUri: string,
     backendStartUri: string,
     backendStopUri: string,
@@ -105,6 +103,7 @@ defineOptions({
 
 interface ProfileBackendPanelProps extends ProfileBackendPanelParentProps {
     backendRunning: boolean,
+    hasStarted: boolean,
 }
 
 const props = defineProps<ProfileBackendPanelProps>();

@@ -104,9 +104,9 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
-import EditModal from './Webhooks/EditModal.vue';
-import {get, map} from 'lodash';
+import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
+import EditModal from "~/components/Stations/Webhooks/EditModal.vue";
+import {get, map} from "lodash";
 import StreamingLogModal from "~/components/Common/StreamingLogModal.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useTemplateRef} from "vue";
@@ -115,11 +115,12 @@ import useHasEditModal from "~/functions/useHasEditModal";
 import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import useConfirmAndDelete from "~/functions/useConfirmAndDelete";
-import {useTriggerDetails, useTypeDetails, WebhookTrigger, WebhookType} from "~/entities/Webhooks";
+import {useTriggerDetails, useTypeDetails} from "~/entities/Webhooks";
 import CardPage from "~/components/Common/CardPage.vue";
 import {useAzuraCastStation} from "~/vendor/azuracast";
 import {getApiUrl, getStationApiUrl} from "~/router";
 import AddButton from "~/components/Common/AddButton.vue";
+import {ApiTaskWithLog, HasLinks, StationWebhook, WebhookTriggers, WebhookTypes} from "~/entities/ApiInterfaces.ts";
 
 const listUrl = getStationApiUrl('/webhooks');
 
@@ -128,7 +129,9 @@ const nowPlayingUrl = getApiUrl(`/nowplaying/${id}`);
 
 const {$gettext} = useTranslate();
 
-const fields: DataTableField[] = [
+type Row = StationWebhook & HasLinks;
+
+const fields: DataTableField<Row>[] = [
     {key: 'name', isRowHeader: true, label: $gettext('Name/Type'), sortable: true},
     {key: 'triggers', label: $gettext('Triggers'), sortable: false},
     {key: 'actions', label: $gettext('Actions'), sortable: false, class: 'shrink'}
@@ -137,27 +140,27 @@ const fields: DataTableField[] = [
 const langTypeDetails = useTypeDetails();
 const langTriggerDetails = useTriggerDetails();
 
-const langToggleButton = (record) => {
+const langToggleButton = (record: Row) => {
     return (record.is_enabled)
         ? $gettext('Disable')
         : $gettext('Enable');
 };
 
-const getToggleVariant = (record) => {
+const getToggleVariant = (record: Row) => {
     return (record.is_enabled)
         ? 'btn-warning'
         : 'btn-success';
 };
 
-const isWebhookSupported = (key: WebhookType) => {
+const isWebhookSupported = (key: WebhookTypes) => {
     return (key in langTypeDetails);
 }
 
-const getWebhookName = (key: WebhookType) => {
+const getWebhookName = (key: WebhookTypes) => {
     return get(langTypeDetails, [key, 'title'], '');
 };
 
-const getTriggerNames = (triggers: WebhookTrigger[]) => {
+const getTriggerNames = (triggers: WebhookTriggers[]) => {
     return map(triggers, (trigger) => {
         return get(langTriggerDetails, [trigger, 'title'], '');
     });
@@ -172,7 +175,7 @@ const {doCreate, doEdit} = useHasEditModal($editModal);
 const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
-const doToggle = (url) => {
+const doToggle = (url: string) => {
     void axios.put(url).then((resp) => {
         notifySuccess(resp.data.message);
         relist();
@@ -181,10 +184,9 @@ const doToggle = (url) => {
 
 const $logModal = useTemplateRef('$logModal');
 
-const doTest = (url) => {
-    void axios.put(url).then((resp) => {
-        $logModal.value?.show(resp.data.links.log);
-    });
+const doTest = async (url: string) => {
+    const {data} = await axios.put<ApiTaskWithLog>(url);
+    $logModal.value?.show(data.logUrl);
 };
 
 const {doDelete} = useConfirmAndDelete(

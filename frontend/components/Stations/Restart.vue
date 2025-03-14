@@ -111,7 +111,7 @@ import {getStationApiUrl} from "~/router";
 import {useRouter} from "vue-router";
 import {useDialog} from "~/functions/useDialog.ts";
 
-const props = defineProps<{
+defineProps<{
     canReload: boolean,
 }>();
 
@@ -127,7 +127,7 @@ const {$gettext} = useTranslate();
 
 const router = useRouter();
 
-const makeApiCall = (uri) => {
+const makeApiCall = (uri: string) => {
     isLoading.value = true;
 
     void axios.post(uri).then((resp) => {

@@ -92,6 +92,22 @@ return [
         $config = new Doctrine\DBAL\Configuration();
         $config->setResultCache($psr6Cache);
 
+        // Add middleware that forces a custom platform, for high-precision DATETIMEs.
+        $config->setMiddlewares([
+            new class implements Doctrine\DBAL\Driver\Middleware {
+                public function wrap(Doctrine\DBAL\Driver $driver): Doctrine\DBAL\Driver
+                {
+                    return new class ($driver) extends Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware {
+                        public function getDatabasePlatform(
+                            Doctrine\DBAL\ServerVersionProvider $versionProvider
+                        ): Doctrine\DBAL\Platforms\AbstractPlatform {
+                            return new App\Doctrine\Platform\MariaDbPlatform();
+                        }
+                    };
+                }
+            },
+        ]);
+
         /** @phpstan-ignore-next-line */
         return Doctrine\DBAL\DriverManager::getConnection($connectionOptions, $config);
     },
@@ -139,6 +155,11 @@ return [
 
         $config->addCustomNumericFunction('RAND', DoctrineExtensions\Query\Mysql\Rand::class);
         $config->addCustomStringFunction('FIELD', DoctrineExtensions\Query\Mysql\Field::class);
+
+        Doctrine\DBAL\Types\Type::overrideType(
+            'datetime_immutable',
+            App\Doctrine\Types\UtcDateTimeImmutableType::class
+        );
 
         $eventManager = new Doctrine\Common\EventManager();
         $eventManager->addEventSubscriber($eventRequiresRestart);
@@ -327,6 +348,7 @@ return [
 
         $normalizers = [
             new Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer(),
+            new App\Normalizer\DateTimeNormalizer(),
             new Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer(),
             new Azura\Normalizer\DoctrineEntityNormalizer(
                 $em,
@@ -499,7 +521,7 @@ return [
                 new GuzzleHttp\Psr7\HttpFactory(),
                 new GuzzleHttp\Client([
                     'curl' => [
-                        \CURLOPT_UNIX_SOCKET_PATH => '/var/run/supervisor.sock',
+                        CURLOPT_UNIX_SOCKET_PATH => '/var/run/supervisor.sock',
                     ],
                 ])
             )

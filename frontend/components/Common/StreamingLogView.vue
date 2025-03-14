@@ -23,21 +23,22 @@ import {useAxios} from "~/vendor/axios";
 import {tryOnScopeDispose} from "@vueuse/core";
 import Loading from "~/components/Common/Loading.vue";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
+import {ApiLogContents} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<{
     logUrl: string
 }>();
 
-const isLoading = ref(false);
-const logs = ref('');
-const currentLogPosition = ref(null);
-const scrollToBottom = ref(true);
+const isLoading = ref<boolean>(false);
+const logs = ref<string>('');
+const currentLogPosition = ref<number | null>(null);
+const scrollToBottom = ref<boolean>(true);
 
-const {axios} = useAxios();
+const {axiosSilent} = useAxios();
 
 const $textarea = useTemplateRef('$textarea');
 
-let updateInterval = null;
+let updateInterval: ReturnType<typeof setInterval> | null = null;
 
 const stop = () => {
     if (updateInterval) {
@@ -48,15 +49,15 @@ const stop = () => {
 tryOnScopeDispose(stop);
 
 const updateLogs = () => {
-    void axios({
+    void axiosSilent.request<ApiLogContents>({
         method: 'GET',
         url: props.logUrl,
         params: {
             position: currentLogPosition.value
         }
-    }).then((resp) => {
-        if (resp.data.contents !== '') {
-            logs.value = logs.value + resp.data.contents + "\n";
+    }).then(({data}) => {
+        if (data.contents !== '') {
+            logs.value = logs.value + data.contents + "\n";
             if (scrollToBottom.value && $textarea.value) {
                 void nextTick(() => {
                     $textarea.value.scrollTop = $textarea.value?.scrollHeight;
@@ -64,9 +65,9 @@ const updateLogs = () => {
             }
         }
 
-        currentLogPosition.value = resp.data.position;
+        currentLogPosition.value = data.position;
 
-        if (resp.data.eof) {
+        if (data.eof) {
             stop();
         }
     }).finally(() => {
@@ -80,7 +81,7 @@ watch(toRef(props, 'logUrl'), (newLogUrl) => {
     currentLogPosition.value = 0;
     stop();
 
-    if (null !== newLogUrl) {
+    if ('' !== newLogUrl) {
         updateInterval = setInterval(updateLogs, 2500);
         updateLogs();
     }

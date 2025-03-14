@@ -86,18 +86,20 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, useTemplateRef, watch} from "vue";
+import {computed, nextTick, ref, useTemplateRef, watch} from "vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useAzuraCast} from "~/vendor/azuracast";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import DateRangeDropdown from "~/components/Common/DateRangeDropdown.vue";
 import Icon from "~/components/Common/Icon.vue";
 import useHasDatatable from "~/functions/useHasDatatable";
-import DetailsModal from "./AuditLog/DetailsModal.vue";
+import DetailsModal from "~/components/Admin/AuditLog/DetailsModal.vue";
 import CardPage from "~/components/Common/CardPage.vue";
 import {useLuxon} from "~/vendor/luxon";
 import {getApiUrl} from "~/router";
 import {IconAddCircle, IconRemoveCircle, IconSwapHorizontalCircle} from "~/components/Common/icons";
+import {ApiAdminAuditLog, ApiAdminAuditLogChangeset} from "~/entities/ApiInterfaces.ts";
+import {DeepRequired} from "utility-types";
 
 const baseApiUrl = getApiUrl('/admin/auditlog');
 
@@ -111,13 +113,13 @@ const dateRange = ref({
 const {$gettext} = useTranslate();
 const {timeConfig} = useAzuraCast();
 
-const fields: DataTableField[] = [
+const fields: DataTableField<ApiAdminAuditLog>[] = [
     {
         key: 'timestamp',
         label: $gettext('Date/Time'),
         sortable: false,
         formatter: (value) => {
-            return DateTime.fromSeconds(value).toLocaleString(
+            return DateTime.fromISO(value).toLocaleString(
                 {
                     ...DateTime.DATETIME_SHORT, ...timeConfig
                 }
@@ -144,11 +146,17 @@ const apiUrl = computed(() => {
 const $dataTable = useTemplateRef('$dataTable');
 const {navigate} = useHasDatatable($dataTable);
 
-watch(dateRange, navigate);
+watch(dateRange, () => {
+    void nextTick(() => {
+        navigate();
+    });
+});
 
 const $detailsModal = useTemplateRef('$detailsModal');
 
-const showDetails = (changes) => {
+type AuditLogChanges = DeepRequired<ApiAdminAuditLogChangeset>
+
+const showDetails = (changes: AuditLogChanges[]) => {
     $detailsModal.value?.open(changes);
 }
 </script>

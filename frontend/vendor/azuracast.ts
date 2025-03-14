@@ -1,5 +1,5 @@
-import {GlobalPermission, StationPermission} from "~/acl.ts";
 import {PanelLayoutProps} from "~/components/PanelLayout.vue";
+import {GlobalPermissions, StationPermissions} from "~/entities/ApiInterfaces.ts";
 
 export interface AzuraCastStationConstants {
     id: number,
@@ -25,9 +25,9 @@ export interface AzuraCastStationConstants {
 export interface AzuraCastUserConstants {
     id: number | null,
     displayName: string | null,
-    globalPermissions: GlobalPermission[],
+    globalPermissions: GlobalPermissions[],
     stationPermissions: {
-        [key: number]: StationPermission[]
+        [key: number]: StationPermissions[]
     }
 }
 
@@ -55,18 +55,32 @@ export function useAzuraCast(): AzuraCastConstants {
     return globalProps;
 }
 
+export function useAzuraCastPanelProps(): PanelLayoutProps {
+    const {panelProps} = useAzuraCast();
+
+    if (!panelProps) {
+        throw new Error("Panel properties are undefined in this request.");
+    }
+
+    return panelProps;
+}
+
 export function useAzuraCastUser(): AzuraCastUserConstants {
     const {user} = useAzuraCast();
 
-    return user ?? {
-        id: null,
-        displayName: null,
-        globalPermissions: [],
-        stationPermissions: {}
-    };
+    if (!user) {
+        throw Error("User is not logged in.");
+    }
+
+    return user;
 }
 
-export function useAzuraCastStation(): AzuraCastStationConstants | null {
+export function useAzuraCastStation(): AzuraCastStationConstants {
     const {station} = useAzuraCast();
-    return station ?? null;
+
+    if (!station) {
+        throw Error("Station data is not provided in this request.");
+    }
+
+    return station;
 }

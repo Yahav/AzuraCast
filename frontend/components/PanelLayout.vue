@@ -247,7 +247,6 @@ export interface PanelLayoutProps {
 
 defineProps<PanelLayoutProps>();
 
-
 const slots = useSlots();
 
 const handleSidebar = () => {

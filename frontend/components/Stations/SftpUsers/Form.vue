@@ -57,20 +57,19 @@
 
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {computed} from "vue";
 import {required} from "@vuelidate/validators";
+import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
 
-interface SftpUsersFormProps extends FormTabProps {
+const props = defineProps<{
     isEditMode: boolean
-}
+}>();
 
-const props = defineProps<SftpUsersFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     computed(() => {
         return {
             username: {required},

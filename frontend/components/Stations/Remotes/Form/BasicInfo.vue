@@ -68,20 +68,18 @@
 </template>
 
 <script setup lang="ts">
-import {RemoteAdapter} from '~/entities/RadioAdapters';
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
+import {ApiGenericForm, RemoteAdapters} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps<FormTabProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     {
         display_name: {},
         type: {required},
@@ -93,7 +91,7 @@ const {v$, tabClass} = useVuelidateOnFormTab(
     },
     {
         display_name: null,
-        type: RemoteAdapter.Icecast,
+        type: RemoteAdapters.Icecast,
         custom_listen_url: null,
         url: null,
         mount: null,
@@ -104,15 +102,15 @@ const {v$, tabClass} = useVuelidateOnFormTab(
 
 const typeOptions = [
     {
-        value: RemoteAdapter.Icecast,
+        value: RemoteAdapters.Icecast,
         text: 'Icecast v2.4+',
     },
     {
-        value: RemoteAdapter.Shoutcast1,
+        value: RemoteAdapters.Shoutcast1,
         text: 'Shoutcast v1',
     },
     {
-        value: RemoteAdapter.Shoutcast2,
+        value: RemoteAdapters.Shoutcast2,
         text: 'Shoutcast v2',
     }
 ];

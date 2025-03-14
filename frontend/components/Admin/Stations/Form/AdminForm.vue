@@ -86,25 +86,25 @@ import {computed, onMounted, reactive, ref} from "vue";
 import {useAxios} from "~/vendor/axios";
 import Loading from "~/components/Common/Loading.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {getApiUrl} from "~/router";
+import {ApiFormSimpleOptions, ApiGenericForm} from "~/entities/ApiInterfaces.ts";
+import {useTranslate} from "~/vendor/gettext.ts";
 
-interface StationsAdminFormProps extends FormTabProps {
+const props = defineProps<{
     isEditMode: boolean,
-}
+}>();
 
-const props = defineProps<StationsAdminFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const storageLocationApiUrl = getApiUrl('/admin/stations/storage-locations');
 
 const {enableAdvancedFeatures} = useAzuraCast();
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     computed(() => {
         let validations: {
             [key: string | number]: any
@@ -151,43 +151,54 @@ const {v$, tabClass} = useVuelidateOnFormTab(
     }
 );
 
-const storageLocationsLoading = ref(true);
-const storageLocationOptions = reactive({
-    media_storage_location: {},
-    recordings_storage_location: {},
-    podcasts_storage_location: {}
+interface StorageLocationOptions {
+    media_storage_location: ApiFormSimpleOptions,
+    recordings_storage_location: ApiFormSimpleOptions,
+    podcasts_storage_location: ApiFormSimpleOptions
+}
+
+const storageLocationsLoading = ref<boolean>(true);
+const storageLocationOptions = reactive<StorageLocationOptions>({
+    media_storage_location: [],
+    recordings_storage_location: [],
+    podcasts_storage_location: []
 });
 
-const filterLocations = (group) => {
-    if (!props.isEditMode) {
+const {$gettext} = useTranslate();
+
+const langNewStorageLocation = $gettext("Create a new storage location based on the base directory.");
+
+const filterLocations = (group: ApiFormSimpleOptions): ApiFormSimpleOptions => {
+    if (props.isEditMode) {
         return group;
     }
 
-    const newGroup = {};
-    for (const oldKey in group) {
-        if (oldKey !== "") {
-            newGroup[oldKey] = group[oldKey];
-        }
-    }
+    const newGroup = group.slice();
+    newGroup.push({
+        value: "",
+        text: langNewStorageLocation
+    });
     return newGroup;
 }
 
 const {axios} = useAxios();
 
-const loadLocations = () => {
-    void axios.get(storageLocationApiUrl.value).then((resp) => {
+const loadLocations = async () => {
+    try {
+        const {data} = await axios.get<StorageLocationOptions>(storageLocationApiUrl.value);
+
         storageLocationOptions.media_storage_location = filterLocations(
-            resp.data.media_storage_location
+            data.media_storage_location
         );
         storageLocationOptions.recordings_storage_location = filterLocations(
-            resp.data.recordings_storage_location
+            data.recordings_storage_location
         );
         storageLocationOptions.podcasts_storage_location = filterLocations(
-            resp.data.podcasts_storage_location
+            data.podcasts_storage_location
         );
-    }).finally(() => {
+    } finally {
         storageLocationsLoading.value = false;
-    });
+    }
 };
 
 onMounted(loadLocations);

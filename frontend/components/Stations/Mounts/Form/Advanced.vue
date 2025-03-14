@@ -32,26 +32,24 @@
 </template>
 
 <script setup lang="ts">
-import {FrontendAdapter} from '~/entities/RadioAdapters';
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import {computed} from "vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import Tab from "~/components/Common/Tab.vue";
+import {ApiGenericForm, FrontendAdapters} from "~/entities/ApiInterfaces.ts";
 
-interface MountAdvancedFormProps extends FormTabProps {
-    stationFrontendType: FrontendAdapter
-}
+const props = defineProps<{
+    stationFrontendType: FrontendAdapters
+}>();
 
-const props = defineProps<MountAdvancedFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const isIcecast = computed(() => {
-    return FrontendAdapter.Icecast === props.stationFrontendType;
+    return FrontendAdapters.Icecast === props.stationFrontendType;
 });
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     computed(() => {
         const validations: {
             [key: string | number]: any

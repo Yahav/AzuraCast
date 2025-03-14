@@ -29,18 +29,19 @@
 
 <script setup lang="ts">
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import CommonSocialPostFields from "./Common/SocialPostFields.vue";
-import {FormTabEmits, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import CommonSocialPostFields from "~/components/Stations/Webhooks/Form/Common/SocialPostFields.vue";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import {WebhookComponentProps} from "~/components/Stations/Webhooks/EditModal.vue";
+import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps<WebhookComponentProps>();
-const emit = defineEmits<FormTabEmits>();
+defineProps<WebhookComponentProps>();
 
-const {form, v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+const form = defineModel<ApiGenericForm>('form', {required: true});
+
+const {v$, tabClass} = useVuelidateOnFormTab(
+    form,
     {
         config: {
             handle: {required},

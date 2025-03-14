@@ -55,20 +55,18 @@
 <script setup lang="ts">
 import FormFieldset from "~/components/Form/FormFieldset.vue";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
-import {BackendAdapter} from "~/entities/RadioAdapters";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
-import BackendDisabled from "./Common/BackendDisabled.vue";
+import BackendDisabled from "~/components/Admin/Stations/Form/Common/BackendDisabled.vue";
 import {computed} from "vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
+import {ApiGenericForm, BackendAdapters} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps<FormTabProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
-const {form, v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+const {v$, tabClass} = useVuelidateOnFormTab(
+    form,
     {
         enable_requests: {},
         request_delay: {numeric},
@@ -82,7 +80,7 @@ const {form, v$, tabClass} = useVuelidateOnFormTab(
 );
 
 const isBackendEnabled = computed(() => {
-    return form.value.backend_type !== BackendAdapter.None;
+    return form.value.backend_type !== BackendAdapters.None;
 });
 
 const tabClassWithBackend = computed(() => {

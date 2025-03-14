@@ -56,14 +56,14 @@
             :api-url="listUrlForType"
         >
             <template #cell(timestamp)="row">
-                {{ formatTimestampAsDateTime(row.item.timestamp) }}
+                {{ formatIsoAsDateTime(row.item.timestamp) }}
             </template>
             <template #cell(played_at)="row">
-                <span v-if="row.item.played_at === 0">
+                <span v-if="row.item.played_at === null">
                     {{ $gettext('Not Played') }}
                 </span>
                 <span v-else>
-                    {{ formatTimestampAsDateTime(row.item.played_at) }}
+                    {{ formatIsoAsDateTime(row.item.played_at) }}
                 </span>
             </template>
             <template #cell(song_title)="row">
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
+import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import Icon from "~/components/Common/Icon.vue";
 import {computed, nextTick, ref, useTemplateRef} from "vue";
 import {useTranslate} from "~/vendor/gettext";
@@ -104,10 +104,17 @@ import {IconRemove} from "~/components/Common/icons";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import {useDialog} from "~/functions/useDialog.ts";
 
+type RequestType = "pending" | "history";
+
+interface TypeTabs {
+    type: RequestType,
+    title: string
+}
+
 const listUrl = getStationApiUrl('/reports/requests');
 const clearUrl = getStationApiUrl('/reports/requests/clear');
 
-const activeType = ref('pending');
+const activeType = ref<RequestType>('pending');
 
 const listUrlForType = computed(() => {
     return listUrl.value + '?type=' + activeType.value;
@@ -123,7 +130,7 @@ const fields: DataTableField[] = [
     {key: 'actions', label: $gettext('Actions'), sortable: false}
 ];
 
-const tabs = [
+const tabs: TypeTabs[] = [
     {
         type: 'pending',
         title: $gettext('Pending Requests')
@@ -140,18 +147,18 @@ const relist = () => {
     $dataTable.value?.refresh();
 };
 
-const setType = (type) => {
+const setType = (type: RequestType) => {
     activeType.value = type;
     void nextTick(relist);
 };
 
-const {formatTimestampAsDateTime} = useStationDateTimeFormatter();
+const {formatIsoAsDateTime} = useStationDateTimeFormatter();
 
 const {confirmDelete} = useDialog();
 const {notifySuccess} = useNotify();
 const {axios} = useAxios();
 
-const doDelete = (url) => {
+const doDelete = (url: string) => {
     void confirmDelete({
         title: $gettext('Delete Request?'),
     }).then((result) => {

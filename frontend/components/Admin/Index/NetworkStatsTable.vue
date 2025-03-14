@@ -29,10 +29,32 @@
 </template>
 
 <script setup lang="ts">
-import {get} from "lodash";
+import {get, omit} from "lodash";
+import {computed} from "vue";
+import {
+    ApiAdminServerStatsNetworkInterfaceReceived,
+    ApiAdminServerStatsNetworkInterfaceTransmitted
+} from "~/entities/ApiInterfaces.ts";
+
+type StatsSection = ApiAdminServerStatsNetworkInterfaceReceived
+    | ApiAdminServerStatsNetworkInterfaceTransmitted
 
 const props = defineProps<{
-    fields: string[],
-    data: Record<string, any>,
+    row: StatsSection,
 }>();
+
+const visibleData = computed(() => {
+    return {
+        'speed': props.row.speed_readable,
+        ...omit(props.row, 'speed_readable', 'speed_bytes')
+    };
+});
+
+const fields = computed<string[]>(() => Object.keys(visibleData.value));
+
+const data = computed(() => {
+    return [
+        visibleData.value
+    ];
+});
 </script>

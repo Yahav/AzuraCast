@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import Icon from "~/components/Common/Icon.vue";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
-import AdminBackupsLastOutputModal from "./Backups/LastOutputModal.vue";
+import AdminBackupsLastOutputModal from "~/components/Admin/Backups/LastOutputModal.vue";
 import formatFileSize from "~/functions/formatFileSize";
 import AdminBackupsConfigureModal from "~/components/Admin/Backups/ConfigureModal.vue";
 import AdminBackupsRunBackupModal from "~/components/Admin/Backups/RunBackupModal.vue";
@@ -167,8 +167,10 @@ import CardPage from "~/components/Common/CardPage.vue";
 import {useLuxon} from "~/vendor/luxon";
 import {getApiUrl} from "~/router";
 import {IconLogs, IconSend, IconSettings} from "~/components/Common/icons";
+import {DeepRequired} from "utility-types";
+import {ApiAdminBackup} from "~/entities/ApiInterfaces.ts";
 
-const props = withDefaults(
+withDefaults(
     defineProps<{
         storageLocations: Record<number, string>,
         isDocker: boolean,
@@ -186,7 +188,7 @@ const settingsLoading = ref(false);
 
 const blankSettings = {
     backupEnabled: false,
-    backupLastRun: null,
+    backupLastRun: 0,
     backupLastOutput: '',
 };
 
@@ -196,7 +198,9 @@ const {$gettext} = useTranslate();
 const {timeConfig} = useAzuraCast();
 const {DateTime, timestampToRelative} = useLuxon();
 
-const fields: DataTableField[] = [
+type Row = DeepRequired<ApiAdminBackup>
+
+const fields: DataTableField<Row>[] = [
     {
         key: 'basename',
         isRowHeader: true,

@@ -30,7 +30,7 @@
             <div class="card-body">
                 <h5>
                     {{ $gettext('Two-Factor Authentication') }}
-                    <enabled-badge :enabled="security.twoFactorEnabled" />
+                    <enabled-badge :enabled="security.two_factor_enabled"/>
                 </h5>
 
                 <p class="card-text mt-2">
@@ -41,7 +41,7 @@
 
                 <div class="buttons">
                     <button
-                        v-if="security.twoFactorEnabled"
+                        v-if="security.two_factor_enabled"
                         type="button"
                         class="btn btn-danger"
                         @click="disableTwoFactor"
@@ -144,20 +144,21 @@ import {useTranslate} from "~/vendor/gettext.ts";
 import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import useHasDatatable from "~/functions/useHasDatatable.ts";
 import PasskeyModal from "~/components/Account/PasskeyModal.vue";
+import {ApiAccountTwoFactorStatus} from "~/entities/ApiInterfaces.ts";
 import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 const {axios} = useAxios();
 
 const twoFactorUrl = getApiUrl('/frontend/account/two-factor');
 
-const {state: security, isLoading: securityLoading, execute: reloadSecurity} = useRefreshableAsyncState(
-    () => axios.get(twoFactorUrl.value).then((r) => {
-        return {
-            twoFactorEnabled: r.data.two_factor_enabled
-        };
-    }),
+const {
+    state: security,
+    isLoading: securityLoading,
+    execute: reloadSecurity
+} = useRefreshableAsyncState<ApiAccountTwoFactorStatus>(
+    async () => (await axios.get<ApiAccountTwoFactorStatus>(twoFactorUrl.value)).data,
     {
-        twoFactorEnabled: false,
+        two_factor_enabled: false,
     },
 );
 
@@ -178,7 +179,9 @@ const {$gettext} = useTranslate();
 
 const {doDelete: doDisableTwoFactor} = useConfirmAndDelete(
     $gettext('Disable two-factor authentication?'),
-    reloadSecurity
+    () => {
+        void reloadSecurity();
+    }
 );
 const disableTwoFactor = () => doDisableTwoFactor(twoFactorUrl.value);
 

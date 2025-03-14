@@ -26,11 +26,11 @@
                 @row-selected="onRowSelected"
             >
                 <template #cell(download)="row">
-                    <template v-if="row.item.recording?.links?.download">
-                        <play-button :url="row.item.recording?.links?.download" />
+                    <template v-if="row.item.recording?.downloadUrl">
+                        <play-button :url="row.item.recording?.downloadUrl"/>
                         <a
                             class="name btn p-0 ms-2"
-                            :href="row.item.recording?.links?.download"
+                            :href="row.item.recording?.downloadUrl"
                             target="_blank"
                             :title="$gettext('Download')"
                         >
@@ -65,10 +65,10 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
-import formatFileSize from '~/functions/formatFileSize';
-import InlinePlayer from '~/components/InlinePlayer.vue';
-import Icon from '~/components/Common/Icon.vue';
+import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
+import formatFileSize from "~/functions/formatFileSize";
+import InlinePlayer from "~/components/InlinePlayer.vue";
+import Icon from "~/components/Common/Icon.vue";
 import PlayButton from "~/components/Common/PlayButton.vue";
 import {ref, shallowRef, useTemplateRef} from "vue";
 import {useTranslate} from "~/vendor/gettext";
@@ -82,15 +82,18 @@ import {usePlayerStore, useProvidePlayerStore} from "~/functions/usePlayerStore.
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import BroadcastsModalToolbar from "~/components/Stations/Streamers/BroadcastsModalToolbar.vue";
 import {useDialog} from "~/functions/useDialog.ts";
+import {ApiStationStreamerBroadcast} from "~/entities/ApiInterfaces.ts";
 
-const listUrl = ref(null);
-const batchUrl = ref(null);
+const listUrl = ref<string | null>(null);
+const batchUrl = ref<string | null>(null);
 
 const {$gettext} = useTranslate();
 
-const {formatTimestampAsDateTime} = useStationDateTimeFormatter();
+const {formatIsoAsDateTime} = useStationDateTimeFormatter();
 
-const fields: DataTableField[] = [
+type Row = ApiStationStreamerBroadcast;
+
+const fields: DataTableField<Row>[] = [
     {
         key: 'download',
         label: ' ',
@@ -101,7 +104,7 @@ const fields: DataTableField[] = [
         key: 'timestampStart',
         label: $gettext('Start Time'),
         sortable: false,
-        formatter: (value) => formatTimestampAsDateTime(value),
+        formatter: (value) => formatIsoAsDateTime(value),
         class: 'ps-3'
     },
     {
@@ -109,9 +112,9 @@ const fields: DataTableField[] = [
         label: $gettext('End Time'),
         sortable: false,
         formatter: (value) => {
-            return value === 0
+            return value === null
                 ? $gettext('Live')
-                : formatTimestampAsDateTime(value);
+                : formatIsoAsDateTime(value);
         }
     },
     {
@@ -143,11 +146,11 @@ const {relist} = useHasDatatable($dataTable);
 
 const selectedItems = shallowRef([]);
 
-const onRowSelected = (items) => {
+const onRowSelected = (items: Row[]) => {
     selectedItems.value = items;
 };
 
-const doDelete = (url) => {
+const doDelete = (url: string) => {
     void confirmDelete({
         title: $gettext('Delete Broadcast?'),
     }).then((result) => {
@@ -163,7 +166,7 @@ const doDelete = (url) => {
 const $modal = useTemplateRef('$modal');
 const {show, hide} = useHasModal($modal);
 
-const open = (newListUrl, newBatchUrl) => {
+const open = (newListUrl: string, newBatchUrl: string) => {
     listUrl.value = newListUrl;
     batchUrl.value = newBatchUrl;
 

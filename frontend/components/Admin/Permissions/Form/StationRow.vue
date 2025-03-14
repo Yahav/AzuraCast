@@ -43,25 +43,22 @@ import {get} from "lodash";
 import Icon from "~/components/Common/Icon.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import {IconRemove} from "~/components/Common/icons";
-import {PermissionStation} from "~/components/Admin/Permissions/EditModal.vue";
 import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
 import useVuelidate from "@vuelidate/core";
-import {useVModel} from "@vueuse/core";
+import {ApiAdminRoleStationPermission} from "~/entities/ApiInterfaces.ts";
 
-type T = PermissionStation;
+type T = ApiAdminRoleStationPermission;
 
 const props = defineProps<{
-    row: T,
     stations: Record<number, string>,
     stationPermissions: SimpleFormOptionInput,
 }>();
 
-const emit = defineEmits<{
-    (e: 'update:row', row: T)
+defineEmits<{
     (e: 'remove'): void
 }>();
 
-const row = useVModel(props, 'row', emit);
+const row = defineModel<T>('row', {required: true});
 
 const v$ = useVuelidate<T>(
     {

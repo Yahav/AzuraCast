@@ -14,13 +14,13 @@
 </template>
 
 <script setup lang="ts">
-import SongHistory from './SongHistory.vue';
+import SongHistory from "~/components/Public/FullPlayer/SongHistory.vue";
 import Modal from "~/components/Common/Modal.vue";
 import {useTemplateRef} from "vue";
 import {useHasModal} from "~/functions/useHasModal.ts";
 import {ApiNowPlayingSongHistory} from "~/entities/ApiInterfaces.ts";
 
-const props = withDefaults(
+withDefaults(
     defineProps<{
         history: ApiNowPlayingSongHistory[],
         showAlbumArt?: boolean,

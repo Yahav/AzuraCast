@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
@@ -68,13 +68,12 @@ import {onMounted, ref, shallowRef} from "vue";
 import {useAxios} from "~/vendor/axios.ts";
 import {getStationApiUrl} from "~/router.ts";
 import Loading from "~/components/Common/Loading.vue";
+import {ApiFormSimpleOptions, ApiGenericForm} from "~/entities/ApiInterfaces.ts";
 
-const props = defineProps<FormTabProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     {
         source: {required},
         playlist_id: {},
@@ -102,18 +101,19 @@ const sourceOptions = [
     }
 ];
 
-const playlistsLoading = ref(true);
-const playlistOptions = shallowRef([]);
+const playlistsLoading = ref<boolean>(true);
+const playlistOptions = shallowRef<ApiFormSimpleOptions>([]);
 
 const {axios} = useAxios();
 const playlistsApiUrl = getStationApiUrl('/podcasts/playlists');
 
-const loadPlaylists = () => {
-    void axios.get(playlistsApiUrl.value).then((resp) => {
-        playlistOptions.value = resp.data;
-    }).finally(() => {
+const loadPlaylists = async () => {
+    try {
+        const {data} = await axios.get<ApiFormSimpleOptions>(playlistsApiUrl.value);
+        playlistOptions.value = data;
+    } finally {
         playlistsLoading.value = false;
-    });
+    }
 };
 
 onMounted(loadPlaylists);

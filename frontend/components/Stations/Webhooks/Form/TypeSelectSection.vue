@@ -9,7 +9,7 @@
         <div class="list-group list-group-flush">
             <a
                 v-for="(type, key) in types"
-                :key="key"
+                :key="key as string"
                 class="list-group-item list-group-item-action"
                 href="#"
                 @click.prevent="selectType(key)"
@@ -26,18 +26,18 @@
 </template>
 
 <script setup lang="ts">
-import {WebhookType, WebhookTypeDetails} from "~/entities/Webhooks.ts";
+import {ActiveWebhookTypes, WebhookTypeDetails} from "~/entities/Webhooks.ts";
 
-const props = defineProps<{
+defineProps<{
     title: string,
     types: Partial<WebhookTypeDetails>
 }>();
 
 const emit = defineEmits<{
-    (e: 'select', type: WebhookType): void
+    (e: 'select', type: ActiveWebhookTypes): void
 }>();
 
-const selectType = (type: WebhookType) => {
+const selectType = (type: ActiveWebhookTypes) => {
     emit('select', type);
 }
 </script>

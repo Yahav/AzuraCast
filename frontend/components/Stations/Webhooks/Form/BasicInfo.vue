@@ -41,25 +41,24 @@
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import {map, pick} from "lodash";
-import {FormTabEmits, FormTabProps, useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
+import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import {useTranslate} from "~/vendor/gettext.ts";
-import {getTriggers, WebhookTriggerDetails, WebhookType} from "~/entities/Webhooks.ts";
+import {getTriggers, WebhookTriggerDetails} from "~/entities/Webhooks.ts";
 import {computed} from "vue";
+import {ApiGenericForm, WebhookTypes} from "~/entities/ApiInterfaces.ts";
 
-interface WebhookBasicInfoFormProps extends FormTabProps {
-    type: WebhookType | null
+const props = defineProps<{
+    type: WebhookTypes | null
     triggerDetails: WebhookTriggerDetails
-}
+}>();
 
-const props = defineProps<WebhookBasicInfoFormProps>();
-const emit = defineEmits<FormTabEmits>();
+const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {v$, tabClass} = useVuelidateOnFormTab(
-    props,
-    emit,
+    form,
     {
         name: {required},
         triggers: {},

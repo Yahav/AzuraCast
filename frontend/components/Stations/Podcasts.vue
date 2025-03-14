@@ -105,9 +105,9 @@
 </template>
 
 <script setup lang="ts">
-import DataTable, {DataTableField} from '~/components/Common/DataTable.vue';
-import EditModal from './Podcasts/PodcastEditModal.vue';
-import AlbumArt from '~/components/Common/AlbumArt.vue';
+import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
+import EditModal from "~/components/Stations/Podcasts/PodcastEditModal.vue";
+import AlbumArt from "~/components/Common/AlbumArt.vue";
 import StationsCommonQuota from "~/components/Stations/Common/Quota.vue";
 import {useTranslate} from "~/vendor/gettext";
 import {useTemplateRef} from "vue";
@@ -119,7 +119,7 @@ import useConfirmAndDelete from "~/functions/useConfirmAndDelete.ts";
 import useHasEditModal from "~/functions/useHasEditModal.ts";
 import {NestedFormOptionInput} from "~/functions/objectToFormOptions.ts";
 
-const props = defineProps<{
+defineProps<{
     languageOptions: Record<string, string>,
     categoriesOptions: NestedFormOptionInput,
 }>();

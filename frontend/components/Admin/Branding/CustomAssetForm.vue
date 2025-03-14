@@ -46,6 +46,7 @@ import Loading from "~/components/Common/Loading.vue";
 import FormGroup from "~/components/Form/FormGroup.vue";
 import FormFile from "~/components/Form/FormFile.vue";
 import {useLightbox} from "~/vendor/lightbox";
+import {ApiUploadedRecordStatus} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<{
     id: string,
@@ -53,18 +54,18 @@ const props = defineProps<{
     caption: string,
 }>();
 
-const isLoading = ref(true);
-const isUploaded = ref(false);
-const url = ref(null);
+const isLoading = ref<boolean>(true);
+const isUploaded = ref<boolean>(false);
+const url = ref<string | null>(null);
 
 const {axios} = useAxios();
 
 const relist = () => {
     isLoading.value = true;
 
-    void axios.get(props.apiUrl).then((resp) => {
-        isUploaded.value = resp.data.is_uploaded;
-        url.value = resp.data.url;
+    void axios.get<ApiUploadedRecordStatus>(props.apiUrl).then(({data}) => {
+        isUploaded.value = data.hasRecord;
+        url.value = data.url;
 
         isLoading.value = false;
     });
@@ -72,7 +73,7 @@ const relist = () => {
 
 onMounted(relist);
 
-const uploaded = (newFile) => {
+const uploaded = (newFile: File | null) => {
     if (null === newFile) {
         return;
     }

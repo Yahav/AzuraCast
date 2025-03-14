@@ -11,7 +11,5 @@
     </card-page>
 </template>
 <script setup lang="ts">
-
 import CardPage from "~/components/Common/CardPage.vue";
-
 </script>

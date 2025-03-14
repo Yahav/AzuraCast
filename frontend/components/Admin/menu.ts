@@ -1,9 +1,10 @@
 import {useTranslate} from "~/vendor/gettext.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
 import filterMenu, {MenuCategory, ReactiveMenu} from "~/functions/filterMenu.ts";
 import {computed} from "vue";
 import {IconGroups, IconRadio, IconRouter} from "~/components/Common/icons.ts";
 import {reactiveComputed} from "@vueuse/core";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 export function useAdminMenu(): ReactiveMenu {
     const {$gettext} = useTranslate();
@@ -21,7 +22,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:settings:index'
                         },
-                        visible: userAllowed(GlobalPermission.Settings)
+                        visible: userAllowed(GlobalPermissions.Settings)
                     },
                     {
                         key: 'branding',
@@ -29,7 +30,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:branding:index'
                         },
-                        visible: userAllowed(GlobalPermission.Settings)
+                        visible: userAllowed(GlobalPermissions.Settings)
                     },
                     {
                         key: 'logs',
@@ -37,7 +38,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:logs:index'
                         },
-                        visible: userAllowed(GlobalPermission.Logs)
+                        visible: userAllowed(GlobalPermissions.Logs)
                     },
                     {
                         key: 'storage_locations',
@@ -45,7 +46,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:storage_locations:index'
                         },
-                        visible: userAllowed(GlobalPermission.StorageLocations)
+                        visible: userAllowed(GlobalPermissions.StorageLocations)
                     },
                     {
                         key: 'backups',
@@ -53,7 +54,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:backups:index'
                         },
-                        visible: userAllowed(GlobalPermission.Backups)
+                        visible: userAllowed(GlobalPermissions.Backups)
                     },
                     {
                         key: 'debug',
@@ -61,7 +62,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:debug:index'
                         },
-                        visible: userAllowed(GlobalPermission.All)
+                        visible: userAllowed(GlobalPermissions.All)
                     },
                     {
                         key: 'updates',
@@ -69,7 +70,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:updates:index'
                         },
-                        visible: userAllowed(GlobalPermission.All)
+                        visible: userAllowed(GlobalPermissions.All)
                     }
                 ]
             };
@@ -85,7 +86,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:users:index'
                         },
-                        visible: userAllowed(GlobalPermission.All)
+                        visible: userAllowed(GlobalPermissions.All)
                     },
                     {
                         key: 'permissions',
@@ -93,7 +94,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:permissions:index'
                         },
-                        visible: userAllowed(GlobalPermission.All)
+                        visible: userAllowed(GlobalPermissions.All)
                     },
                     {
                         key: 'auditlog',
@@ -101,7 +102,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:auditlog:index'
                         },
-                        visible: userAllowed(GlobalPermission.Logs)
+                        visible: userAllowed(GlobalPermissions.Logs)
                     },
                     {
                         key: 'api_keys',
@@ -109,7 +110,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:api:index'
                         },
-                        visible: userAllowed(GlobalPermission.ApiKeys)
+                        visible: userAllowed(GlobalPermissions.ApiKeys)
                     }
                 ]
             };
@@ -125,7 +126,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:stations:index'
                         },
-                        visible: userAllowed(GlobalPermission.Stations)
+                        visible: userAllowed(GlobalPermissions.Stations)
                     },
                     {
                         key: 'custom_fields',
@@ -133,7 +134,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:custom_fields:index'
                         },
-                        visible: userAllowed(GlobalPermission.CustomFields)
+                        visible: userAllowed(GlobalPermissions.CustomFields)
                     },
                     {
                         key: 'relays',
@@ -141,7 +142,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:relays:index',
                         },
-                        visible: userAllowed(GlobalPermission.Stations)
+                        visible: userAllowed(GlobalPermissions.Stations)
                     },
                     {
                         key: 'shoutcast',
@@ -149,7 +150,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:install_shoutcast:index'
                         },
-                        visible: userAllowed(GlobalPermission.Settings)
+                        visible: userAllowed(GlobalPermissions.Settings)
                     },
                     {
                         key: 'rsas',
@@ -157,7 +158,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:install_rsas:index'
                         },
-                        visible: userAllowed(GlobalPermission.Settings)
+                        visible: userAllowed(GlobalPermissions.Settings)
                     },
                     {
                         key: 'stereo_tool',
@@ -165,7 +166,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:stereo_tool:index'
                         },
-                        visible: userAllowed(GlobalPermission.Settings)
+                        visible: userAllowed(GlobalPermissions.Settings)
                     },
                     {
                         key: 'geolite',
@@ -173,7 +174,7 @@ export function useAdminMenu(): ReactiveMenu {
                         url: {
                             name: 'admin:install_geolite:index'
                         },
-                        visible: userAllowed(GlobalPermission.Settings)
+                        visible: userAllowed(GlobalPermissions.Settings)
                     }
                 ]
             };
