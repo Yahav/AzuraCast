@@ -17,16 +17,28 @@ input, textarea {
   }
 
   &.form-switch {
+
     .form-check-input,
     .custom-control-input {
       width: 2.5rem;
     }
   }
 
+  .form-check-label {
+    font-weight: 600;
+  }
+
   .form-check-label,
   .custom-control-label {
+    font-weight: 600;
     margin-left: 0.5rem;
     cursor: pointer;
+    color: #2c2c2c;
+
+    small {
+      font-weight: 400;
+      color: var(--bs-secondary-color);
+    }
   }
 
   .custom-control-label {
@@ -60,6 +72,7 @@ input, textarea {
     .form-text {
       margin-top: .5rem;
       margin-bottom: .5rem;
+      font-size: 0.95em;
     }
   }
 
@@ -113,4 +126,13 @@ input, textarea {
 .form-range {
   height: 10px;
   width: auto;
+}
+
+.form-control, .form-control:focus, .form-select {
+  background-color: #fff;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #2c2c2c;
 }

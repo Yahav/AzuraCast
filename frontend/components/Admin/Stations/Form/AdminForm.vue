@@ -6,7 +6,7 @@
         <div class="row g-3 mb-3">
             <form-group-checkbox
                 id="edit_form_is_enabled"
-                class="col-md-6"
+                class="col-md-3"
                 :field="v$.is_enabled"
                 :label="$gettext('Enable Broadcasting')"
                 :description="$gettext('If disabled, the station will not broadcast or shuffle its AutoDJ.')"
@@ -15,7 +15,7 @@
             <form-group-field
                 v-if="enableAdvancedFeatures"
                 id="edit_form_radio_base_dir"
-                class="col-md-6"
+                class="col-md-8"
                 :field="v$.radio_base_dir"
                 advanced
                 :label="$gettext('Base Station Directory')"

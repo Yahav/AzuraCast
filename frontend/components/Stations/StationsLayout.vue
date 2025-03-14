@@ -23,7 +23,6 @@ import {useTemplateRef} from "vue";
 import {useProvideLightbox} from "~/vendor/lightbox.ts";
 
 const panelProps = useAzuraCastPanelProps();
-
 const $lightbox = useTemplateRef('$lightbox');
 
 useProvideLightbox($lightbox);

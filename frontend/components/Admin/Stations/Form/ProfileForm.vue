@@ -38,7 +38,7 @@
                 :field="v$.url"
                 input-type="url"
                 :label="$gettext('Web Site URL')"
-                :description="$gettext('Note: This should be the public-facing homepage of the radio station, not the AzuraCast URL. It will be included in broadcast details.')"
+                :description="$gettext('Note: This should be the public-facing homepage of your radio station, not the URL for the panel. It will be included in broadcast details.')"
             />
 
             <form-group-select
@@ -51,7 +51,7 @@
             />
 
             <form-group-field
-                v-if="enableAdvancedFeatures"
+                v-if="enableAdvancedFeatures && isAdministrator"
                 id="edit_form_short_name"
                 class="col-md-6"
                 :field="v$.short_name"
@@ -66,7 +66,7 @@
             </form-group-field>
 
             <form-group-select
-                v-if="enableAdvancedFeatures"
+                v-if="enableAdvancedFeatures && isAdministrator"
                 id="edit_form_api_history_items"
                 class="col-md-6"
                 :field="v$.api_history_items"
@@ -142,6 +142,7 @@ import {required, url} from "@vuelidate/validators";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
+import {GlobalPermission, userAllowed} from "~/acl.ts";
 
 defineProps<{
     timezones: Record<string, string>,
@@ -150,6 +151,8 @@ defineProps<{
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {enableAdvancedFeatures} = useAzuraCast();
+const isAdministrator = userAllowed(GlobalPermission.All);
+
 
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,
@@ -167,7 +170,7 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             enable_on_demand_download: {},
         };
 
-        if (enableAdvancedFeatures) {
+        if (enableAdvancedFeatures && isAdministrator) {
             validations = {
                 ...validations,
                 short_name: {},
@@ -191,7 +194,7 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             enable_on_demand_download: true,
         };
 
-        if (enableAdvancedFeatures) {
+        if (enableAdvancedFeatures && isAdministrator) {
             blankForm = {
                 ...blankForm,
                 short_name: '',

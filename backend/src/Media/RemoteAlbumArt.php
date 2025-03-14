@@ -56,7 +56,7 @@ final class RemoteAlbumArt
             [
                 RequestOptions::TIMEOUT => 10,
                 RequestOptions::HEADERS => [
-                    'User-Agent' => 'AzuraCast ' . Version::STABLE_VERSION,
+                    'User-Agent' => 'Caster.fm ' . Version::STABLE_VERSION,
                 ],
             ]
         );
