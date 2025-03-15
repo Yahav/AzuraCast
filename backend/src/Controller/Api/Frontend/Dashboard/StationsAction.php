@@ -64,7 +64,7 @@ final class StationsAction implements SingleActionInterface
         /** @var Station[] $stations */
         $stations = array_filter(
             $this->em->getRepository(Station::class)->findBy([
-                'is_enabled' => 1,
+                'is_enabled' => 1
             ]),
             static function (Station $station) use ($acl) {
                 return $acl->isAllowed(StationPermissions::View, $station->getId());

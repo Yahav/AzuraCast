@@ -39,10 +39,12 @@
 
         <div class="dropdown ms-3 d-inline-flex align-items-center">
             <div id="station-time-wrapper" />
-            <clock
-                v-if="name !== null"
-                :station-name="name"
-            />
+            <div
+                v-if="slots.clock"
+                id="clock"
+            >
+                <slot name="clock" />
+            </div>
             <button
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -142,48 +144,13 @@
     >
         <main id="main">
             <div class="container">
-                <template v-if="hasStarted !== null && needsRestart !== null && userAllowedForStation(StationPermission.Broadcasting)">
-                    <div
-                        v-if="!hasStarted"
-                        class="navdrawer-alert bg-success text-white mb-3 mb-3 d-flex align-items-center"
-                    >
-                        <icon
-                            :icon="IconWarning"
-                            class="lg me-3 ms-4"
-                        />
-                        <router-link
-                            :to="{name: 'stations:restart:index'}"
-                            :class="'alert-link'"
-                        >
-                            <h4 class="fw-bold">
-                                {{ $gettext('Start Station') }}
-                            </h4>
-                            <div>
-                                {{ $gettext('Ready to start broadcasting? Click to start your station.') }}
-                            </div>
-                        </router-link>
-                    </div>
-                    <div
-                        v-else-if="needsRestart"
-                        class="alert alert-warning bg-warning text-warning-emphasis mb-3 d-flex align-items-center"
-                    >
-                        <icon
-                            :icon="IconWarning"
-                            class="lg me-3"
-                        />
-                        <router-link
-                            :to="{name: 'stations:restart:index'}"
-                            :class="'alert-link'"
-                        >
-                            <h4 class="fw-bold">
-                                {{ $gettext('Reload to Apply Changes') }}
-                            </h4>
-                            <div>
-                                {{ $gettext('Your station has changes that require a reload to apply.') }}
-                            </div>
-                        </router-link>
-                    </div>
-                </template>
+                <div
+                    class="mb-3"
+                    v-if="slots.restartSection"
+                    id="restartSection"
+                >
+                    <slot name="restartSection" />
+                </div>
 
                 <slot />
             </div>
@@ -200,7 +167,7 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, ref, /*ref,*/ useSlots, watch} from "vue";
+import {nextTick, onMounted, useSlots, watch} from "vue";
 import Icon from "~/components/Common/Icon.vue";
 //import useTheme from "~/functions/theme";
 import {
@@ -211,27 +178,11 @@ import {
     //IconInvertColors,
     IconMenu,
     IconMenuOpen,
-    IconSettings, IconWarning,
+    IconSettings,
 } from "~/components/Common/icons";
-import {useAzuraCastStation} from "~/vendor/azuracast";
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
-import {StationPermission, userAllowedForStation} from "~/acl.ts";
-import Clock from "~/components/Stations/Clock.vue";
-import {useRestartEventBus} from "~/functions/useMayNeedRestart.ts";
-import {getStationApiUrl} from "~/router.ts";
-import {useAxios} from "~/vendor/axios.ts";
 import logo from '~/caster_logo.svg';
 
-const station = useAzuraCastStation()
-
-let name, hasStarted, initialNeedsRestart;
-if (station) {
-    ({ name, hasStarted, needsRestart: initialNeedsRestart } = station);
-} else {
-    name = null;
-    hasStarted = null;
-    initialNeedsRestart = null;
-}
 
 export interface PanelLayoutProps {
     instanceName: string,
@@ -258,23 +209,6 @@ const handleSidebar = () => {
 }
 
 //const {toggleTheme} = useTheme();
-
-
-const restartEventBus = useRestartEventBus();
-
-const needsRestart = ref<boolean>(initialNeedsRestart);
-const {axios} = useAxios();
-
-restartEventBus.on((forceRestart: boolean): void => {
-    const restartStatusUrl = getStationApiUrl('/restart-status');
-    if (forceRestart) {
-        needsRestart.value = true;
-    } else {
-        axios.get(restartStatusUrl.value).then((resp) => {
-            needsRestart.value = resp.data.needs_restart;
-        });
-    }
-});
 
 
 watch(

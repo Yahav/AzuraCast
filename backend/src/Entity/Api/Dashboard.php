@@ -17,4 +17,6 @@ final class Dashboard extends NowPlaying
 {
     use LoadFromParentObject;
     use HasLinks;
+
+    public bool $is_enabled;
 }

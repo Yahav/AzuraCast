@@ -137,13 +137,14 @@ import {useAzuraCast, useAzuraCastStation} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import BitrateOptions from "~/components/Common/BitrateOptions.vue";
 import {ApiGenericForm, BackendAdapters} from "~/entities/ApiInterfaces.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 import { useRoute } from 'vue-router'
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {enableAdvancedFeatures} = useAzuraCast();
-const isAdministrator = userAllowed(GlobalPermission.All);
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,

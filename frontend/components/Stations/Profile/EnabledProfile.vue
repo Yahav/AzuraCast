@@ -84,7 +84,8 @@ export interface EnabledProfileProps extends ProfileBackendPanelParentProps,
     ProfileStreamersPanelProps {
     profileApiUri: string,
     stationSupportsRequests: boolean,
-    stationSupportsStreamers: boolean
+    stationSupportsStreamers: boolean,
+    station: object
 }
 
 const props = defineProps<EnabledProfileProps>();

@@ -145,7 +145,8 @@ import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import useHasDatatable from "~/functions/useHasDatatable.ts";
 import PasskeyModal from "~/components/Account/PasskeyModal.vue";
 import {ApiAccountTwoFactorStatus} from "~/entities/ApiInterfaces.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const {axios} = useAxios();
 
@@ -163,7 +164,7 @@ const {
 );
 
 const $changePasswordModal = useTemplateRef('$changePasswordModal');
-const isAdministrator = userAllowed(GlobalPermission.All);
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const doChangePassword = () => {
     $changePasswordModal.value?.open();

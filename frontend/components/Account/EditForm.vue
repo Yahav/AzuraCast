@@ -47,7 +47,8 @@ import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import {objectToSimpleFormOptions} from "~/functions/objectToFormOptions.ts";
 import TimeRadios from "~/components/Account/TimeRadios.vue";
 import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 interface AccountEditFormProps {
     form: ApiGenericForm,
@@ -58,7 +59,7 @@ const props = defineProps<AccountEditFormProps>();
 
 const {$gettext} = useTranslate();
 
-const isAdministrator = userAllowed(GlobalPermission.All);
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const localeOptions = computed(() => {
     const localeOptions = objectToSimpleFormOptions(props.supportedLocales).value;

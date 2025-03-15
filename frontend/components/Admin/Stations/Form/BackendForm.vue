@@ -309,7 +309,9 @@ import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
 import {ApiGenericForm, AudioProcessingMethods, BackendAdapters} from "~/entities/ApiInterfaces.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+
 
 const props = defineProps<{
     isStereoToolInstalled: boolean
@@ -318,7 +320,7 @@ const props = defineProps<{
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {enableAdvancedFeatures} = useAzuraCast();
-const isAdministrator = userAllowed(GlobalPermission.All);
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,
@@ -402,9 +404,9 @@ const {v$, tabClass} = useVuelidateOnFormTab(
                 backend_config: {
                     ...blankForm.backend_config,
                     write_playlists_to_liquidsoap: true,
-                    audio_processing_method: AudioProcessingMethod.None,
+                    audio_processing_method: AudioProcessingMethods.None,
                     post_processing_include_live: true,
-                    master_me_preset: MasterMePreset.MusicGeneral,
+                    master_me_preset: 'music_general',
                     master_me_loudness_target: -16,
                     stereo_tool_license_key: '',
                     enable_auto_cue: false,

@@ -142,7 +142,8 @@ import {required, url} from "@vuelidate/validators";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 defineProps<{
     timezones: Record<string, string>,
@@ -151,7 +152,7 @@ defineProps<{
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
 const {enableAdvancedFeatures} = useAzuraCast();
-const isAdministrator = userAllowed(GlobalPermission.All);
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 
 const {v$, tabClass} = useVuelidateOnFormTab(

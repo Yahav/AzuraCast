@@ -26,7 +26,8 @@ import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import {getApiUrl} from "~/router.ts";
 import {useHasModal} from "~/functions/useHasModal.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 defineProps<{
     supportedLocales: Record<string, string>
@@ -41,7 +42,7 @@ const userUrl = getApiUrl('/frontend/account/me');
 const loading = ref(true);
 const error = ref(null);
 
-const isAdministrator = userAllowed(GlobalPermission.All);
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 let formValidation = {
     name: {},

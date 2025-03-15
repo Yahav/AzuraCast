@@ -1,8 +1,10 @@
 import {useTranslate} from "~/vendor/gettext.ts";
 import filterMenu, {MenuCategory, ReactiveMenu} from "~/functions/filterMenu.ts";
-import {StationPermission, userAllowedForStation, GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowedForStation, userAllowed} from "~/acl.ts";
+import {GlobalPermissions, StationPermissions} from "~/entities/ApiInterfaces.ts";
+
 import {useAzuraCast, useAzuraCastStation} from "~/vendor/azuracast.ts";
-import {computed, reactive} from "vue";
+import {computed} from "vue";
 import {
     IconBroadcast,
     IconCode, IconHome,
@@ -15,7 +17,6 @@ import {
     IconReport, IconSettings
 } from "~/components/Common/icons.ts";
 import {reactiveComputed} from "@vueuse/core";
-import {StationPermissions} from "~/entities/ApiInterfaces.ts";
 
 export function useStationsMenu(): ReactiveMenu {
     const {$gettext} = useTranslate();
@@ -23,7 +24,7 @@ export function useStationsMenu(): ReactiveMenu {
     const {enableAdvancedFeatures} = useAzuraCast();
     const stationProps = useAzuraCastStation();
 
-    const isAdministrator = userAllowed(GlobalPermission.All);
+    const isAdministrator = userAllowed(GlobalPermissions.All);
 
     // Reuse this variable to avoid multiple calls.
     const userCanManageMedia = userAllowedForStation(StationPermissions.Media);
@@ -288,7 +289,7 @@ export function useStationsMenu(): ReactiveMenu {
                         url: {
                             name: 'stations:util:ls_config'
                         },
-                        visible: userAllowedForStation(StationPermission.Broadcasting)
+                        visible: userAllowedForStation(StationPermissions.Broadcasting)
                             && stationProps.features.customLiquidsoapConfig && isAdministrator
                     },
                     {
@@ -298,7 +299,7 @@ export function useStationsMenu(): ReactiveMenu {
                             name: 'stations:stereo_tool_config'
                         },
                         visible: stationProps.features.media && enableAdvancedFeatures
-                            && userAllowedForStation(StationPermission.Broadcasting) && isAdministrator
+                            && userAllowedForStation(StationPermissions.Broadcasting) && isAdministrator
                     },
                     {
                         key: 'queue',
@@ -331,6 +332,7 @@ export function useStationsMenu(): ReactiveMenu {
 
             return {
                 categories: [
+                    DashboardMenu,
                     profileMenu,
                     publicPageMenu,
                     mediaMenu,

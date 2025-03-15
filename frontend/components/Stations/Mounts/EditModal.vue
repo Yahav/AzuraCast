@@ -47,7 +47,8 @@ import ModalForm from "~/components/Common/ModalForm.vue";
 import {useAzuraCast} from "~/vendor/azuracast";
 import Tabs from "~/components/Common/Tabs.vue";
 import {FrontendAdapters} from "~/entities/ApiInterfaces.ts";
-import {GlobalPermission, userAllowed} from "~/acl.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<BaseEditModalProps & {
     stationFrontendType: FrontendAdapters,
@@ -110,7 +111,7 @@ const {
     }
 );
 
-const isAdministrator = userAllowed(GlobalPermission.Stations);
+const isAdministrator = userAllowed(GlobalPermissions.Stations);
 
 
 const {$gettext} = useTranslate();
