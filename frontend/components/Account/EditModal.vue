@@ -26,6 +26,8 @@ import {useNotify} from "~/functions/useNotify";
 import {useAxios} from "~/vendor/axios";
 import {getApiUrl} from "~/router.ts";
 import {useHasModal} from "~/functions/useHasModal.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 defineProps<{
     supportedLocales: Record<string, string>
@@ -40,19 +42,33 @@ const userUrl = getApiUrl('/frontend/account/me');
 const loading = ref(true);
 const error = ref(null);
 
-const {form, resetForm, v$, ifValid} = useVuelidateOnForm(
-    {
-        name: {},
+const isAdministrator = userAllowed(GlobalPermissions.All);
+
+let formValidation = {
+    name: {},
+    locale: {required},
+    show_24_hour_time: {}
+};
+let formBlank= {
+    name: '',
+    locale: 'default',
+    show_24_hour_time: null,
+};
+
+if (isAdministrator) {
+    formValidation = {
+        ...formValidation,
         email: {required, email},
-        locale: {required},
-        show_24_hour_time: {}
-    },
-    {
-        name: '',
+    };
+    formBlank = {
+        ...formBlank,
         email: '',
-        locale: 'default',
-        show_24_hour_time: null,
-    }
+    };
+}
+
+const {form, resetForm, v$, ifValid} = useVuelidateOnForm(
+    formValidation,
+    formBlank
 );
 
 const clearContents = () => {

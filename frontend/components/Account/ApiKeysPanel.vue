@@ -5,11 +5,11 @@
     >
         <template #info>
             {{
-                $gettext('Use API keys to authenticate with the AzuraCast API using the same permissions as your user account.')
+                $gettext('Use API keys to authenticate with the API using the same permissions as your user account.')
             }}
 
             <a
-                href="/api"
+                href="https://www.caster.fm/help/pro-plan/"
                 class="alert-link"
                 target="_blank"
             >

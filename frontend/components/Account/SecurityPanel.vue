@@ -12,6 +12,7 @@
                 </div>
                 <div class="flex-shrink-0">
                     <button
+                        v-if="isAdministrator"
                         type="button"
                         class="btn btn-dark"
                         @click="doChangePassword"
@@ -144,6 +145,8 @@ import DataTable, {DataTableField} from "~/components/Common/DataTable.vue";
 import useHasDatatable from "~/functions/useHasDatatable.ts";
 import PasskeyModal from "~/components/Account/PasskeyModal.vue";
 import {ApiAccountTwoFactorStatus} from "~/entities/ApiInterfaces.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const {axios} = useAxios();
 
@@ -161,6 +164,7 @@ const {
 );
 
 const $changePasswordModal = useTemplateRef('$changePasswordModal');
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const doChangePassword = () => {
     $changePasswordModal.value?.open();

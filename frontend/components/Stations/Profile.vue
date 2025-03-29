@@ -4,7 +4,7 @@
         :loading="isLoading"
         lazy
     >
-        <enabled-profile v-bind="state" />
+        <enabled-profile v-bind="{...state,station:station}" />
     </loading>
     <station-disabled-panel v-else />
 </template>
@@ -18,7 +18,9 @@ import StationDisabledPanel from "~/components/Stations/Profile/StationDisabledP
 import Loading from "~/components/Common/Loading.vue";
 import EnabledProfile, {EnabledProfileProps} from "~/components/Stations/Profile/EnabledProfile.vue";
 
-const {isEnabled} = useAzuraCastStation();
+const station = useAzuraCastStation();
+const {isEnabled} = station;
+
 
 const {axios} = useAxios();
 const {isLoading, state} = useAsyncState<EnabledProfileProps>(

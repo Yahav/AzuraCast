@@ -33,13 +33,13 @@ final class Relay
 
     #[OA\Property(
         description: 'Station description',
-        example: 'An AzuraCast station!'
+        example: 'A Caster.fm station!'
     )]
     public ?string $description;
 
     #[OA\Property(
         description: 'Station homepage URL',
-        example: 'https://www.azuracast.com/'
+        example: 'https://www.caster.fm/'
     )]
     public ?string $url;
 

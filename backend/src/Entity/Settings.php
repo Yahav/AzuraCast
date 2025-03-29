@@ -64,7 +64,7 @@ class Settings implements Stringable
     }
 
     #[
-        OA\Property(description: "Site Base URL", example: "https://your.azuracast.site"),
+        OA\Property(description: "Site Base URL", example: "https://your.caster.fm"),
         ORM\Column(length: 255, nullable: true),
         Groups(self::GROUP_GENERAL)
     ]
@@ -100,7 +100,7 @@ class Settings implements Stringable
     }
 
     #[
-        OA\Property(description: "AzuraCast Instance Name", example: "My AzuraCast Instance"),
+        OA\Property(description: "Caster.fm Instance Name", example: "My Caster.fm Instance"),
         ORM\Column(length: 255, nullable: true),
         Groups(self::GROUP_GENERAL)
     ]
@@ -453,7 +453,7 @@ class Settings implements Stringable
     }
 
     #[
-        OA\Property(description: "Hide AzuraCast Branding on Public Pages", example: "false"),
+        OA\Property(description: "Hide Caster.fm Branding on Public Pages", example: "false"),
         ORM\Column,
         Groups(self::GROUP_BRANDING)
     ]
@@ -835,7 +835,7 @@ class Settings implements Stringable
     }
 
     #[
-        OA\Property(description: "The name of the sender of system e-mails.", example: "AzuraCast"),
+        OA\Property(description: "The name of the sender of system e-mails.", example: "Caster.fm"),
         ORM\Column(length: 255, nullable: true),
         Groups(self::GROUP_GENERAL)
     ]

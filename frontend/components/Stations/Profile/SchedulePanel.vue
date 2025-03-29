@@ -13,17 +13,15 @@
                 >
                     <td>
                         <div class="d-flex w-100 justify-content-between align-items-center">
-                            <h5 class="m-0">
-                                <small>
-                                    <template v-if="row.type === 'playlist'">
-                                        {{ $gettext('Playlist') }}
-                                    </template>
-                                    <template v-else>
-                                        {{ $gettext('Streamer/DJ') }}
-                                    </template>
-                                </small><br>
-                                {{ row.name }}
-                            </h5>
+                            <div class="m-0">
+                                <template v-if="row.type === 'playlist'">
+                                    <small class="badge rounded-pill me-2 text-bg-info">{{ $gettext('Playlist') }}</small>
+                                </template>
+                                <template v-else>
+                                    <small class="badge rounded-pill me-2 text-bg-danger">{{ $gettext('Streamer/DJ') }}</small>
+                                </template>
+                                <strong>{{ row.name }}</strong>
+                            </div>
                             <p class="text-end m-0">
                                 <small>{{ row.start_formatted }} - {{ row.end_formatted }}</small>
                                 <br>

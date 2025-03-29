@@ -85,8 +85,6 @@ abstract class AbstractFrontend extends AbstractLocalAdapter
 
         if (
             $useRadioProxy
-            || 'https' === $baseUrl->getScheme()
-            || (!$this->environment->isProduction() && !$this->environment->isDocker())
         ) {
             // Web proxy support.
             return $baseUrl

@@ -115,22 +115,22 @@ export interface ApiAdminRelay {
   id?: number;
   /**
    * Station name
-   * @example "AzuraTest Radio"
+   * @example "CasterFm Radio"
    */
   name?: string | null;
   /**
    * Station "short code", used for URL and folder paths
-   * @example "azuratest_radio"
+   * @example "casterfm_radio"
    */
   shortcode?: string | null;
   /**
    * Station description
-   * @example "An AzuraCast station!"
+   * @example "A Caster.fm station!"
    */
   description?: string | null;
   /**
    * Station homepage URL
-   * @example "https://www.azuracast.com/"
+   * @example "https://www.caster.fm/"
    */
   url?: string | null;
   /**
@@ -293,7 +293,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   adapter?: string;
   /**
    * The local path, if the local adapter is used, or path prefix for S3/remote adapters.
-   * @example "/var/azuracast/stations/azuratest_radio/media"
+   * @example "/var/caster.fm/stations/casterfmtest_radio/media"
    */
   path?: string | null;
   /**
@@ -383,7 +383,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   isFull?: boolean;
   /**
    * The URI associated with the storage location.
-   * @example "/var/azuracast/www"
+   * @example "/var/casterfm/www"
    */
   uri?: string;
   /** The stations using this storage location, if any. */
@@ -755,17 +755,17 @@ export interface ApiNowPlayingStation {
   id: number;
   /**
    * Station name
-   * @example "AzuraTest Radio"
+   * @example "Casterfm Radio"
    */
   name: string;
   /**
    * Station "short code", used for URL and folder paths
-   * @example "azuratest_radio"
+   * @example "casterfm_radio"
    */
   shortcode: string;
   /**
    * Station description
-   * @example "An AzuraCast station!"
+   * @example "A Caster.fm station!"
    */
   description: string;
   /**
@@ -827,7 +827,7 @@ export interface ApiNowPlayingStation {
   hls_is_default: boolean;
   /**
    * The full URL to listen to the HLS stream for the station.
-   * @example "https://example.com/hls/azuratest_radio/live.m3u8"
+   * @example "https://www.caster.fm/hls/casterfm_radio/live.m3u8"
    */
   hls_url: string | null;
   /**
@@ -1489,12 +1489,12 @@ export interface Settings {
   app_unique_identifier?: string;
   /**
    * Site Base URL
-   * @example "https://your.azuracast.site"
+   * @example "https://your.casterfm.site"
    */
   base_url?: string | null;
   /**
-   * AzuraCast Instance Name
-   * @example "My AzuraCast Instance"
+   * Caster.fm Instance Name
+   * @example "My Caster.fm Instance"
    */
   instance_name?: string | null;
   /**
@@ -1678,7 +1678,7 @@ export interface Settings {
   mail_enabled?: boolean;
   /**
    * The name of the sender of system e-mails.
-   * @example "AzuraCast"
+   * @example "Caster.fm"
    */
   mail_sender_name?: string | null;
   /**
@@ -1744,12 +1744,12 @@ export type SftpUser = HasAutoIncrementId & {
 export type Station = HasAutoIncrementId & {
   /**
    * The full display name of the station.
-   * @example "AzuraTest Radio"
+   * @example "Casterfm Radio"
    */
   name?: string;
   /**
    * The URL-friendly name for the station, typically auto-generated from the full station name.
-   * @example "azuratest_radio"
+   * @example "casterfmtest_radio"
    */
   short_name?: string;
   /**
@@ -1765,11 +1765,11 @@ export type Station = HasAutoIncrementId & {
   backend_config?: object;
   /** @example "A sample radio station." */
   description?: string | null;
-  /** @example "https://demo.azuracast.com/" */
+  /** @example "https://demo.caster.fm/" */
   url?: string | null;
   /** @example "Various" */
   genre?: string | null;
-  /** @example "/var/azuracast/stations/azuratest_radio" */
+  /** @example "/var/casterfm/stations/casterfmtest_radio" */
   radio_base_dir?: string | null;
   /**
    * Whether listeners can request songs to play on this station.
@@ -2012,7 +2012,7 @@ export interface HasUniqueId {
 }
 
 export type User = HasAutoIncrementId & {
-  /** @example "demo@azuracast.com" */
+  /** @example "demo@caster.fm" */
   email?: string;
   /** @example "" */
   new_password?: string | null;

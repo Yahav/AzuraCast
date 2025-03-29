@@ -21,10 +21,10 @@
             <ul>
                 <li>
                     <a
-                        href="https://azuracast.com/api"
+                        href="https://www.caster.fm/help/pro-plan/"
                         target="_blank"
                     >
-                        {{ $gettext('NowPlaying API Response') }}
+                        {{ $gettext('NowPlaying API Response is documented in our Help Center') }}
                     </a>
                 </li>
             </ul>
