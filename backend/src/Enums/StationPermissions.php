@@ -14,6 +14,7 @@ enum StationPermissions: string implements PermissionInterface
     case Reports = 'view station reports';
     case Logs = 'view station logs';
     case Profile = 'manage station profile';
+    case HighCpu = 'manage high cpu settings';
     case Broadcasting = 'manage station broadcasting';
     case Streamers = 'manage station streamers';
     case MountPoints = 'manage station mounts';
@@ -31,6 +32,7 @@ enum StationPermissions: string implements PermissionInterface
             self::Reports => __('View Station Reports'),
             self::Logs => __('View Station Logs'),
             self::Profile => __('Manage Station Profile'),
+            self::HighCpu => __('Manage High CPU Settings'),
             self::Broadcasting => __('Manage Station Broadcasting'),
             self::Streamers => __('Manage Station Streamers'),
             self::MountPoints => __('Manage Station Mount Points'),

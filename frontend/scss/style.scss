@@ -13,9 +13,15 @@
 @import "bootstrap/scss/variables-dark";
 
 // Include any default map overrides here
+// Custom Variables
+//@import "material-kit/custom/variables";
+//
+//// Theme Variables
+//@import "material-kit/variables";
 
 // Core Bootstrap components
 @import "bootstrap-core";
+
 
 // Overrides for specific third-party products
 @import 'vendors/codemirror';
@@ -51,3 +57,9 @@
 @import 'pages/embed';
 @import 'pages/public';
 @import 'pages/log_viewer';
+
+//// Theme Core
+//@import "material-kit/theme";
+//
+//// Custom Variables
+//@import "material-kit/custom/styles";

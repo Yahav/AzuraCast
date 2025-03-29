@@ -10,12 +10,6 @@
                         >
                             {{ $gettext('Welcome!') }}
                         </h2>
-                        <h2
-                            v-else
-                            class="card-title text-center"
-                        >
-                            {{ $gettext('Welcome to AzuraCast!') }}
-                        </h2>
                         <h3
                             v-if="instanceName"
                             class="card-subtitle text-center text-muted"
@@ -128,10 +122,6 @@
 
                 <p class="text-center m-0">
                     {{ $gettext('Please log in to continue.') }}
-
-                    <a :href="forgotPasswordUrl">
-                        {{ $gettext('Forgot your password?') }}
-                    </a>
                 </p>
             </div>
         </div>

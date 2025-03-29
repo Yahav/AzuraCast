@@ -22,8 +22,8 @@ import HeaderInlinePlayer from "~/components/HeaderInlinePlayer.vue";
 import {useTemplateRef} from "vue";
 import {useProvideLightbox} from "~/vendor/lightbox.ts";
 
-const panelProps = useAzuraCastPanelProps();
 
+const {panelProps} = useAzuraCast();
 const $lightbox = useTemplateRef('$lightbox');
 
 useProvideLightbox($lightbox);
