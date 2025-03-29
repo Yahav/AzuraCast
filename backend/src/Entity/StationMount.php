@@ -17,8 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\UriInterface;
 use Stringable;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[
     OA\Schema(type: "object"),

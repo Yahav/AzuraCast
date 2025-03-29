@@ -52,7 +52,7 @@ div.datatable-main {
 .table {
   thead {
     th {
-      font-size: 1.1rem;
+      font-size: 15px;
       font-weight: normal;
 
       //Mods
@@ -60,7 +60,6 @@ div.datatable-main {
       background-color: #f6f6f6;
       color: #212121;
       border-top: 3px solid #3874ff;
-      font-size: 15px !important;
 
       &.sortable {
         font-weight: 500;
@@ -92,10 +91,6 @@ div.datatable-main {
 }
 .table tbody tr:last-child td {
   border-width: 0;
-  border-top-width: 0px;
-  border-right-width: 0px;
-  border-bottom-width: 0px;
-  border-left-width: 0px;
 }
 
 .datatable-toolbar-bottom {
