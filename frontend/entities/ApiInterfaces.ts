@@ -115,12 +115,12 @@ export interface ApiAdminRelay {
   id?: number;
   /**
    * Station name
-   * @example "CasterFm Radio"
+   * @example "AzuraTest Radio"
    */
   name?: string | null;
   /**
    * Station "short code", used for URL and folder paths
-   * @example "casterfm_radio"
+   * @example "azuratest_radio"
    */
   shortcode?: string | null;
   /**
@@ -293,7 +293,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   adapter?: string;
   /**
    * The local path, if the local adapter is used, or path prefix for S3/remote adapters.
-   * @example "/var/caster.fm/stations/casterfmtest_radio/media"
+   * @example "/var/azuracast/stations/azuratest_radio/media"
    */
   path?: string | null;
   /**
@@ -383,7 +383,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   isFull?: boolean;
   /**
    * The URI associated with the storage location.
-   * @example "/var/casterfm/www"
+   * @example "/var/azuracast/www"
    */
   uri?: string;
   /** The stations using this storage location, if any. */
@@ -755,7 +755,7 @@ export interface ApiNowPlayingStation {
   id: number;
   /**
    * Station name
-   * @example "Casterfm Radio"
+   * @example "Caster.fm Radio"
    */
   name: string;
   /**
@@ -827,7 +827,7 @@ export interface ApiNowPlayingStation {
   hls_is_default: boolean;
   /**
    * The full URL to listen to the HLS stream for the station.
-   * @example "https://www.caster.fm/hls/casterfm_radio/live.m3u8"
+   * @example "https://www.caster.fm/hls/test_radio/live.m3u8"
    */
   hls_url: string | null;
   /**
@@ -1489,7 +1489,7 @@ export interface Settings {
   app_unique_identifier?: string;
   /**
    * Site Base URL
-   * @example "https://your.casterfm.site"
+   * @example "https://your.caster.fm"
    */
   base_url?: string | null;
   /**
@@ -1577,7 +1577,7 @@ export interface Settings {
    */
   last_fm_api_key?: string | null;
   /**
-   * Hide AzuraCast Branding on Public Pages
+   * Hide Caster.fm Branding on Public Pages
    * @example "false"
    */
   hide_product_name?: boolean;
@@ -1744,7 +1744,7 @@ export type SftpUser = HasAutoIncrementId & {
 export type Station = HasAutoIncrementId & {
   /**
    * The full display name of the station.
-   * @example "Casterfm Radio"
+   * @example "CasterfmTest Radio"
    */
   name?: string;
   /**
