@@ -82,7 +82,7 @@
                         <template v-if="item.type === FileTypes.Media">
                             <play-button
                                 :url="item.media.links.play"
-                                class="btn-lg"
+                                class="btn-lg pe-2"
                             />
                         </template>
                         <template v-else>
@@ -144,7 +144,7 @@
                     </div>
 
                     <album-art
-                        v-if="item.media?.art"
+                        v-if="item.type === FileTypes.Media && item.media?.art"
                         :src="item.media.art"
                         class="flex-shrink-1 ps-2"
                     />

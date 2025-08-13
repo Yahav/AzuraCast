@@ -38,7 +38,7 @@
                 :field="v$.url"
                 input-type="url"
                 :label="$gettext('Web Site URL')"
-                :description="$gettext('Note: This should be the public-facing homepage of the radio station, not the AzuraCast URL. It will be included in broadcast details.')"
+                :description="$gettext('Note: This should be the public-facing homepage of your radio station, not the URL for the panel. It will be included in broadcast details.')"
             />
 
             <div class="col-md-6">
@@ -53,6 +53,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_short_name"
                         class="col-md-12"
                         :field="v$.short_name"
@@ -66,10 +67,10 @@
                         </template>
                     </form-group-field>
                 </div>
-
             </div>
 
             <form-group-field
+                v-if="isAdministrator"
                 id="edit_form_api_history_items"
                 class="col-md-6"
                 :field="v$.api_history_items"
@@ -151,6 +152,8 @@ import {required, url} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
 import RadioWithCustomNumber from "~/components/Common/RadioWithCustomNumber.vue";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 defineProps<{
     timezones: Record<string, string>,
@@ -158,31 +161,58 @@ defineProps<{
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
+const {enableAdvancedFeatures} = useAzuraCast();
+const isAdministrator = userAllowed(GlobalPermissions.All);
+
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,
-    {
-        name: {required},
-        description: {},
-        genre: {},
-        url: {url},
-        timezone: {},
-        enable_public_page: {},
-        enable_on_demand: {},
-        enable_on_demand_download: {},
-        short_name: {},
-        api_history_items: {},
-    },
-    {
-        name: '',
-        description: '',
-        genre: '',
-        url: '',
-        timezone: 'UTC',
-        enable_public_page: true,
-        enable_on_demand: false,
-        enable_on_demand_download: true,
-        short_name: '',
-        api_history_items: 5,
+    computed(() => {
+        let validations: {
+            [key: string | number]: any
+        } = {
+            name: {required},
+            description: {},
+            genre: {},
+            url: {url},
+            timezone: {},
+            enable_public_page: {},
+            enable_on_demand: {},
+            enable_on_demand_download: {},
+        };
+
+        if (isAdministrator) {
+            validations = {
+                ...validations,
+                short_name: {},
+                api_history_items: {},
+            };
+        }
+
+        return validations;
+    }),
+    () => {
+        let blankForm: {
+            [key: string | number]: any
+        } = {
+            name: '',
+            description: '',
+            genre: '',
+            url: '',
+            timezone: 'UTC',
+            enable_public_page: true,
+            enable_on_demand: false,
+            enable_on_demand_download: true,
+        };
+
+        if (isAdministrator) {
+            blankForm = {
+                ...blankForm,
+                short_name: '',
+                api_history_items: 5,
+            }
+        }
+
+        return blankForm;
     }
 );
 

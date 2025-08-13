@@ -213,13 +213,9 @@ msgstr ""
 msgid "Add Mount Point"
 msgstr ""
 
-#: frontend/components/Stations/Logs.vue:67
-msgid "Add New GitHub Issue"
-msgstr ""
-
 #: frontend/components/Account/PasskeyModal.vue:7
 #: frontend/components/Account/PasskeyModal.vue:91
-#: frontend/components/Account/SecurityPanel.vue:87
+#: frontend/components/Account/SecurityPanel.vue:88
 msgid "Add New Passkey"
 msgstr ""
 
@@ -284,13 +280,13 @@ msgstr ""
 #: frontend/components/Admin/Stations/Form/AdminForm.vue:3
 #: frontend/components/Dashboard.vue:27
 #: frontend/components/Stations/Profile/FrontendPanel.vue:33
-#: /var/azuracast/www/backend/src/Notification/Check/ServiceCheck.php:42
 #: /var/azuracast/www/backend/src/Controller/AdminAction.php:22
+#: /var/azuracast/www/backend/src/Notification/Check/ServiceCheck.php:42
 msgid "Administration"
 msgstr ""
 
 #: frontend/components/Admin/Stations/Form/BackendForm.vue:215
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:142
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:144
 #: frontend/components/Admin/Stations/Form/FrontendForm.vue:61
 #: frontend/components/Form/FormLabel.vue:16
 #: frontend/components/Stations/Media/EditModal.vue:42
@@ -366,7 +362,7 @@ msgstr ""
 msgid "Allow Streamers / DJs"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:101
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:103
 msgid "Allowed IP Addresses"
 msgstr ""
 
@@ -531,7 +527,7 @@ msgstr ""
 msgid "Artwork must be a minimum size of 1400 x 1400 pixels and a maximum size of 3000 x 3000 pixels for Apple Podcasts."
 msgstr ""
 
-#: frontend/components/Stations/Reports/SoundExchange.vue:88
+#: frontend/components/Stations/Reports/SoundExchange.vue:86
 msgid "Attempt to Automatically Retrieve ISRC When Missing"
 msgstr ""
 
@@ -598,6 +594,10 @@ msgstr ""
 
 #: frontend/components/Stations/Profile/BackendNonePanel.vue:10
 msgid "AutoDJ has been disabled for this station. No music will automatically be played when a source is not live."
+msgstr ""
+
+#: frontend/components/Stations/Profile/BackendPanel.vue:132
+msgid "AutoDJ is currently shuffling from %{songs} and %{playlists}."
 msgstr ""
 
 #: frontend/components/Admin/Debug.vue:191
@@ -687,20 +687,8 @@ msgstr ""
 msgid "AzuraCast Update Checks"
 msgstr ""
 
-#: frontend/components/Account/UserInfoPanel.vue:22
-msgid "AzuraCast User"
-msgstr ""
-
 #: frontend/components/Admin/Permissions.vue:6
 msgid "AzuraCast uses a role-based access control system. Roles are given permissions to certain sections of the site, then users are assigned into those roles."
-msgstr ""
-
-#: frontend/components/Stations/Streamers/ConnectionInfo.vue:85
-msgid "AzuraCast Wiki"
-msgstr ""
-
-#: frontend/components/Stations/Playlists/ImportModal.vue:67
-msgid "AzuraCast will scan the uploaded file for matches in this station's music library. Media should already be uploaded before running this step. You can re-run this tool as many times as needed."
 msgstr ""
 
 #: frontend/components/Admin/Relays.vue:6
@@ -735,15 +723,15 @@ msgstr ""
 msgid "Balanced"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:121
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:123
 msgid "Banned Countries"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:92
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:94
 msgid "Banned IP Addresses"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:110
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:112
 msgid "Banned User Agents"
 msgstr ""
 
@@ -823,6 +811,10 @@ msgstr ""
 msgid "Branding"
 msgstr ""
 
+#: frontend/components/Stations/menu.ts:60
+msgid "Branding Options"
+msgstr ""
+
 #: frontend/components/Admin/Branding/BrandingForm.vue:12
 #: frontend/components/Stations/Branding/BrandingForm.vue:12
 msgid "Branding Settings"
@@ -838,7 +830,7 @@ msgstr ""
 msgid "Broadcasting"
 msgstr ""
 
-#: frontend/components/Stations/Profile/FrontendPanel.vue:12
+#: frontend/components/Stations/Profile/FrontendPanel.vue:13
 msgid "Broadcasting Service"
 msgstr ""
 
@@ -919,7 +911,7 @@ msgstr ""
 
 #: frontend/components/Account/ChangePasswordModal.vue:34
 #: frontend/components/Account/ChangePasswordModal.vue:6
-#: frontend/components/Account/SecurityPanel.vue:21
+#: frontend/components/Account/SecurityPanel.vue:22
 msgid "Change Password"
 msgstr ""
 
@@ -1025,7 +1017,7 @@ msgstr ""
 msgid "Clear Image"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:131
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:133
 msgid "Clear List"
 msgstr ""
 
@@ -1244,7 +1236,7 @@ msgid "Create a new App Password for this service, then enter the key here (i.e.
 msgstr ""
 
 #: frontend/components/Admin/StorageLocations/Form/Dropbox.vue:22
-msgid "Create a new application. Choose \"Scoped Access\", select your preferred level of access, then name your app. Do not name it \"AzuraCast\", but rather use a name specific to your installation."
+msgid "Create a new application. Choose \"Scoped Access\", select your preferred level of access, then name your app. Do not name it \"Caster.fm\", but rather use a name specific to your installation."
 msgstr ""
 
 #: frontend/components/Setup/Station.vue:14
@@ -1354,8 +1346,8 @@ msgstr ""
 msgid "Custom Branding"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:140
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:160
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:142
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:162
 msgid "Custom Configuration"
 msgstr ""
 
@@ -1424,7 +1416,7 @@ msgstr ""
 msgid "Customize AzuraCast Settings"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:72
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:73
 msgid "Customize Broadcasting Port"
 msgstr ""
 
@@ -1461,7 +1453,7 @@ msgstr ""
 msgid "Dark"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:62
+#: frontend/components/PanelLayout.vue:69
 #: /var/azuracast/www/backend/src/Controller/Frontend/DashboardAction.php:35
 msgid "Dashboard"
 msgstr ""
@@ -1521,7 +1513,7 @@ msgid "Default Mount"
 msgstr ""
 
 #: frontend/components/Account/ApiKeysPanel.vue:46
-#: frontend/components/Account/SecurityPanel.vue:107
+#: frontend/components/Account/SecurityPanel.vue:108
 #: frontend/components/Admin/ApiKeys.vue:24
 #: frontend/components/Admin/AuditLog.vue:40
 #: frontend/components/Admin/Backups.vue:125
@@ -1711,7 +1703,7 @@ msgstr ""
 msgid "Disable station?"
 msgstr ""
 
-#: frontend/components/Account/SecurityPanel.vue:50
+#: frontend/components/Account/SecurityPanel.vue:51
 msgid "Disable Two-Factor"
 msgstr ""
 
@@ -1785,16 +1777,8 @@ msgstr ""
 msgid "Do not use an AutoDJ service."
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:106
-msgid "Documentation"
-msgstr ""
-
 #: frontend/components/Admin/Settings/ServicesTab.vue:56
 msgid "Domain Name(s)"
-msgstr ""
-
-#: frontend/components/PanelLayout.vue:170
-msgid "Donate to support AzuraCast!"
 msgstr ""
 
 #: frontend/components/Admin/Backups.vue:118
@@ -1868,11 +1852,11 @@ msgstr ""
 msgid "E-Mail"
 msgstr ""
 
-#: frontend/components/Account/EditForm.vue:17
+#: frontend/components/Account/EditForm.vue:18
 #: frontend/components/Admin/Settings/TestMessageModal.vue:14
 #: frontend/components/Admin/Users/Form.vue:8
-#: frontend/components/Login.vue:40
-#: frontend/components/Login.vue:50
+#: frontend/components/Login.vue:33
+#: frontend/components/Login.vue:43
 #: frontend/components/Setup/Register.vue:69
 #: /var/azuracast/www/backend/templates/frontend/account/forgot.phtml:21
 #: /var/azuracast/www/backend/templates/frontend/account/forgot.phtml:25
@@ -1955,8 +1939,6 @@ msgstr ""
 #: frontend/components/Account/EditModal.vue:5
 #: frontend/components/Stations/menu.ts:46
 #: frontend/components/Stations/Profile/HeaderPanel.vue:35
-#: frontend/components/Stations/Profile/StationDisabledPanel.vue:19
-#: frontend/components/Stations/Sidebar.vue:24
 msgid "Edit Profile"
 msgstr ""
 
@@ -2122,7 +2104,7 @@ msgstr ""
 msgid "Enable to have AzuraCast automatically run nightly backups at the time specified."
 msgstr ""
 
-#: frontend/components/Account/SecurityPanel.vue:61
+#: frontend/components/Account/SecurityPanel.vue:62
 msgid "Enable Two-Factor"
 msgstr ""
 
@@ -2167,7 +2149,7 @@ msgid "Ensure the library matches your system architecture"
 msgstr ""
 
 #: frontend/components/Stations/Webhooks/Form/Mastodon.vue:26
-msgid "Enter \"AzuraCast\" as the application name. You can leave the URL fields unchanged. For \"Scopes\", only \"write:media\" and \"write:statuses\" are required."
+msgid "Enter \"Caster.fm\" as the application name. You can leave the URL fields unchanged. For \"Scopes\", only \"write:media\" and \"write:statuses\" are required."
 msgstr ""
 
 #: frontend/components/Admin/StorageLocations/Form/Dropbox.vue:57
@@ -2190,7 +2172,7 @@ msgstr ""
 msgid "Enter your e-mail address to receive updates about your certificate."
 msgstr ""
 
-#: frontend/components/Login.vue:69
+#: frontend/components/Login.vue:62
 msgid "Enter your password"
 msgstr ""
 
@@ -2389,10 +2371,6 @@ msgstr ""
 msgid "For x86/64 installations, choose \"x86/64 Linux Thimeo-ST plugin\"."
 msgstr ""
 
-#: frontend/components/Login.vue:133
-msgid "Forgot your password?"
-msgstr ""
-
 #: frontend/components/Stations/HlsStreams.vue:83
 msgid "Format"
 msgstr ""
@@ -2426,7 +2404,7 @@ msgstr ""
 msgid "Generate Access Code"
 msgstr ""
 
-#: frontend/components/Stations/Reports/SoundExchange.vue:103
+#: frontend/components/Stations/Reports/SoundExchange.vue:101
 msgid "Generate Report"
 msgstr ""
 
@@ -2496,6 +2474,10 @@ msgstr ""
 
 #: frontend/components/PanelLayout.vue:116
 msgid "Help"
+msgstr ""
+
+#: frontend/components/Stations/Streamers/ConnectionInfo.vue:85
+msgid "Help Center"
 msgstr ""
 
 #: frontend/components/Admin/Branding/BrandingForm.vue:42
@@ -2643,6 +2625,14 @@ msgstr ""
 msgid "If enabled, this streamer will only be able to connect during their scheduled broadcast times."
 msgstr ""
 
+#: frontend/components/Admin/Stations/Form/StreamersForm.vue:28
+msgid "If enabled, We will automatically record any live broadcasts made to this station to per-broadcast recordings."
+msgstr ""
+
+#: frontend/components/Stations/Reports/SoundExchange.vue:90
+msgid "If enabled, We will connect to the MusicBrainz database to attempt to find an ISRC for any files where one is missing. Disabling this may improve performance."
+msgstr ""
+
 #: frontend/components/Stations/Playlists/Form/BasicInfo.vue:66
 msgid "If requests are enabled for your station, users will be able to request media that is on this playlist."
 msgstr ""
@@ -2703,8 +2693,8 @@ msgstr ""
 msgid "If you are broadcasting using AutoDJ, enter the source username here. This may be blank."
 msgstr ""
 
-#: frontend/components/Stations/Logs.vue:54
-msgid "If you're experiencing a bug or error, you can submit a GitHub issue using the link below."
+#: frontend/components/Stations/Remotes/Form/AutoDj.vue:60
+msgid "If you are broadcasting using AutoDJ, enter the source username here. This may be blank."
 msgstr ""
 
 #: frontend/components/Admin/Stations/Form/BackendForm.vue:280
@@ -3013,8 +3003,8 @@ msgstr ""
 msgid "Light"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:165
-msgid "Like our software?"
+#: frontend/components/Admin/Rsas.vue:93
+msgid "License key is currently installed."
 msgstr ""
 
 #: frontend/components/Admin/Settings/SecurityPrivacyTab.vue:122
@@ -3029,12 +3019,12 @@ msgstr ""
 msgid "Liquidsoap Performance Tuning"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:102
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:93
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:104
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:95
 msgid "List one IP address or group (in CIDR format) per line."
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:111
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:113
 msgid "List one user agent per line. Wildcards (*) are allowed."
 msgstr ""
 
@@ -3054,7 +3044,7 @@ msgstr ""
 msgid "Listener Lost"
 msgstr ""
 
-#: frontend/components/Stations/Profile/NowPlayingPanel.vue:37
+#: frontend/components/Stations/Profile/NowPlayingPanel.vue:47
 msgid "Listener Report"
 msgstr ""
 
@@ -3113,7 +3103,7 @@ msgstr ""
 msgid "Listeners By Time Period"
 msgstr ""
 
-#: frontend/components/Dashboard.vue:92
+#: frontend/components/Dashboard.vue:214
 msgid "Listeners Per Station"
 msgstr ""
 
@@ -3238,7 +3228,7 @@ msgid "Make the selected media play immediately, interrupting existing media"
 msgstr ""
 
 #: frontend/components/Admin/Stations.vue:35
-#: frontend/components/Dashboard.vue:234
+#: frontend/components/Dashboard.vue:197
 #: frontend/components/Stations/Profile/StreamersPanel.vue:24
 msgid "Manage"
 msgstr ""
@@ -3251,7 +3241,7 @@ msgstr ""
 msgid "Manage SFTP Accounts"
 msgstr ""
 
-#: frontend/components/Dashboard.vue:139
+#: frontend/components/Dashboard.vue:102
 msgid "Manage Stations"
 msgstr ""
 
@@ -3352,6 +3342,14 @@ msgid "Maximum Mounts"
 msgstr ""
 
 #: frontend/components/Admin/Stations/Form/FrontendForm.vue:81
+msgid "Maximum Listeners"
+msgstr ""
+
+#: frontend/components/Admin/Stations/Form/AdminForm.vue:39
+msgid "Maximum Mounts"
+msgstr ""
+
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:82
 msgid "Maximum number of total listeners across all streams. Leave blank to use the default."
 msgstr ""
 
@@ -3572,7 +3570,7 @@ msgstr ""
 
 #: frontend/components/Account.vue:3
 #: frontend/components/Dashboard.vue:18
-#: frontend/components/PanelLayout.vue:83
+#: frontend/components/PanelLayout.vue:90
 #: /var/azuracast/www/backend/src/Controller/Frontend/Profile/IndexAction.php:29
 msgid "My Account"
 msgstr ""
@@ -3592,17 +3590,13 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: frontend/components/Login.vue:49
+#: frontend/components/Login.vue:42
 #: /var/azuracast/www/backend/templates/frontend/account/forgot.phtml:23
 msgid "name@example.com"
 msgstr ""
 
 #: frontend/components/Stations/Webhooks.vue:135
 msgid "Name/Type"
-msgstr ""
-
-#: frontend/components/Stations/Logs.vue:37
-msgid "Need Help?"
 msgstr ""
 
 #: frontend/components/Admin/Index/NetworkStatsPanel.vue:5
@@ -3684,7 +3678,7 @@ msgstr ""
 msgid "No Match"
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:73
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:74
 #: frontend/components/Admin/Stations/Form/StreamersForm.vue:84
 msgid "No other program can be using this port. Leave blank to automatically assign a port."
 msgstr ""
@@ -3786,8 +3780,11 @@ msgid "Now playing on %{station}: %{title} by %{artist}! Tune in now."
 msgstr ""
 
 #: frontend/components/Stations/Webhooks/Form/Common/FormattingInfo.vue:21
-#: frontend/components/Stations/Webhooks/Form/Generic.vue:27
 msgid "NowPlaying API Response"
+msgstr ""
+
+#: frontend/components/Stations/Webhooks/Form/Generic.vue:27
+msgid "NowPlaying API Response is documented in our Help Center"
 msgstr ""
 
 #: frontend/components/Admin/Backups/ConfigureModal.vue:55
@@ -3811,7 +3808,7 @@ msgid "Number of Visible Recent Songs"
 msgstr ""
 
 #: frontend/components/Stations/Profile/NowPlayingNotStartedPanel.vue:5
-#: frontend/components/Stations/Profile/NowPlayingPanel.vue:13
+#: frontend/components/Stations/Profile/NowPlayingPanel.vue:23
 msgid "On the Air"
 msgstr ""
 
@@ -3946,7 +3943,7 @@ msgstr ""
 msgid "Page"
 msgstr ""
 
-#: frontend/components/Account/SecurityPanel.vue:70
+#: frontend/components/Account/SecurityPanel.vue:71
 msgid "Passkey Authentication"
 msgstr ""
 
@@ -3956,8 +3953,8 @@ msgid "Passkey Nickname"
 msgstr ""
 
 #: frontend/components/Admin/Users/Form.vue:16
-#: frontend/components/Login.vue:61
-#: frontend/components/Login.vue:70
+#: frontend/components/Login.vue:54
+#: frontend/components/Login.vue:63
 #: frontend/components/Public/WebDJ/SettingsPanel.vue:93
 #: frontend/components/Recover.vue:54
 #: frontend/components/Setup/Register.vue:85
@@ -4097,7 +4094,7 @@ msgstr ""
 #: frontend/components/Stations/Media/MediaToolbar.vue:26
 #: frontend/components/Stations/menu.ts:147
 #: frontend/components/Stations/Playlists.vue:14
-#: frontend/components/Stations/Profile/BackendPanel.vue:37
+#: frontend/components/Stations/Profile/BackendPanel.vue:35
 msgid "Playlists"
 msgstr ""
 
@@ -4153,7 +4150,7 @@ msgstr ""
 msgid "Port:"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:156
+#: frontend/components/PanelLayout.vue:151
 msgid "Powered by"
 msgstr ""
 
@@ -4274,7 +4271,7 @@ msgstr ""
 msgid "Random"
 msgstr ""
 
-#: frontend/components/Stations/Sidebar.vue:39
+#: frontend/components/Stations/StationsLayout.vue:28
 msgid "Ready to start broadcasting? Click to start your station."
 msgstr ""
 
@@ -4331,7 +4328,7 @@ msgstr ""
 msgid "Reload Configuration"
 msgstr ""
 
-#: frontend/components/Stations/Sidebar.vue:50
+#: frontend/components/Stations/StationsLayout.vue:39
 msgid "Reload to Apply Changes"
 msgstr ""
 
@@ -4339,7 +4336,7 @@ msgstr ""
 msgid "Reloading broadcasting will not disconnect your listeners."
 msgstr ""
 
-#: frontend/components/Login.vue:87
+#: frontend/components/Login.vue:80
 msgid "Remember me"
 msgstr ""
 
@@ -4830,7 +4827,7 @@ msgstr ""
 msgid "Select the category/categories that best reflects the content of your podcast."
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:122
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:124
 msgid "Select the countries that are not allowed to connect to the streams."
 msgstr ""
 
@@ -4951,11 +4948,12 @@ msgid "Set to * to allow all sources, or specify a list of origins separated by 
 msgstr ""
 
 #: frontend/components/Admin/Settings/GeneralTab.vue:3
+#: frontend/components/Stations/menu.ts:47
 msgid "Settings"
 msgstr ""
 
 #: frontend/components/Stations/Streamers/ConnectionInfo.vue:79
-msgid "Setup instructions for broadcasting software are available on the AzuraCast wiki."
+msgid "Setup instructions for broadcasting software are available at our Help Center."
 msgstr ""
 
 #: frontend/components/Admin/StorageLocations/Form/Sftp.vue:11
@@ -5062,21 +5060,21 @@ msgstr ""
 msgid "Shuffled"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:140
+#: frontend/components/PanelLayout.vue:127
 msgid "Sidebar"
 msgstr ""
 
-#: frontend/components/Login.vue:95
-#: frontend/components/Login.vue:98
+#: frontend/components/Login.vue:88
+#: frontend/components/Login.vue:91
 msgid "Sign In"
 msgstr ""
 
-#: frontend/components/Login.vue:120
-#: frontend/components/Login.vue:124
+#: frontend/components/Login.vue:113
+#: frontend/components/Login.vue:117
 msgid "Sign In with Passkey"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:128
+#: frontend/components/PanelLayout.vue:115
 msgid "Sign Out"
 msgstr ""
 
@@ -5293,7 +5291,7 @@ msgstr ""
 msgid "Station Directories"
 msgstr ""
 
-#: frontend/components/Stations/Profile/StationDisabledPanel.vue:27
+#: frontend/components/Stations/Profile/StationDisabledPanel.vue:4
 msgid "Station Disabled"
 msgstr ""
 
@@ -5313,7 +5311,7 @@ msgstr ""
 msgid "Station Name"
 msgstr ""
 
-#: frontend/components/Dashboard.vue:207
+#: frontend/components/Dashboard.vue:170
 #: frontend/components/Public/Player.vue:29
 #: frontend/components/Stations/Branding/BrandingForm.vue:31
 #: frontend/components/Stations/Profile/NowPlayingPanel.vue:78
@@ -5324,7 +5322,7 @@ msgstr ""
 msgid "Station Offline Display Text"
 msgstr ""
 
-#: frontend/components/Dashboard.vue:126
+#: frontend/components/Dashboard.vue:89
 msgid "Station Overview"
 msgstr ""
 
@@ -5346,7 +5344,7 @@ msgstr ""
 msgid "Station Statistics"
 msgstr ""
 
-#: frontend/components/Stations/Sidebar.vue:12
+#: frontend/components/Stations/StationsLayout.vue:10
 msgid "Station Time"
 msgstr ""
 
@@ -5498,7 +5496,7 @@ msgstr ""
 msgid "Streamer Username"
 msgstr ""
 
-#: frontend/components/Stations/Profile/SchedulePanel.vue:22
+#: frontend/components/Stations/Profile/SchedulePanel.vue:21
 msgid "Streamer/DJ"
 msgstr ""
 
@@ -5530,16 +5528,8 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
-#: frontend/components/Stations/Logs.vue:49
-msgid "Support Documents"
-msgstr ""
-
 #: frontend/components/Admin/Backups/RunBackupModal.vue:45
 msgid "Supported file formats:"
-msgstr ""
-
-#: frontend/components/PanelLayout.vue:93
-msgid "Switch Theme"
 msgstr ""
 
 #: frontend/components/Admin/Debug.vue:64
@@ -5550,7 +5540,7 @@ msgstr ""
 msgid "Synchronize with Playlist"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:74
+#: frontend/components/PanelLayout.vue:81
 msgid "System Administration"
 msgstr ""
 
@@ -5574,6 +5564,7 @@ msgstr ""
 #: frontend/components/Setup/SetupStep.vue:34
 #: /var/azuracast/www/backend/src/Notification/Check/BaseUrlCheck.php:59
 #: /var/azuracast/www/backend/src/Controller/Frontend/SetupController.php:174
+#: /var/azuracast/www/backend/src/Notification/Check/BaseUrlCheck.php:59
 msgid "System Settings"
 msgstr ""
 
@@ -5650,7 +5641,7 @@ msgid "The display name assigned to this relay when viewing it on administrative
 msgstr ""
 
 #: frontend/components/Stations/LiquidsoapConfig.vue:28
-msgid "The editable text boxes are areas where you can insert custom configuration code. The non-editable sections are automatically generated by AzuraCast."
+msgid "The editable text boxes are areas where you can insert custom configuration code. The non-editable sections are automatically generated."
 msgstr ""
 
 #: frontend/components/Stations/Podcasts/PodcastForm/BasicInfo.vue:54
@@ -5798,7 +5789,7 @@ msgstr ""
 msgid "This can make it look like your memory is low while it actually is not. Some monitoring solutions/panels include cached memory in their used memory statistics without indicating this."
 msgstr ""
 
-#: frontend/components/Admin/Stations/Form/FrontendForm.vue:146
+#: frontend/components/Admin/Stations/Form/FrontendForm.vue:148
 msgid "This code will be included in the frontend configuration. Allowed formats are:"
 msgstr ""
 
@@ -5891,7 +5882,7 @@ msgid "This is a 3-5 digit number."
 msgstr ""
 
 #: frontend/components/Stations/LiquidsoapConfig.vue:33
-msgid "This is an advanced feature and custom code is not officially supported by AzuraCast. You may break your station by adding custom code, but removing it should fix any issues."
+msgid "This is an advanced feature and custom code is not officially supported. You may break your station by adding custom code, but removing it should fix any issues."
 msgstr ""
 
 #: frontend/components/Stations/Streamers/Form/BasicInfo.vue:30
@@ -5911,7 +5902,7 @@ msgid "This javascript code will be applied to the station public pages."
 msgstr ""
 
 #: frontend/components/Admin/Stations/Form/BackendForm.vue:228
-msgid "This mode disables AzuraCast's AutoDJ management, using Liquidsoap itself to manage song playback. \"next song\" and some other features will not be available."
+msgid "This mode disables AutoDJ management, using Liquidsoap itself to manage song playback. \"next song\" and some other features will not be available."
 msgstr ""
 
 #: frontend/components/Common/DateRangeDropdown.vue:125
@@ -5955,7 +5946,7 @@ msgid "This port is not used by any external process. Only modify this port if t
 msgstr ""
 
 #: frontend/components/Stations/Playlists/QueueModal.vue:12
-msgid "This queue contains the remaining tracks in the order they will be queued by the AzuraCast AutoDJ (if the tracks are eligible to be played)."
+msgid "This queue contains the remaining tracks in the order they will be queued by the AutoDJ (if the tracks are eligible to be played)."
 msgstr ""
 
 #: frontend/components/Admin/Settings/ServicesTab.vue:236
@@ -6113,7 +6104,7 @@ msgstr ""
 msgid "Today"
 msgstr ""
 
-#: frontend/components/PanelLayout.vue:46
+#: frontend/components/PanelLayout.vue:53
 msgid "Toggle Menu"
 msgstr ""
 
@@ -6188,11 +6179,11 @@ msgstr ""
 msgid "TuneIn Station ID"
 msgstr ""
 
-#: frontend/components/Account/SecurityPanel.vue:31
+#: frontend/components/Account/SecurityPanel.vue:32
 msgid "Two-Factor Authentication"
 msgstr ""
 
-#: frontend/components/Account/SecurityPanel.vue:37
+#: frontend/components/Account/SecurityPanel.vue:38
 msgid "Two-factor authentication improves the security of your account by requiring a second one-time access code in addition to your password when you log in."
 msgstr ""
 
@@ -6377,7 +6368,7 @@ msgid "Use (Us)"
 msgstr ""
 
 #: frontend/components/Account/ApiKeysPanel.vue:8
-msgid "Use API keys to authenticate with the AzuraCast API using the same permissions as your user account."
+msgid "Use API keys to authenticate with the API using the same permissions as your user account."
 msgstr ""
 
 #: frontend/components/Account/EditForm.vue:63
@@ -6501,7 +6492,7 @@ msgstr ""
 msgid "Uses either Websockets, Server-Sent Events (SSE) or static JSON files to serve Now Playing data on public pages. This improves performance, especially with large listener volume. Disable this if you are encountering problems with the service or use multiple URLs to serve your public pages."
 msgstr ""
 
-#: frontend/components/Account/SecurityPanel.vue:75
+#: frontend/components/Account/SecurityPanel.vue:76
 msgid "Using a passkey (like Windows Hello, YubiKey, or your smartphone) allows you to securely log in without needing to enter your password or two-factor code."
 msgstr ""
 
@@ -6525,7 +6516,7 @@ msgstr ""
 msgid "View Fullscreen"
 msgstr ""
 
-#: frontend/components/Dashboard.vue:186
+#: frontend/components/Dashboard.vue:149
 msgid "View Listener Report"
 msgstr ""
 
@@ -6648,12 +6639,11 @@ msgstr ""
 msgid "Weight"
 msgstr ""
 
-#: frontend/components/Login.vue:17
 #: frontend/components/Setup/Register.vue:19
 msgid "Welcome to AzuraCast!"
 msgstr ""
 
-#: frontend/components/Login.vue:11
+#: frontend/components/Login.vue:10
 msgid "Welcome!"
 msgstr ""
 
@@ -6712,10 +6702,6 @@ msgstr ""
 msgid "You can also upload files in bulk via SFTP."
 msgstr ""
 
-#: frontend/components/Stations/Logs.vue:42
-msgid "You can find answers for many common questions in our support documents."
-msgstr ""
-
 #: frontend/components/Stations/Mounts/Form/Advanced.vue:28
 msgid "You can include any special mount point settings here, in either JSON { key: 'value' } format or XML <key>value</key>"
 msgstr ""
@@ -6725,7 +6711,7 @@ msgid "You can only perform the actions your user account is allowed to perform.
 msgstr ""
 
 #: frontend/components/Stations/Mounts/Form/Advanced.vue:13
-msgid "You can set a custom URL for this stream that AzuraCast will use when referring to it on the web interface and in the Now Playing API return data. Leave empty to use the default value."
+msgid "You can set a custom URL for this stream that the system will use when referring to it. Leave empty to use the default value."
 msgstr ""
 
 #: frontend/components/Stations/SftpUsers.vue:56
@@ -6765,11 +6751,11 @@ msgstr ""
 msgid "Your station does not support reloading configuration. Restart broadcasting instead to apply changes."
 msgstr ""
 
-#: frontend/components/Stations/Sidebar.vue:52
+#: frontend/components/Stations/StationsLayout.vue:41
 msgid "Your station has changes that require a reload to apply."
 msgstr ""
 
-#: frontend/components/Stations/Profile/StationDisabledPanel.vue:31
+#: frontend/components/Stations/Profile/StationDisabledPanel.vue:8
 msgid "Your station is currently not enabled for broadcasting. You can still manage media, playlists, and other station settings. To re-enable broadcasting, edit your station profile."
 msgstr ""
 
@@ -7271,40 +7257,37 @@ msgstr ""
 msgid "Your Rolling Release installation is currently older than the latest Stable release. This means you can switch releases to the \"Stable\" release channel if desired."
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:24
+#: /var/azuracast/www/backend/src/Controller/Api/Frontend/Dashboard/ChartsAction.php:151
+msgid "All Stations"
+msgstr ""
+
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/Files/RenameAction.php:53
+msgid "File not specified."
+msgstr ""
+
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/Files/RenameAction.php:59
+msgid "New path not specified."
+msgstr ""
+
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/Files/MakeDirectoryAction.php:54
+msgid "No directory specified"
+msgstr ""
+
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/Files/ListAction.php:296
 #, php-format
-msgid "%s is not recognized as a service."
+msgid "File Not Processed: %s"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:27
-msgid "It may not be registered with Supervisor yet. Restarting broadcasting may help."
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/Files/ListAction.php:301
+msgid "Cover Art"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:36
-#, php-format
-msgid "%s cannot start"
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/Files/ListAction.php:304
+msgid "File Processing"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:39
-msgid "It is already running."
-msgstr ""
-
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:48
-#, php-format
-msgid "%s cannot stop"
-msgstr ""
-
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:51
-msgid "It is not running."
-msgstr ""
-
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:63
-#, php-format
-msgid "%s encountered an error: %s"
-msgstr ""
-
-#: /var/azuracast/www/backend/src/Exception/SupervisorException.php:67
-msgid "Check the log for details."
+#: /var/azuracast/www/backend/src/Controller/Api/Stations/ServicesController.php:157
+msgid "Station reloaded."
 msgstr ""
 
 #: /var/azuracast/www/backend/src/Exception/Http/NotLoggedInException.php:26
@@ -7898,12 +7881,12 @@ msgstr ""
 msgid "Logged in successfully."
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/LoginAction.php:65
-msgid "Too many login attempts"
+#: /var/azuracast/www/backend/src/Installer/EnvFiles/EnvFile.php:78
+msgid "Set the GID of the user running inside the Docker containers. Matching this with your host GID can fix permission issues."
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/LoginAction.php:66
-msgid "You have attempted to log in too many times. Please wait 30 seconds and try again."
+#: /var/azuracast/www/backend/src/Installer/EnvFiles/EnvFile.php:84
+msgid "Use Podman instead of Docker."
 msgstr ""
 
 #: /var/azuracast/www/backend/src/Controller/Frontend/Account/LoginAction.php:106
@@ -7919,25 +7902,24 @@ msgstr ""
 msgid "User not found."
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/ForgotPasswordAction.php:48
-msgid "Too many forgot password attempts"
+#: /var/azuracast/www/backend/src/Radio/Frontend/Rsas.php:262
+msgid "RSAS Error Log"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/ForgotPasswordAction.php:49
-msgid "You have attempted to reset your password too many times. Please wait 30 seconds and try again."
+#: /var/azuracast/www/backend/src/Radio/Frontend/Rsas.php:268
+msgid "RSAS Configuration"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/ForgotPasswordAction.php:66
-#: /var/azuracast/www/backend/templates/mail/forgot.phtml:8
-msgid "Account Recovery"
+#: /var/azuracast/www/backend/src/Radio/Backend/Liquidsoap.php:283
+msgid "Liquidsoap Log"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/ForgotPasswordAction.php:84
-msgid "Account recovery e-mail sent."
+#: /var/azuracast/www/backend/src/Radio/Backend/Liquidsoap.php:289
+msgid "Liquidsoap Configuration"
 msgstr ""
 
-#: /var/azuracast/www/backend/src/Controller/Frontend/Account/ForgotPasswordAction.php:85
-msgid "If the e-mail address you provided is in the system, check your inbox for a password reset message."
+#: /var/azuracast/www/backend/src/Doctrine/Repository.php:108
+msgid "Select..."
 msgstr ""
 
 #: /var/azuracast/www/backend/src/Controller/Frontend/SetupController.php:113

@@ -6,6 +6,16 @@
     >
         <template #header="{id}">
             <div class="d-flex align-items-center">
+                <div
+                    v-if="station.listen_url"
+                    class="flex-shrink-0 me-2"
+                >
+                    <play-button
+                        class="btn-xl text-white"
+                        :url="station.listen_url"
+                        is-stream
+                    />
+                </div>
                 <h3
                     :id="id"
                     class="flex-shrink card-title my-0"
@@ -262,11 +272,13 @@ import UpdateMetadataModal from "~/components/Stations/Profile/UpdateMetadataMod
 import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
 import {NowPlayingProps} from "~/functions/useNowPlaying.ts";
 import {BackendAdapters, StationPermissions} from "~/entities/ApiInterfaces.ts";
+import PlayButton from "~/components/Common/PlayButton.vue";
 
 export interface ProfileNowPlayingPanelProps extends NowPlayingProps {
     backendType: BackendAdapters,
     backendSkipSongUri: string,
-    backendDisconnectStreamerUri: string
+    backendDisconnectStreamerUri: string,
+    station: object
 }
 
 defineOptions({

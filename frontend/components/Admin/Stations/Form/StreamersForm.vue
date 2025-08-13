@@ -25,7 +25,7 @@
                         class="col-md-12"
                         :field="v$.backend_config.record_streams"
                         :label="$gettext('Record Live Broadcasts')"
-                        :description="$gettext('If enabled, AzuraCast will automatically record any live broadcasts made to this station to per-broadcast recordings.')"
+                        :description="$gettext('If enabled, We will automatically record any live broadcasts made to this station to per-broadcast recordings.')"
                     />
                 </div>
                 <div
@@ -79,6 +79,7 @@
                     </form-group-field>
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_dj_port"
                         class="col-md-6"
                         :field="v$.backend_config.dj_port"
@@ -109,6 +110,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_dj_mount_point"
                         class="col-md-6"
                         :field="v$.backend_config.dj_mount_point"
@@ -140,41 +142,92 @@ import {computed} from "vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric} from "@vuelidate/validators";
+import {useAzuraCast, useAzuraCastStation} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import BitrateOptions from "~/components/Common/BitrateOptions.vue";
 import {ApiGenericForm, BackendAdapters, StreamFormats} from "~/entities/ApiInterfaces.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+import { useRoute } from 'vue-router'
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
+const {enableAdvancedFeatures} = useAzuraCast();
+const isAdministrator = userAllowed(GlobalPermissions.All);
+
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,
-    {
-        enable_streamers: {},
-        disconnect_deactivate_streamer: {},
-        backend_config: {
-            record_streams: {},
-            record_streams_format: {},
-            record_streams_bitrate: {},
-            dj_buffer: {numeric},
-            live_broadcast_text: {},
-            dj_port: {numeric},
-            dj_mount_point: {},
+    computed(() => {
+        let validations: {
+            [key: string | number]: any
+        } = {
+            enable_streamers: {},
+            disconnect_deactivate_streamer: {},
+            backend_config: {
+                record_streams: {},
+                record_streams_format: {},
+                record_streams_bitrate: {},
+                dj_buffer: {numeric},
+                live_broadcast_text: {}
+            }
+        };
+
+        validations = {
+            ...validations,
+            backend_config: {
+                ...validations.backend_config,
+            }
+        };
+        
+        if (isAdministrator) {
+                validations = {
+                ...validations,
+                backend_config: {
+                    ...validations.backend_config,
+                    dj_port: {numeric},
+                    dj_mount_point: {},
+                }
+            };
         }
-    },
-    () => ({
-        enable_streamers: false,
-        disconnect_deactivate_streamer: 0,
-        backend_config: {
-            record_streams: false,
-            record_streams_format: StreamFormats.Mp3,
-            record_streams_bitrate: 128,
-            dj_buffer: 5,
-            live_broadcast_text: 'Live Broadcast',
-            dj_port: '',
-            dj_mount_point: '/',
+
+        return validations;
+    }),
+    () => {
+        let blankForm: {
+            [key: string | number]: any
+        } = {
+            enable_streamers: false,
+            disconnect_deactivate_streamer: 0,
+            backend_config: {
+                record_streams: false,
+                record_streams_format: StreamFormats.Mp3,
+                record_streams_bitrate: 128,
+                dj_buffer: 5,
+                live_broadcast_text: 'Live Broadcast'
+            }
+        };
+
+        blankForm = {
+            ...blankForm,
+            backend_config: {
+                ...blankForm.backend_config,
+            }
         }
-    })
-);
+        
+
+        if (isAdministrator) {
+            blankForm = {
+                ...blankForm,
+                backend_config: {
+                    ...blankForm.backend_config,
+                    dj_port: '',
+                    dj_mount_point: '/',
+                }
+            }
+        }
+        
+        return blankForm;
+    });
 
 const isBackendEnabled = computed(() => {
     return form.value.backend_type !== BackendAdapters.None;
@@ -208,4 +261,12 @@ const recordStreamsOptions = computed(() => {
         }
     ];
 });
+
+const route = useRoute()
+let _maxBitrate;
+if (route.matched.some(({ name }) => name.toString().startsWith('admin:'))){
+    _maxBitrate = null;
+} else {
+    ({maxBitrate: _maxBitrate} = useAzuraCastStation());
+}
 </script>

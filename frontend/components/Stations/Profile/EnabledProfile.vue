@@ -1,9 +1,4 @@
 <template>
-    <profile-header
-        v-bind="props"
-        :station="profileInfo.station"
-    />
-
     <div
         id="profile"
         class="row row-of-cards"
@@ -12,6 +7,7 @@
             <template v-if="hasStarted">
                 <profile-now-playing
                     v-bind="props"
+                    :station="profileInfo.station"
                 />
 
                 <profile-schedule
@@ -65,7 +61,6 @@
 
 <script setup lang="ts">
 import ProfileStreams from "~/components/Stations/Profile/StreamsPanel.vue";
-import ProfileHeader, {ProfileHeaderPanelParentProps} from "~/components/Stations/Profile/HeaderPanel.vue";
 import ProfileNowPlaying, {ProfileNowPlayingPanelProps} from "~/components/Stations/Profile/NowPlayingPanel.vue";
 import ProfileSchedule from "~/components/Stations/Profile/SchedulePanel.vue";
 import ProfileRequests, {ProfileRequestPanelProps} from "~/components/Stations/Profile/RequestsPanel.vue";
@@ -84,14 +79,14 @@ import {QueryKeys, queryKeyWithStation} from "~/entities/Queries.ts";
 
 export interface EnabledProfileProps extends ProfileBackendPanelParentProps,
     ProfileFrontendPanelParentProps,
-    ProfileHeaderPanelParentProps,
     ProfileNowPlayingPanelProps,
     ProfileRequestPanelProps,
     ProfilePublicPagesPanelProps,
     ProfileStreamersPanelProps {
     profileApiUri: string,
     stationSupportsRequests: boolean,
-    stationSupportsStreamers: boolean
+    stationSupportsStreamers: boolean,
+    station: object
 }
 
 const props = defineProps<EnabledProfileProps>();

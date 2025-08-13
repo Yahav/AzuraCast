@@ -28,15 +28,22 @@
             class="navbar-brand ms-0 me-auto"
             :href="homeUrl"
         >
-            azura<strong>cast</strong>
-            <small v-if="instanceName">{{ instanceName }}</small>
+            <img
+                :src="logo"
+                alt="Caster.fm"
+                style="height:40px;"
+            >
         </a>
 
         <div id="radio-player-controls" />
 
         <div class="dropdown ms-3 d-inline-flex align-items-center">
-            <div class="me-2">
-                {{ userDisplayName }}
+            <div id="station-time-wrapper" />
+            <div
+                v-if="slots.clock"
+                id="clock"
+            >
+                <slot name="clock" />
             </div>
 
             <button
@@ -49,7 +56,7 @@
             >
                 <icon
                     :icon="IconMenuOpen"
-                    class="lg"
+                    class="xl"
                 />
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -83,33 +90,13 @@
                         {{ $gettext('My Account') }}
                     </a>
                 </li>
-                <li>
-                    <a
-                        class="dropdown-item theme-switcher"
-                        href="#"
-                        @click.prevent="toggleTheme"
-                    >
-                        <icon :icon="IconInvertColors" />
-                        {{ $gettext('Switch Theme') }}
-                    </a>
-                </li>
                 <li class="dropdown-divider">
                     &nbsp;
                 </li>
                 <li>
                     <a
                         class="dropdown-item"
-                        href="/docs/"
-                        target="_blank"
-                    >
-                        <icon :icon="IconSupport" />
-                        {{ $gettext('Documentation') }}
-                    </a>
-                </li>
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="/docs/help/troubleshooting/"
+                        href="https://www.caster.fm/help/pro-plan/"
                         target="_blank"
                     >
                         <icon :icon="IconHelp" />
@@ -147,6 +134,14 @@
         :class="[(slots.sidebar) ? 'has-sidebar' : '']"
     >
         <main id="main">
+            <div
+                class="mb-3"
+                v-if="slots.restartSection"
+                id="restartSection"
+            >
+                <slot name="restartSection" />
+            </div>
+
             <div class="container">
                 <slot />
             </div>
@@ -155,19 +150,9 @@
         <footer id="footer">
             {{ $gettext('Powered by') }}
             <a
-                href="https://www.azuracast.com/"
+                href="https://www.caster.fm/"
                 target="_blank"
-            >AzuraCast</a>
-            &bull;
-            <span v-html="version" />
-            &bull;
-            <span v-html="platform" /><br>
-            {{ $gettext('Like our software?') }}
-            <a
-                href="https://donate.azuracast.com/"
-                target="_blank"
-            >
-                {{ $gettext('Donate to support AzuraCast!') }}
+            >Caster.fm
             </a>
         </footer>
     </div>
@@ -176,19 +161,17 @@
 <script setup lang="ts">
 import {nextTick, onMounted, useSlots, watch} from "vue";
 import Icon from "~/components/Common/Icon.vue";
-import useTheme from "~/functions/theme";
 import {
     IconAccountCircle,
     IconExitToApp,
     IconHelp,
     IconHome,
-    IconInvertColors,
     IconMenu,
     IconMenuOpen,
-    IconSettings,
-    IconSupport
+    IconSettings
 } from "~/components/Common/icons";
 import {useProvidePlayerStore} from "~/functions/usePlayerStore.ts";
+import logo from '~/caster_logo.svg';
 
 export interface PanelLayoutProps {
     instanceName: string,
@@ -213,8 +196,6 @@ const handleSidebar = () => {
         document.body.classList.remove('has-sidebar');
     }
 }
-
-const {toggleTheme} = useTheme();
 
 watch(
     () => slots.sidebar,

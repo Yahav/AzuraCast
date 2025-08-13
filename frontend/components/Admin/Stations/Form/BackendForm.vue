@@ -42,7 +42,7 @@
                 </div>
             </template>
 
-            <form-fieldset>
+            <form-fieldset v-if="isAdministrator">
                 <template #label>
                     {{ $gettext('Audio Processing') }}
                 </template>
@@ -208,7 +208,7 @@
                 </template>
             </form-fieldset>
 
-            <form-fieldset>
+            <form-fieldset v-if="enableAdvancedFeatures && isAdministrator">
                 <template #label>
                     {{ $gettext('Advanced Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -225,7 +225,7 @@
                     >
                         <template #description>
                             {{
-                                $gettext('This mode disables AzuraCast\'s AutoDJ management, using Liquidsoap itself to manage song playback. "next song" and some other features will not be available.')
+                                $gettext('This mode disables AutoDJ management, using Liquidsoap itself to manage song playback. "next song" and some other features will not be available.')
                             }}
                         </template>
                     </form-group-checkbox>
@@ -314,57 +314,122 @@ import {
     CrossfadeModes,
     MasterMePresets
 } from "~/entities/ApiInterfaces.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<{
     isStereoToolInstalled: boolean
 }>();
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,
-    {
-        backend_type: {required},
-        backend_config: {
-            crossfade_type: {},
-            crossfade: {decimal},
-            write_playlists_to_liquidsoap: {},
-            audio_processing_method: {},
-            post_processing_include_live: {},
-            master_me_preset: {},
-            master_me_loudness_target: {},
-            stereo_tool_license_key: {},
-            enable_auto_cue: {},
-            enable_replaygain_metadata: {},
-            telnet_port: {numeric},
-            autodj_queue_length: {},
-            use_manual_autodj: {},
-            charset: {},
-            performance_mode: {},
-            duplicate_prevention_time_range: {},
+    computed(() => {
+        let validations: {
+            [key: string | number]: any
+        } = {
+            backend_type: {required},
+            backend_config: {
+                crossfade_type: {},
+                crossfade: {decimal},
+            },
+        };
+
+        validations = {
+            ...validations,
+            backend_config: {
+                ...validations.backend_config,
+            },
+        };
+        
+
+        if (isAdministrator) {
+            validations = {
+                ...validations,
+                backend_config: {
+                    ...validations.backend_config,
+                    write_playlists_to_liquidsoap: {},
+                    audio_processing_method: {},
+                    post_processing_include_live: {},
+                    master_me_preset: {},
+                    master_me_loudness_target: {},
+                    stereo_tool_license_key: {},
+                    enable_auto_cue: {},
+                    enable_replaygain_metadata: {}
+                },
+            };
+            validations = {
+                ...validations,
+                backend_config: {
+                    ...validations.backend_config,
+                    telnet_port: {numeric},
+                    autodj_queue_length: {},
+                    use_manual_autodj: {},
+                    charset: {},
+                    performance_mode: {},
+                    duplicate_prevention_time_range: {},
+                },
+            };
+            
         }
-    },
-    () => ({
-        backend_type: BackendAdapters.Liquidsoap,
-        backend_config: {
-            crossfade_type: CrossfadeModes.Normal,
-            crossfade: 2,
-            write_playlists_to_liquidsoap: true,
-            audio_processing_method: AudioProcessingMethods.None,
-            post_processing_include_live: true,
-            master_me_preset: MasterMePresets.MusicGeneral,
-            master_me_loudness_target: -16,
-            stereo_tool_license_key: '',
-            enable_auto_cue: false,
-            enable_replaygain_metadata: false,
-            telnet_port: '',
-            autodj_queue_length: 3,
-            use_manual_autodj: false,
-            charset: 'UTF-8',
-            performance_mode: 'disabled',
-            duplicate_prevention_time_range: 120,
-        },
-    })
+
+        return validations;
+    }),
+    () => {
+        let blankForm: {
+            [key: string | number]: any
+        } = {
+            backend_type: BackendAdapters.Liquidsoap,
+            backend_config: {
+                crossfade_type: CrossfadeModes.Normal,
+                crossfade: 2,
+            },
+        };
+
+        if (enableAdvancedFeatures) {
+            blankForm = {
+                ...blankForm,
+                backend_config: {
+                    ...blankForm.backend_config,
+                }
+            };
+        }
+
+        if (isAdministrator) {
+            blankForm = {
+                ...blankForm,
+                backend_config: {
+                    ...blankForm.backend_config,
+                    write_playlists_to_liquidsoap: true,
+                    audio_processing_method: AudioProcessingMethods.None,
+                    post_processing_include_live: true,
+                    master_me_preset: MasterMePresets.MusicGeneral,
+                    master_me_loudness_target: -16,
+                    stereo_tool_license_key: '',
+                    enable_auto_cue: false,
+                    enable_replaygain_metadata: false
+                }
+            };
+            if (enableAdvancedFeatures) {
+                blankForm = {
+                    ...blankForm,
+                    backend_config: {
+                        ...blankForm.backend_config,
+                        telnet_port: '',
+                        autodj_queue_length: 3,
+                        use_manual_autodj: false,
+                        charset: 'UTF-8',
+                        performance_mode: 'disabled',
+                        duplicate_prevention_time_range: 120,
+                    }
+                };
+            }
+        }
+
+        return blankForm;
+    }
 );
 
 const isBackendEnabled = computed(() => {

@@ -62,25 +62,27 @@
                     </span>
                 </template>
 
-                <div class="row g-3 mb-3">
-                    <form-group-field
-                        id="edit_form_frontend_port"
-                        class="col-md-6"
-                        :field="v$.frontend_config.port"
-                        input-type="number"
-                        :input-attrs="{min: '0'}"
-                        :label="$gettext('Customize Broadcasting Port')"
-                        :description="$gettext('No other program can be using this port. Leave blank to automatically assign a port.')"
-                    />
+                <template v-if="isAdministrator">
+                    <div class="row g-3 mb-3">
+                        <form-group-field
+                            id="edit_form_frontend_port"
+                            class="col-md-6"
+                            :field="v$.frontend_config.port"
+                            input-type="number"
+                            :input-attrs="{min: '0'}"
+                            :label="$gettext('Customize Broadcasting Port')"
+                            :description="$gettext('No other program can be using this port. Leave blank to automatically assign a port.')"
+                        />
 
-                    <form-group-field
-                        id="edit_form_max_listeners"
-                        class="col-md-6"
-                        :field="v$.frontend_config.max_listeners"
-                        :label="$gettext('Maximum Listeners')"
-                        :description="$gettext('Maximum number of total listeners across all streams. Leave blank to use the default.')"
-                    />
-                </div>
+                        <form-group-field
+                            id="edit_form_max_listeners"
+                            class="col-md-6"
+                            :field="v$.frontend_config.max_listeners"
+                            :label="$gettext('Maximum Listeners')"
+                            :description="$gettext('Maximum number of total listeners across all streams. Leave blank to use the default.')"
+                        />
+                    </div>
+                </template>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-5">
@@ -135,7 +137,7 @@
                 </div>
             </form-fieldset>
 
-            <form-fieldset>
+            <form-fieldset v-if="isAdministrator">
                 <template #label>
                     {{ $gettext('Custom Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -177,6 +179,8 @@ import {numeric, required} from "@vuelidate/validators";
 import Tab from "~/components/Common/Tab.vue";
 import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
 import {ApiGenericForm, FrontendAdapters} from "~/entities/ApiInterfaces.ts";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<{
     isRsasInstalled: boolean,
@@ -186,40 +190,84 @@ const props = defineProps<{
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
+const {enableAdvancedFeatures} = useAzuraCast();
+const isAdministrator = userAllowed(GlobalPermissions.All);
+
 const {v$, tabClass} = useVuelidateOnFormTab(
     form,
-    {
-        frontend_type: {required},
-        frontend_config: {
-            sc_license_id: {},
-            sc_user_id: {},
-            source_pw: {},
-            admin_pw: {},
-            port: {numeric},
-            max_listeners: {},
-            custom_config: {},
-            banned_ips: {},
-            banned_countries: {},
-            allowed_ips: {},
-            banned_user_agents: {}
-        },
-    },
-    () => ({
-        frontend_type: FrontendAdapters.Icecast,
-        frontend_config: {
-            sc_license_id: '',
-            sc_user_id: '',
-            source_pw: '',
-            admin_pw: '',
-            port: '',
-            max_listeners: '',
-            custom_config: '',
-            banned_ips: '',
-            banned_countries: [],
-            allowed_ips: '',
-            banned_user_agents: '',
-        },
-    })
+    computed(() => {
+        let validations: {
+            [key: string | number]: any
+        } = {
+            frontend_type: {required},
+            frontend_config: {
+                sc_license_id: {},
+                sc_user_id: {},
+                source_pw: {},
+                admin_pw: {},
+            },
+        };
+
+
+        validations = {
+            ...validations,
+            frontend_config: {
+                ...validations.frontend_config,
+                banned_ips: {},
+                banned_countries: {},
+                allowed_ips: {},
+                banned_user_agents: {}
+            },
+        };
+
+        if (isAdministrator) {
+            validations.frontend_config = {
+                ...validations.frontend_config,
+                port: {numeric},
+                max_listeners: {},
+                custom_config: ''
+            };
+        }
+
+        return validations;
+    }),
+    () => {
+        let blankForm: {
+            [key: string | number]: any
+        } = {
+            frontend_type: FrontendAdapters.Icecast,
+            frontend_config: {
+                sc_license_id: '',
+                sc_user_id: '',
+                source_pw: '',
+                admin_pw: '',
+            },
+        };
+
+        
+        blankForm = {
+            ...blankForm,
+            frontend_config: {
+                ...blankForm.frontend_config,
+                banned_ips: '',
+                banned_countries: [],
+                allowed_ips: '',
+                banned_user_agents: '',
+            },
+        };
+        
+
+        if (isAdministrator) {
+            blankForm.frontend_config = {
+                ...blankForm.frontend_config,
+                port: '',
+                custom_config: '',
+                max_listeners: '',
+            };
+        }
+
+        return blankForm;
+    }
 );
 
 const {$gettext} = useTranslate();

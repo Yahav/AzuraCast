@@ -12,6 +12,7 @@
                 </div>
                 <div class="flex-shrink-0">
                     <button
+                        v-if="isAdministrator"
                         type="button"
                         class="btn btn-dark"
                         @click="doChangePassword"
@@ -144,6 +145,8 @@ import {ApiAccountTwoFactorStatus} from "~/entities/ApiInterfaces.ts";
 import {useApiItemProvider} from "~/functions/dataTable/useApiItemProvider.ts";
 import {QueryKeys} from "~/entities/Queries.ts";
 import {useQuery} from "@tanstack/vue-query";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const {axios} = useAxios();
 
@@ -169,6 +172,7 @@ const reloadSecurity = () => {
 }
 
 const $changePasswordModal = useTemplateRef('$changePasswordModal');
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const doChangePassword = () => {
     $changePasswordModal.value?.open();

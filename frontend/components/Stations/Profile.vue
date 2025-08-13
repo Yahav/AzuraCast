@@ -4,7 +4,7 @@
         :loading="isLoading"
         lazy
     >
-        <enabled-profile v-bind="state" />
+        <enabled-profile v-bind="{...state,station:station}" />
     </loading>
     <station-disabled-panel v-else />
 </template>
@@ -19,7 +19,9 @@ import EnabledProfile from "~/components/Stations/Profile/EnabledProfile.vue";
 import {useQuery} from "@tanstack/vue-query";
 import {QueryKeys, queryKeyWithStation} from "~/entities/Queries.ts";
 
-const {isEnabled} = useAzuraCastStation();
+const station = useAzuraCastStation();
+const {isEnabled} = station;
+
 
 const {axios} = useAxios();
 
