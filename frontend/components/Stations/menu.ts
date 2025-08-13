@@ -21,8 +21,6 @@ import {GlobalPermissions, StationPermissions} from "~/entities/ApiInterfaces.ts
 
 export function useStationsMenu(): ReactiveMenu {
     const {$gettext} = useTranslate();
-
-    const {enableAdvancedFeatures} = useAzuraCast();
     const stationProps = useAzuraCastStation();
 
     const isAdministrator = userAllowed(GlobalPermissions.All);
@@ -300,9 +298,7 @@ export function useStationsMenu(): ReactiveMenu {
                         url: {
                             name: 'stations:stereo_tool_config'
                         },
-                        visible: stationProps.features.media && enableAdvancedFeatures
-                            && userAllowedForStation(StationPermissions.Broadcasting)
-                            && isAdministrator
+                        visible: stationProps.features.media && userAllowedForStation(StationPermissions.Broadcasting) && isAdministrator
                     },
                     {
                         key: 'queue',

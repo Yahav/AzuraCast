@@ -41,37 +41,40 @@
                 :description="$gettext('Note: This should be the public-facing homepage of your radio station, not the URL for the panel. It will be included in broadcast details.')"
             />
 
-            <form-group-select
-                id="edit_form_timezone"
-                class="col-md-12"
-                :field="v$.timezone"
-                :options="timezones"
-                :label="$gettext('Time Zone')"
-                :description="$gettext('Scheduled playlists and other timed items will be controlled by this time zone.')"
-            />
+            <div class="col-md-6">
+                <div class="row g-3">
+                    <form-group-select
+                        id="edit_form_timezone"
+                        class="col-md-12"
+                        :field="v$.timezone"
+                        :options="timezones"
+                        :label="$gettext('Time Zone')"
+                        :description="$gettext('Scheduled playlists and other timed items will be controlled by this time zone.')"
+                    />
+
+                    <form-group-field
+                        v-if="isAdministrator"
+                        id="edit_form_short_name"
+                        class="col-md-12"
+                        :field="v$.short_name"
+                        advanced
+                        :label="$gettext('URL Stub')"
+                    >
+                        <template #description>
+                            {{
+                                $gettext('Optionally specify a short URL-friendly name, such as "my_station_name", that will be used in this station\'s URLs. Leave this field blank to automatically create one based on the station name.')
+                            }}
+                        </template>
+                    </form-group-field>
+                </div>
+            </div>
 
             <form-group-field
-                v-if="enableAdvancedFeatures && isAdministrator"
-                id="edit_form_short_name"
-                class="col-md-6"
-                :field="v$.short_name"
-                advanced
-                :label="$gettext('URL Stub')"
-            >
-                <template #description>
-                    {{
-                        $gettext('Optionally specify a short URL-friendly name, such as "my_station_name", that will be used in this station\'s URLs. Leave this field blank to automatically create one based on the station name.')
-                    }}
-                </template>
-            </form-group-field>
-
-            <form-group-select
-                v-if="enableAdvancedFeatures && isAdministrator"
+                v-if="isAdministrator"
                 id="edit_form_api_history_items"
                 class="col-md-6"
                 :field="v$.api_history_items"
                 advanced
-                :options="historyItemsOptions"
                 :label="$gettext('Number of Visible Recent Songs')"
             >
                 <template #description>
@@ -79,7 +82,14 @@
                         $gettext('Customize the number of songs that will appear in the "Song History" section for this station and in all public APIs.')
                     }}
                 </template>
-            </form-group-select>
+                <template #default="{id, model}">
+                    <radio-with-custom-number
+                        :id="id"
+                        v-model="model.$model"
+                        :options="historyItemsOptions"
+                    />
+                </template>
+            </form-group-field>
         </div>
 
         <form-fieldset>
@@ -139,9 +149,9 @@ import {useTranslate} from "~/vendor/gettext";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {required, url} from "@vuelidate/validators";
-import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {ApiGenericForm} from "~/entities/ApiInterfaces.ts";
+import RadioWithCustomNumber from "~/components/Common/RadioWithCustomNumber.vue";
 import {userAllowed} from "~/acl.ts";
 import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
@@ -170,7 +180,7 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             enable_on_demand_download: {},
         };
 
-        if (enableAdvancedFeatures && isAdministrator) {
+        if (isAdministrator) {
             validations = {
                 ...validations,
                 short_name: {},
@@ -194,7 +204,7 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             enable_on_demand_download: true,
         };
 
-        if (enableAdvancedFeatures && isAdministrator) {
+        if (isAdministrator) {
             blankForm = {
                 ...blankForm,
                 short_name: '',

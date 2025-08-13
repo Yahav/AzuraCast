@@ -54,7 +54,7 @@
                 />
             </div>
 
-            <form-fieldset v-if="enableAdvancedFeatures">
+            <form-fieldset>
                 <template #label>
                     {{ $gettext('Advanced Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -137,7 +137,7 @@
                 </div>
             </form-fieldset>
 
-            <form-fieldset v-if="enableAdvancedFeatures  && isAdministrator">
+            <form-fieldset v-if="isAdministrator">
                 <template #label>
                     {{ $gettext('Custom Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -176,7 +176,6 @@ import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric, required} from "@vuelidate/validators";
-import {useAzuraCast} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
 import {ApiGenericForm, FrontendAdapters} from "~/entities/ApiInterfaces.ts";
@@ -209,18 +208,17 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             },
         };
 
-        if (enableAdvancedFeatures) {
-            validations = {
-                ...validations,
-                frontend_config: {
-                    ...validations.frontend_config,
-                    banned_ips: {},
-                    banned_countries: {},
-                    allowed_ips: {},
-                    banned_user_agents: {}
-                },
-            };
-        }
+
+        validations = {
+            ...validations,
+            frontend_config: {
+                ...validations.frontend_config,
+                banned_ips: {},
+                banned_countries: {},
+                allowed_ips: {},
+                banned_user_agents: {}
+            },
+        };
 
         if (isAdministrator) {
             validations.frontend_config = {
@@ -246,18 +244,18 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             },
         };
 
-        if (enableAdvancedFeatures) {
-            blankForm = {
-                ...blankForm,
-                frontend_config: {
-                    ...blankForm.frontend_config,
-                    banned_ips: '',
-                    banned_countries: [],
-                    allowed_ips: '',
-                    banned_user_agents: '',
-                },
-            };
-        }
+        
+        blankForm = {
+            ...blankForm,
+            frontend_config: {
+                ...blankForm.frontend_config,
+                banned_ips: '',
+                banned_countries: [],
+                allowed_ips: '',
+                banned_user_agents: '',
+            },
+        };
+        
 
         if (isAdministrator) {
             blankForm.frontend_config = {

@@ -17,16 +17,16 @@ final class PodcastFixture extends AbstractFixture implements DependentFixtureIn
     {
         $station = $this->getReference('station', Station::class);
 
-        $podcastStorage = $station->getPodcastsStorageLocation();
+        $podcastStorage = $station->podcasts_storage_location;
 
         $podcast = new Podcast($podcastStorage);
 
-        $podcast->setTitle('The Caster.fm Podcast');
-        $podcast->setLink('https://demo.caster.fm');
-        $podcast->setLanguage('en');
-        $podcast->setDescription('The unofficial testing podcast for the Caster.fm development team.');
-        $podcast->setAuthor('Caster.fm');
-        $podcast->setEmail('demo@caster.fm');
+        $podcast->title = 'The Caster.fm Podcast';
+        $podcast->link = 'https://demo.caster.fm';
+        $podcast->language = 'en';
+        $podcast->description = 'The unofficial testing podcast for the Caster.fm development team.';
+        $podcast->author = 'Caster.fm';
+        $podcast->email = 'demo@caster.fm';
         $manager->persist($podcast);
 
         $category = new PodcastCategory($podcast, 'Technology');

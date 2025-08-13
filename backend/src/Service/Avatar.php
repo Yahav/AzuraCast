@@ -29,7 +29,7 @@ final class Avatar
     {
         $settings = $this->readSettings();
 
-        return match ($settings->getAvatarService()) {
+        return match ($settings->avatar_service ?? self::DEFAULT_SERVICE) {
             self::SERVICE_LIBRAVATAR => new Libravatar(),
             self::SERVICE_GRAVATAR => new Gravatar(),
             default => new Disabled()
@@ -40,7 +40,7 @@ final class Avatar
     {
         $avatarService = $this->getAvatarService();
 
-        $default = $this->readSettings()->getAvatarDefaultUrl();
+        $default = $this->readSettings()->avatar_default_url ?? self::DEFAULT_AVATAR;
 
         if (empty($email)) {
             return $default;

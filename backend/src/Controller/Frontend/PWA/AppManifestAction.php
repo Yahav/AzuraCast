@@ -20,7 +20,7 @@ final class AppManifestAction implements SingleActionInterface
     ): ResponseInterface {
         $station = $request->getStation();
 
-        if (!$station->getEnablePublicPage()) {
+        if (!$station->enable_public_page) {
             throw NotFoundException::station();
         }
 

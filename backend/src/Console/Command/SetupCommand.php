@@ -78,11 +78,6 @@ final class SetupCommand extends CommandAbstract
         );
 
         $io->newLine();
-        $io->section(__('Generating Database Proxy Classes'));
-
-        $this->runCommand($output, 'orm:generate-proxies');
-
-        $io->newLine();
         $io->section(__('Reload System Data'));
 
         $this->runCommand($output, 'cache:clear');
@@ -115,12 +110,14 @@ final class SetupCommand extends CommandAbstract
         );
 
         if ($isInit) {
+            $io->success('App initialization completed successfully.');
             return 0;
         }
 
         // Update system setting logging when updates were last run.
         $settings = $this->readSettings();
-        $settings->updateUpdateLastRun();
+        $settings->update_results = null;
+
         $this->writeSettings($settings);
 
         if ($update) {
