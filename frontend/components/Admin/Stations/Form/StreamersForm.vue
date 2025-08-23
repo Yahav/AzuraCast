@@ -142,7 +142,7 @@ import {computed} from "vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import {useVuelidateOnFormTab} from "~/functions/useVuelidateOnFormTab";
 import {numeric} from "@vuelidate/validators";
-import {useAzuraCast, useAzuraCastStation} from "~/vendor/azuracast";
+import {useAzuraCastStation} from "~/vendor/azuracast";
 import Tab from "~/components/Common/Tab.vue";
 import BitrateOptions from "~/components/Common/BitrateOptions.vue";
 import {ApiGenericForm, BackendAdapters, StreamFormats} from "~/entities/ApiInterfaces.ts";
@@ -152,7 +152,6 @@ import { useRoute } from 'vue-router'
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
-const {enableAdvancedFeatures} = useAzuraCast();
 const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {v$, tabClass} = useVuelidateOnFormTab(

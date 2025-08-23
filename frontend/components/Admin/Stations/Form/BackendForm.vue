@@ -208,7 +208,7 @@
                 </template>
             </form-fieldset>
 
-            <form-fieldset v-if="enableAdvancedFeatures && isAdministrator">
+            <form-fieldset v-if="isAdministrator">
                 <template #label>
                     {{ $gettext('Advanced Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -388,15 +388,6 @@ const {v$, tabClass} = useVuelidateOnFormTab(
             },
         };
 
-        if (enableAdvancedFeatures) {
-            blankForm = {
-                ...blankForm,
-                backend_config: {
-                    ...blankForm.backend_config,
-                }
-            };
-        }
-
         if (isAdministrator) {
             blankForm = {
                 ...blankForm,
@@ -409,23 +400,15 @@ const {v$, tabClass} = useVuelidateOnFormTab(
                     master_me_loudness_target: -16,
                     stereo_tool_license_key: '',
                     enable_auto_cue: false,
-                    enable_replaygain_metadata: false
+                    enable_replaygain_metadata: false,
+                    telnet_port: '',
+                    autodj_queue_length: 3,
+                    use_manual_autodj: false,
+                    charset: 'UTF-8',
+                    performance_mode: 'disabled',
+                    duplicate_prevention_time_range: 120,
                 }
             };
-            if (enableAdvancedFeatures) {
-                blankForm = {
-                    ...blankForm,
-                    backend_config: {
-                        ...blankForm.backend_config,
-                        telnet_port: '',
-                        autodj_queue_length: 3,
-                        use_manual_autodj: false,
-                        charset: 'UTF-8',
-                        performance_mode: 'disabled',
-                        duplicate_prevention_time_range: 120,
-                    }
-                };
-            }
         }
 
         return blankForm;

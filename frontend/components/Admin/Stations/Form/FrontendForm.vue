@@ -190,7 +190,6 @@ const props = defineProps<{
 
 const form = defineModel<ApiGenericForm>('form', {required: true});
 
-const {enableAdvancedFeatures} = useAzuraCast();
 const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {v$, tabClass} = useVuelidateOnFormTab(
