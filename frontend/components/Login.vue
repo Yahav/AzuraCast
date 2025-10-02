@@ -5,16 +5,9 @@
                 <div class="row mb-4">
                     <div class="col-sm">
                         <h2
-                            v-if="hideProductName"
                             class="card-title text-center"
                         >
                             {{ $gettext('Welcome!') }}
-                        </h2>
-                        <h2
-                            v-else
-                            class="card-title text-center"
-                        >
-                            {{ $gettext('Welcome to AzuraCast!') }}
                         </h2>
                         <h3
                             v-if="instanceName"
@@ -126,14 +119,6 @@
                         </button>
                     </div>
                 </form>
-
-                <p class="text-center m-0">
-                    {{ $gettext('Please log in to continue.') }}
-
-                    <a :href="forgotPasswordUrl">
-                        {{ $gettext('Forgot your password?') }}
-                    </a>
-                </p>
             </div>
         </div>
     </div>

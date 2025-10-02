@@ -73,43 +73,6 @@
                 </template>
             </section>
 
-            <card-page
-                v-if="showCharts"
-                header-id="hdr_listeners_per_station"
-            >
-                <template #header="{id}">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-fill">
-                            <h3
-                                :id="id"
-                                class="card-title"
-                            >
-                                {{ $gettext('Listeners Per Station') }}
-                            </h3>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-dark py-2"
-                                @click="chartsVisible = !chartsVisible"
-                            >
-                                {{
-                                    langShowHideCharts
-                                }}
-                            </button>
-                        </div>
-                    </div>
-                </template>
-
-                <div
-                    v-if="chartsVisible"
-                    id="charts"
-                    class="card-body"
-                >
-                    <dashboard-charts :charts-url="chartsUrl"/>
-                </div>
-            </card-page>
-
             <card-page header-id="hdr_stations">
                 <template #header="{id}">
                     <div class="d-flex flex-wrap align-items-center">
@@ -236,6 +199,43 @@
                         </router-link>
                     </template>
                 </data-table>
+            </card-page>
+
+            <card-page
+                v-if="showCharts"
+                header-id="hdr_listeners_per_station"
+            >
+                <template #header="{id}">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-fill">
+                            <h3
+                                :id="id"
+                                class="card-title"
+                            >
+                                {{ $gettext('Listeners Per Station') }}
+                            </h3>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-dark py-2"
+                                @click="chartsVisible = !chartsVisible"
+                            >
+                                {{
+                                    langShowHideCharts
+                                }}
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
+                <div
+                    v-if="chartsVisible"
+                    id="charts"
+                    class="card-body"
+                >
+                    <dashboard-charts :charts-url="chartsUrl"/>
+                </div>
             </card-page>
         </div>
     </dashboard-no-sidebar>

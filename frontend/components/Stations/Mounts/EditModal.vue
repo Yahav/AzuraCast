@@ -23,6 +23,7 @@
             />
             <mount-form-advanced
                 :station-frontend-type="frontendType"
+                v-if="isAdministrator"
             />
         </tabs>
     </modal-form>
@@ -48,10 +49,14 @@ import {
 } from "~/components/Stations/Mounts/Form/form.ts";
 import {useStationData} from "~/functions/useStationQuery.ts";
 import {toRefs} from "@vueuse/core";
+import {userAllowed} from "~/acl.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 
 const props = defineProps<BaseEditModalProps & {
     newIntroUrl: string
 }>();
+
+const isAdministrator = userAllowed(GlobalPermissions.Stations);
 
 const emit = defineEmits<BaseEditModalEmits & {
     (e: 'needs-restart'): void

@@ -1,11 +1,12 @@
 import {useTranslate} from "~/vendor/gettext.ts";
 import {filterMenu, MenuCategory, RawMenuCategory} from "~/functions/filterMenu.ts";
-import {userAllowedForStation} from "~/acl.ts";
+import {userAllowedForStation, userAllowed} from "~/acl.ts";
 import {shallowRef, watch} from "vue";
-import {StationPermissions} from "~/entities/ApiInterfaces.ts";
+import {StationPermissions, GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 import {useStationData} from "~/functions/useStationQuery.ts";
+import IconIcHome from "~icons/ic/baseline-home";
+import IconIcSettings from "~icons/ic/baseline-settings";
 import IconIcCode from "~icons/ic/baseline-code";
-import IconIcImage from "~icons/ic/baseline-image";
 import IconIcLibraryMusic from "~icons/ic/baseline-library-music";
 import IconIcAssignment from "~icons/ic/baseline-assignment";
 import IconIcMic from "~icons/ic/baseline-mic";
@@ -20,22 +21,25 @@ export function useStationsMenu() {
 
     const station = useStationData();
 
+    const isAdministrator = userAllowed(GlobalPermissions.All);
+
     const fullMenu: RawMenuCategory[] = [
         {
+            key: 'dashboard',
+            label: $gettext('Overview'),
+            icon: () => IconIcHome,
+            url: {
+                name: 'stations:index'
+            }
+        },
+        {
             key: 'profile',
-            label: $gettext('Profile'),
-            icon: () => IconIcImage,
+            label: $gettext('Settings'),
+            icon: () => IconIcSettings,
             items: [
                 {
-                    key: 'view_profile',
-                    label: $gettext('View Profile'),
-                    url: {
-                        name: 'stations:index'
-                    }
-                },
-                {
                     key: 'edit_profile',
-                    label: $gettext('Edit Profile'),
+                    label: $gettext('Station Settings'),
                     url: {
                         name: 'stations:profile:edit'
                     },
@@ -280,6 +284,7 @@ export function useStationsMenu() {
                     },
                     visible: () => userAllowedForStation(StationPermissions.Broadcasting)
                         && station.value.features.customLiquidsoapConfig
+                        && isAdministrator
                 },
                 {
                     key: 'stereo_tool',
@@ -289,6 +294,7 @@ export function useStationsMenu() {
                     },
                     visible: () => userAllowedForStation(StationPermissions.Broadcasting)
                         && station.value.features.media
+                        && isAdministrator
                 },
                 {
                     key: 'queue',

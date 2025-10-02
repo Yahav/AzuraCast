@@ -109,7 +109,7 @@ final class StationRepository extends Repository
         // Create default mountpoints if station supports them.
         if ($station->frontend_type->supportsMounts()) {
             $record = new StationMount($station);
-            $record->name = '/radio.mp3';
+            $record->name = '/radio';
             $record->is_default = true;
             $record->enable_autodj = true;
             $record->autodj_format = StreamFormats::Mp3;

@@ -2,20 +2,13 @@
     <footer id="footer">
         {{ $gettext('Powered by') }}
         <a
-            href="https://www.azuracast.com/"
+            href="https://www.Caster.fm/"
             target="_blank"
-        >AzuraCast</a>
+        >Caster.fm</a>
         &bull;
         <span v-html="version"/>
         &bull;
         <span v-html="platform"/><br>
-        {{ $gettext('Like our software?') }}
-        <a
-            href="https://donate.azuracast.com/"
-            target="_blank"
-        >
-            {{ $gettext('Donate to support AzuraCast!') }}
-        </a>
     </footer>
 </template>
 
