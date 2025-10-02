@@ -9,8 +9,6 @@
                 :id="id"
                 class="card-title"
             >
-                {{ $gettext('Broadcasting Service') }}
-
                 <div class="d-flex justify-content-between">
                     {{ $gettext('Broadcasting Service') }}
                     <running-badge :running="profileData.services.frontendRunning" />

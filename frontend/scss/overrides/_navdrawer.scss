@@ -116,6 +116,7 @@
 
     &.active,
     &:active {
+      background-color: var(--bs-secondary-bg);
       color: #212121;
     }
 
