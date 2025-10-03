@@ -2,7 +2,7 @@
     <dashboard-with-sidebar>
         <template #sidebar>
             <loading lazy :loading="isLoading || isPlaceholderData">
-                <sidebar :key="`sidebar-${stationData.id}`" />
+                <sidebar/>
             </loading>
         </template>
         <template #default>
