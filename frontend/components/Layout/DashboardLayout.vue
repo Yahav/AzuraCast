@@ -35,9 +35,7 @@
         </div>
 
         <div class="dropdown ms-3 d-inline-flex align-items-center">
-            <div class="me-2">
-                {{ displayName }}
-            </div>
+            <div id="station-time-wrapper" />
 
             <button
                 aria-expanded="false"
@@ -139,8 +137,6 @@ import logo from '~/caster_logo.svg';
 const {
     logoutUrl
 } = useAzuraCastDashboardGlobals();
-
-const {displayName} = useAzuraCastUser();
 
 const showAdmin = userAllowed(GlobalPermissions.View);
 
