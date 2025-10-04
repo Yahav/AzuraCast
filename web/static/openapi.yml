@@ -6777,7 +6777,7 @@ components:
             uri:
               description: 'The URI associated with the storage location.'
               type: string
-              example: /var/azuracast/www
+              example: /var/casterfmpro/www
             stations:
               description: 'The stations using this storage location, if any.'
               type: array
@@ -9749,7 +9749,7 @@ components:
             path:
               description: 'The local path, if the local adapter is used, or path prefix for S3/remote adapters.'
               type: string
-              example: /var/azuracast/stations/azuratest_radio/media
+              example: /var/casterfmpro/stations/casterfmtest_radio/media
             s3CredentialKey:
               description: 'The credential key for S3 adapters.'
               type: string

@@ -267,12 +267,12 @@ export type ApiAdminBackup = HasLinks & {
 
 export interface ApiAdminDebugQueue {
   name:
-    | "high_priority"
-    | "normal_priority"
-    | "low_priority"
-    | "search_index"
-    | "media"
-    | "podcast_media";
+  | "high_priority"
+  | "normal_priority"
+  | "low_priority"
+  | "search_index"
+  | "media"
+  | "podcast_media";
   count: number;
   url: string;
 }
@@ -512,7 +512,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   isFull?: boolean;
   /**
    * The URI associated with the storage location.
-   * @example "/var/azuracast/www"
+   * @example "/var/casterfmpro/www"
    */
   uri?: string;
   /** The stations using this storage location, if any. */
@@ -2365,7 +2365,7 @@ export type StorageLocation = HasAutoIncrementId & {
   adapter?: StorageLocationAdapters;
   /**
    * The local path, if the local adapter is used, or path prefix for S3/remote adapters.
-   * @example "/var/azuracast/stations/azuratest_radio/media"
+   * @example "/var/casterfmpro/stations/casterfmtest_radio/media"
    */
   path?: string;
   /**
