@@ -336,7 +336,7 @@ export interface ApiAdminRelay {
   id?: number;
   /**
    * Station name
-   * @example "CasterfmTest Radio"
+   * @example "Caster.fm Radio"
    */
   name?: string | null;
   /**
@@ -346,12 +346,12 @@ export interface ApiAdminRelay {
   shortcode?: string | null;
   /**
    * Station description
-   * @example "A Casterfm station!"
+   * @example "A Caster.fm station!"
    */
   description?: string | null;
   /**
    * Station homepage URL
-   * @example "https://www.caster.fn/"
+   * @example "https://www.caster.fm/"
    */
   url?: string | null;
   /**
@@ -512,7 +512,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   isFull?: boolean;
   /**
    * The URI associated with the storage location.
-   * @example "/var/casterfm/www"
+   * @example "/var/azuracast/www"
    */
   uri?: string;
   /** The stations using this storage location, if any. */
@@ -934,7 +934,7 @@ export interface ApiNowPlayingStation {
   hls_is_default: boolean;
   /**
    * The full URL to listen to the HLS stream for the station.
-   * @example "https://example.com/hls/casterfmtest_radio/live.m3u8"
+   * @example "https://www.caster.fm/hls/casterfmtest_radio/live.m3u8"
    */
   hls_url: string | null;
   /**
@@ -1713,7 +1713,7 @@ export interface Settings {
    */
   base_url?: string | null;
   /**
-   * Caster.fm Instance Name
+   * Casterfm Instance Name
    * @example "My Casterfm Instance"
    */
   instance_name?: string | null;
@@ -1797,7 +1797,7 @@ export interface Settings {
    */
   last_fm_api_key?: string | null;
   /**
-   * Hide Branding on Public Pages
+   * Hide Casterfm Branding on Public Pages
    * @example "false"
    */
   hide_product_name?: boolean;
@@ -1959,7 +1959,7 @@ export type SftpUser = HasAutoIncrementId & {
 export type Station = HasAutoIncrementId & {
   /**
    * The full display name of the station.
-   * @example "CasterfmTest Radio"
+   * @example "Casterfm Radio"
    */
   name?: string;
   /**
@@ -2365,7 +2365,7 @@ export type StorageLocation = HasAutoIncrementId & {
   adapter?: StorageLocationAdapters;
   /**
    * The local path, if the local adapter is used, or path prefix for S3/remote adapters.
-   * @example "/var/castrfm/stations/casterfmtest_radio/media"
+   * @example "/var/azuracast/stations/azuratest_radio/media"
    */
   path?: string;
   /**

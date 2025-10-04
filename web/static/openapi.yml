@@ -5,8 +5,8 @@ info:
   version: 0.23.1
 servers:
   -
-    url: 'https://demo.caster.fm/api'
-    description: 'Caster.fm Public Demo Server'
+    url: 'https://prodemo.caster.fm/api'
+    description: 'Caster.fm Pro Public Demo Server'
 paths:
   '/admin/acme-log/{path}':
     get:
@@ -738,7 +738,7 @@ paths:
     get:
       tags:
         - 'Administration: General'
-      summary: 'Return a list of all currently active relay instances.'
+      summary: 'Return a list of all currently active AzuraRelay instances.'
       operationId: adminGetRelays
       responses:
         '200':
@@ -6405,7 +6405,7 @@ components:
         name:
           description: 'Station name'
           type: string
-          example: 'CasterfmTest Radio'
+          example: 'Caster.fm Radio'
           nullable: true
         shortcode:
           description: 'Station "short code", used for URL and folder paths'
@@ -6777,13 +6777,13 @@ components:
             uri:
               description: 'The URI associated with the storage location.'
               type: string
-              example: /var/casterfm/www
+              example: /var/azuracast/www
             stations:
               description: 'The stations using this storage location, if any.'
               type: array
               items:
                 type: string
-                example: 'CasterfmTest Radio'
+                example: 'AzuraTest Radio'
               nullable: true
           type: object
     Api_Admin_UpdateDetails:
@@ -7438,7 +7438,7 @@ components:
         hls_url:
           description: 'The full URL to listen to the HLS stream for the station.'
           type: string
-          example: 'https://example.com/hls/casterfmtest_radio/live.m3u8'
+          example: 'https://www.caster.fm/hls/casterfmtest_radio/live.m3u8'
           nullable: true
         hls_listeners:
           description: 'HLS Listeners'
@@ -8865,9 +8865,9 @@ components:
           example: 'https://your.casterfm.site'
           nullable: true
         instance_name:
-          description: 'Instance Name'
+          description: 'Casterfm Instance Name'
           type: string
-          example: 'My Instance'
+          example: 'My Casterfm Instance'
           nullable: true
         prefer_browser_url:
           description: 'Prefer Browser URL (If Available)'
@@ -8949,7 +8949,7 @@ components:
           example: SAMPLE-API-KEY
           nullable: true
         hide_product_name:
-          description: 'Hide Branding on Public Pages'
+          description: 'Hide Casterfm Branding on Public Pages'
           type: boolean
           example: 'false'
         public_custom_css:
@@ -9118,7 +9118,7 @@ components:
             name:
               description: 'The full display name of the station.'
               type: string
-              example: 'CasterfmTest Radio'
+              example: 'Casterfm Radio'
             short_name:
               description: 'The URL-friendly name for the station, typically auto-generated from the full station name.'
               type: string
@@ -9749,7 +9749,7 @@ components:
             path:
               description: 'The local path, if the local adapter is used, or path prefix for S3/remote adapters.'
               type: string
-              example: /var/casterfm/stations/casterfmtest_radio/media
+              example: /var/azuracast/stations/azuratest_radio/media
             s3CredentialKey:
               description: 'The credential key for S3 adapters.'
               type: string
