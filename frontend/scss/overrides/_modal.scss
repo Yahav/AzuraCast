@@ -1,14 +1,63 @@
 @use "sass:math";
 
 .modal-content {
-  box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 45%), 0px 0px 10px 5px rgb(239 239 239 / 12%);
+  border-radius: calc(var(--bs-modal-inner-border-radius) + 10px);
+
+  .card {
+    box-shadow: none !important;
+    .card-header{
+      background-color: transparent !important;
+      color: rgb(26 26 26 / 87%)!important;
+    }
+  }
+}
+
+.modal-header {
+  margin-bottom:10px;
+  //background-color: #212121 !important;
+  border-bottom: 4px solid #3874ff;
+  .modal-title {
+    //color:#fff;
+    color: rgba(0, 0, 0, .87);
+  }
+  .btn-close {
+    //color:#fff;
+    //--bs-btn-close-color: #fff!important;
+    //--bs-btn-close-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+  }
+}
+
+.modal-footer {
+  border-top: 4px solid #3874ff;
 }
 
 .modal-body {
   nav.nav-tabs {
-    background: var(--bs-tertiary-bg);
+    background: #fff;
 
-    margin: (0-$modal-inner-padding) (0-$modal-inner-padding) 0 (0-$modal-inner-padding);
-    padding: math.div($modal-inner-padding, 2) $modal-inner-padding 0 $modal-inner-padding;
+    margin: (0-$card-spacer-y) (0-$card-spacer-x) 0 (0-$card-spacer-x);
+    padding: $card-spacer-y 1.25rem 0 1.25rem;
+    box-shadow: unset !important;
+    border-bottom: 1px solid #d0d0d0;
+
+    .nav-link
+    {
+      border: 0;
+      background: transparent;
+      color: #757575;
+      padding: 1.0625rem .85rem;
+      transition-duration: .3s;
+      transition-property: background-color, color, opacity;
+      transition-timing-function: cubic-bezier(.4,0,.2,1);
+      font-weight: 500;
+      line-height: 1;
+      min-height: 3rem;
+      text-transform: uppercase;
+      &.active {
+        color: #2c2c2c;
+        border-bottom:3px solid $primary;
+      }
+    }
   }
 }

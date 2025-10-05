@@ -40,6 +40,10 @@ final class SetupCommand extends CommandAbstract
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        foreach ($this->environment->toArray() as $key => $value) {
+            putenv("$key=$value");
+        }
+
         $io = new SymfonyStyle($input, $output);
 
         $update = (bool)$input->getOption('update');

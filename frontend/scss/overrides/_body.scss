@@ -10,6 +10,10 @@ body.page-full {
   }
 }
 
+a {
+  font-weight: 500;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
   background: var(--bs-body-bg);

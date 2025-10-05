@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Controller;
+use App\Enums\GlobalPermissions;
 use App\Middleware;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -19,6 +20,7 @@ return static function (RouteCollectorProxy $group) {
                     $group->put('/me', Controller\Api\Frontend\Account\PutMeAction::class);
 
                     $group->put('/password', Controller\Api\Frontend\Account\PutPasswordAction::class)
+                        ->add(new Middleware\Permissions(GlobalPermissions::All))
                         ->setName('api:frontend:account:password');
 
                     $group->get('/two-factor', Controller\Api\Frontend\Account\GetTwoFactorAction::class)

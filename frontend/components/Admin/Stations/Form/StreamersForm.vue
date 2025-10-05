@@ -25,7 +25,7 @@
                         class="col-md-12"
                         :field="r$.backend_config.record_streams"
                         :label="$gettext('Record Live Broadcasts')"
-                        :description="$gettext('If enabled, AzuraCast will automatically record any live broadcasts made to this station to per-broadcast recordings.')"
+                        :description="$gettext('If enabled, We will automatically record any live broadcasts made to this station to per-broadcast recordings.')"
                     />
                 </div>
                 <div
@@ -79,6 +79,7 @@
                     </form-group-field>
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_dj_port"
                         class="col-md-6"
                         :field="r$.backend_config.dj_port"
@@ -109,6 +110,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_dj_mount_point"
                         class="col-md-6"
                         :field="r$.backend_config.dj_mount_point"
@@ -140,10 +142,13 @@ import {computed} from "vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import Tab from "~/components/Common/Tab.vue";
 import BitrateOptions from "~/components/Common/BitrateOptions.vue";
-import {BackendAdapters, StreamFormats} from "~/entities/ApiInterfaces.ts";
+import {BackendAdapters, StreamFormats, GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 import {storeToRefs} from "pinia";
 import {useAdminStationsForm} from "~/components/Admin/Stations/Form/form.ts";
 import {useFormTabClass} from "~/functions/useFormTabClass.ts";
+import {userAllowed} from "~/acl.ts";
+
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {r$, form} = storeToRefs(useAdminStationsForm());
 

@@ -1,11 +1,12 @@
-import {useTranslate} from "~/vendor/gettext.ts";
-import {filterMenu, MenuCategory, RawMenuCategory} from "~/functions/filterMenu.ts";
-import {userAllowedForStation} from "~/acl.ts";
-import {shallowRef, watch} from "vue";
-import {StationPermissions} from "~/entities/ApiInterfaces.ts";
-import {useStationData} from "~/functions/useStationQuery.ts";
+import { useTranslate } from "~/vendor/gettext.ts";
+import { filterMenu, MenuCategory, RawMenuCategory } from "~/functions/filterMenu.ts";
+import { userAllowedForStation, userAllowed } from "~/acl.ts";
+import { shallowRef, watch } from "vue";
+import { StationPermissions, GlobalPermissions } from "~/entities/ApiInterfaces.ts";
+import { useStationData, useStationId } from "~/functions/useStationQuery.ts";
+import IconIcHome from "~icons/ic/baseline-home";
+import IconIcSettings from "~icons/ic/baseline-settings";
 import IconIcCode from "~icons/ic/baseline-code";
-import IconIcImage from "~icons/ic/baseline-image";
 import IconIcLibraryMusic from "~icons/ic/baseline-library-music";
 import IconIcAssignment from "~icons/ic/baseline-assignment";
 import IconIcMic from "~icons/ic/baseline-mic";
@@ -16,30 +17,39 @@ import IconIcInsertChart from "~icons/ic/baseline-insert-chart";
 import IconBiBroadcast from "~icons/bi/broadcast";
 
 export function useStationsMenu() {
-    const {$gettext} = useTranslate();
+    const { $gettext } = useTranslate();
 
     const station = useStationData();
+    const stationId = useStationId();
+
+    const isAdministrator = userAllowed(GlobalPermissions.All);
+
+    // Helper function to check station permissions without injection
+    const checkStationPermission = (permission: StationPermissions): boolean => {
+        return userAllowedForStation(permission, stationId.value);
+    };
 
     const fullMenu: RawMenuCategory[] = [
         {
+            key: 'dashboard',
+            label: $gettext('Overview'),
+            icon: () => IconIcHome,
+            url: {
+                name: 'stations:index'
+            }
+        },
+        {
             key: 'profile',
-            label: $gettext('Profile'),
-            icon: () => IconIcImage,
+            label: $gettext('Settings'),
+            icon: () => IconIcSettings,
             items: [
                 {
-                    key: 'view_profile',
-                    label: $gettext('View Profile'),
-                    url: {
-                        name: 'stations:index'
-                    }
-                },
-                {
                     key: 'edit_profile',
-                    label: $gettext('Edit Profile'),
+                    label: $gettext('Station Settings'),
                     url: {
                         name: 'stations:profile:edit'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Profile)
+                    visible: () => checkStationPermission(StationPermissions.Profile)
                 },
                 {
                     key: 'branding',
@@ -47,7 +57,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:branding'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Profile)
+                    visible: () => checkStationPermission(StationPermissions.Profile)
                 }
             ]
         },
@@ -71,7 +81,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:files:index'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Media)
+                    visible: () => checkStationPermission(StationPermissions.Media)
                 },
                 {
                     key: 'duplicate_songs',
@@ -82,7 +92,7 @@ export function useStationsMenu() {
                             path: 'special:duplicates'
                         }
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Media)
+                    visible: () => checkStationPermission(StationPermissions.Media)
                 },
                 {
                     key: 'unprocessable',
@@ -93,7 +103,7 @@ export function useStationsMenu() {
                             path: 'special:unprocessable'
                         }
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Media)
+                    visible: () => checkStationPermission(StationPermissions.Media)
                 },
                 {
                     key: 'unassigned',
@@ -104,7 +114,7 @@ export function useStationsMenu() {
                             path: 'special:unassigned'
                         }
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Media)
+                    visible: () => checkStationPermission(StationPermissions.Media)
                 },
                 {
                     key: 'ondemand',
@@ -119,7 +129,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:sftp_users:index'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Media)
+                    visible: () => checkStationPermission(StationPermissions.Media)
                         && station.value.features.sftp,
                 },
                 {
@@ -128,7 +138,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:bulk-media'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Media)
+                    visible: () => checkStationPermission(StationPermissions.Media)
                 }
             ]
         },
@@ -139,7 +149,7 @@ export function useStationsMenu() {
             url: {
                 name: 'stations:playlists:index'
             },
-            visible: () => userAllowedForStation(StationPermissions.Media)
+            visible: () => checkStationPermission(StationPermissions.Media)
                 && station.value.features.media,
         },
         {
@@ -149,14 +159,14 @@ export function useStationsMenu() {
             url: {
                 name: 'stations:podcasts:index'
             },
-            visible: () => userAllowedForStation(StationPermissions.Podcasts)
+            visible: () => checkStationPermission(StationPermissions.Podcasts)
                 && station.value.features.podcasts,
         },
         {
             key: 'streaming',
             label: $gettext('Live Streaming'),
             icon: () => IconIcMic,
-            visible: () => userAllowedForStation(StationPermissions.Streamers)
+            visible: () => checkStationPermission(StationPermissions.Streamers)
                 && station.value.features.streamers,
             items: [
                 {
@@ -165,7 +175,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:streamers:index',
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Streamers)
+                    visible: () => checkStationPermission(StationPermissions.Streamers)
                 },
                 {
                     key: 'webdj',
@@ -183,14 +193,14 @@ export function useStationsMenu() {
             url: {
                 name: 'stations:webhooks:index'
             },
-            visible: () => userAllowedForStation(StationPermissions.WebHooks)
+            visible: () => checkStationPermission(StationPermissions.WebHooks)
                 && station.value.features.webhooks,
         },
         {
             key: 'reports',
             label: $gettext('Reports'),
             icon: () => IconIcInsertChart,
-            visible: () => userAllowedForStation(StationPermissions.Reports),
+            visible: () => checkStationPermission(StationPermissions.Reports),
             items: [
                 {
                     key: 'reports_overview',
@@ -212,7 +222,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:reports:requests'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Broadcasting)
+                    visible: () => checkStationPermission(StationPermissions.Broadcasting)
                         && station.value.enableRequests
                 },
                 {
@@ -242,7 +252,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:mounts:index',
                     },
-                    visible: () => userAllowedForStation(StationPermissions.MountPoints)
+                    visible: () => checkStationPermission(StationPermissions.MountPoints)
                         && station.value.features.mountPoints
                 },
                 {
@@ -251,7 +261,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:hls_streams:index',
                     },
-                    visible: () => userAllowedForStation(StationPermissions.MountPoints)
+                    visible: () => checkStationPermission(StationPermissions.MountPoints)
                         && station.value.features.hlsStreams
                 },
                 {
@@ -260,7 +270,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:remotes:index',
                     },
-                    visible: () => userAllowedForStation(StationPermissions.RemoteRelays)
+                    visible: () => checkStationPermission(StationPermissions.RemoteRelays)
                         && station.value.features.remoteRelays
                 },
                 {
@@ -269,7 +279,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:fallback'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Broadcasting)
+                    visible: () => checkStationPermission(StationPermissions.Broadcasting)
                         && station.value.features.media
                 },
                 {
@@ -278,8 +288,9 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:util:ls_config'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Broadcasting)
+                    visible: () => checkStationPermission(StationPermissions.Broadcasting)
                         && station.value.features.customLiquidsoapConfig
+                        && isAdministrator
                 },
                 {
                     key: 'stereo_tool',
@@ -287,8 +298,9 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:stereo_tool_config'
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Broadcasting)
+                    visible: () => checkStationPermission(StationPermissions.Broadcasting)
                         && station.value.features.media
+                        && isAdministrator
                 },
                 {
                     key: 'queue',
@@ -296,7 +308,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:queue:index',
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Broadcasting)
+                    visible: () => checkStationPermission(StationPermissions.Broadcasting)
                         && station.value.features.autoDjQueue
                 },
                 {
@@ -305,7 +317,7 @@ export function useStationsMenu() {
                     url: {
                         name: 'stations:restart:index',
                     },
-                    visible: () => userAllowedForStation(StationPermissions.Broadcasting)
+                    visible: () => checkStationPermission(StationPermissions.Broadcasting)
                 }
             ]
         },
@@ -316,7 +328,7 @@ export function useStationsMenu() {
             url: {
                 name: 'stations:logs'
             },
-            visible: () => userAllowedForStation(StationPermissions.Logs)
+            visible: () => checkStationPermission(StationPermissions.Logs)
         }
     ];
 

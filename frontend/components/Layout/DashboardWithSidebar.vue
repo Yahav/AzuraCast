@@ -10,6 +10,7 @@
 
     <div id="page-wrapper" class="has-sidebar">
         <main id="main">
+            <div id="station-alerts-wrapper" />
             <div class="container" id="content">
                 <slot/>
             </div>
@@ -21,7 +22,8 @@
 
 <script setup lang="ts">
 import PanelFooter from "~/components/Common/PanelFooter.vue";
-import {onMounted, onUnmounted} from "vue";
+import {inject, onMounted, onUnmounted} from "vue";
+
 
 onMounted(() => {
     document.body.classList.add('has-sidebar');
