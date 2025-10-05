@@ -27,12 +27,12 @@
         <template v-if="userAllowedForStation(StationPermissions.Broadcasting)">
             <div
                 v-if="!hasStarted"
-                class="alert alert-success mx-3 mt-3"
+                class="alert alert-success mx-3 mt-3 p-0"
                 role="alert"
             >
                 <router-link
                     :to="{name: 'stations:restart:index'}"
-                    class="text-decoration-none alert-link"
+                    class="text-decoration-none alert-link d-block p-3"
                 >
                     <span class="fw-bold">{{ $gettext('Start Station') }}</span><br>
                     <small>
@@ -42,12 +42,12 @@
             </div>
             <div
                 v-else-if="needsRestart"
-                class="alert alert-warning mx-3 mt-3"
+                class="alert alert-warning mx-3 mt-3 p-0"
                 role="alert"
             >
                 <router-link
                     :to="{name: 'stations:restart:index'}"
-                    class="text-decoration-none alert-link"
+                    class="text-decoration-none alert-link d-block p-3"
                 >
                     <span class="fw-bold">{{ $gettext('Reload to Apply Changes') }}</span><br>
                     <small>
