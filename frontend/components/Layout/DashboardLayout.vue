@@ -137,7 +137,6 @@ import {useUserAllowed} from "~/functions/useUserAllowed.ts";
 import logo from '~/caster_logo.svg';
 
 const {
-    instanceName,
     logoutUrl
 } = useAzuraCastDashboardGlobals();
 

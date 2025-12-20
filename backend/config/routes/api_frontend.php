@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Controller;
-use App\Middleware;
 use App\Enums\GlobalPermissions;
+use App\Middleware;
 use Slim\Routing\RouteCollectorProxy;
 
 return static function (RouteCollectorProxy $group) {
