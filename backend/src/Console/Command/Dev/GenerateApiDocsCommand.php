@@ -55,10 +55,10 @@ final class GenerateApiDocsCommand extends CommandAbstract
 
     public function generate(
         ?string $version = null,
-        string $apiBaseUrl = 'https://demo.azuracast.com/api'
+        string $apiBaseUrl = 'https://prodemo.caster.fm/api'
     ): ?OpenApi {
         define('AZURACAST_API_URL', $apiBaseUrl);
-        define('AZURACAST_API_NAME', 'AzuraCast Public Demo Server');
+        define('AZURACAST_API_NAME', 'Caster.fm Pro Public Demo Server');
         define('AZURACAST_VERSION', $version ?? Version::STABLE_VERSION);
 
         $srcDir = $this->environment->getBackendDirectory() . '/src';

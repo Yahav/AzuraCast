@@ -23,8 +23,11 @@
             class="navbar-brand ms-0 me-auto"
             :to="{ name: 'dashboard' }"
         >
-            azura<strong>cast</strong>
-            <small v-if="instanceName">{{ instanceName }}</small>
+            <img
+                :src="logo"
+                alt="Caster.fm"
+                style="height:40px;"
+            >
         </router-link>
 
         <div id="radio-player-controls">
@@ -44,7 +47,7 @@
                 data-bs-toggle="dropdown"
                 type="button"
             >
-                <icon-ic-menu-open class="lg"/>
+                <icon-ic-menu-open class="xl"/>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
@@ -80,33 +83,13 @@
                         {{ $gettext('My Account') }}
                     </router-link>
                 </li>
-                <li>
-                    <a
-                        class="dropdown-item theme-switcher"
-                        href="#"
-                        @click.prevent="toggleTheme"
-                    >
-                        <icon-ic-invert-colors/>
-                        {{ $gettext('Switch Theme') }}
-                    </a>
-                </li>
                 <li class="dropdown-divider">
                     &nbsp;
                 </li>
                 <li>
                     <a
                         class="dropdown-item"
-                        href="/docs/"
-                        target="_blank"
-                    >
-                        <icon-ic-support/>
-                        {{ $gettext('Documentation') }}
-                    </a>
-                </li>
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="/docs/help/troubleshooting/"
+                        href="https://www.caster.fm/help/pro-plan/"
                         target="_blank"
                     >
                         <icon-ic-help/>
@@ -138,7 +121,6 @@
 
 <script setup lang="ts">
 import {useTemplateRef} from "vue";
-import {useTheme} from "~/functions/theme.ts";
 import {useAzuraCastDashboardGlobals, useAzuraCastUser} from "~/vendor/azuracast.ts";
 import {useProvideLightbox} from "~/vendor/lightbox.ts";
 import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
@@ -148,12 +130,11 @@ import IconIcAccountCircle from "~icons/ic/baseline-account-circle";
 import IconIcExitToApp from "~icons/ic/baseline-exit-to-app";
 import IconIcHelp from "~icons/ic/baseline-help";
 import IconIcHome from "~icons/ic/baseline-home";
-import IconIcInvertColors from "~icons/ic/baseline-invert-colors";
 import IconIcMenu from "~icons/ic/baseline-menu";
 import IconIcMenuOpen from "~icons/ic/baseline-menu-open";
 import IconIcSettings from "~icons/ic/baseline-settings";
-import IconIcSupport from "~icons/ic/baseline-support";
 import {useUserAllowed} from "~/functions/useUserAllowed.ts";
+import logo from '~/caster_logo.svg';
 
 const {
     instanceName,
@@ -164,8 +145,6 @@ const {displayName} = useAzuraCastUser();
 
 const {userAllowed} = useUserAllowed();
 const showAdmin = userAllowed(GlobalPermissions.View);
-
-const {toggleTheme} = useTheme();
 
 const $lightbox = useTemplateRef('$lightbox');
 useProvideLightbox($lightbox);

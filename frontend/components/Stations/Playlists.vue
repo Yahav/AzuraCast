@@ -45,7 +45,7 @@
                             detailed
                         >
                             <template #cell(name)="row">
-                                <h5 class="m-0">
+                                <h5 class="m-0 mb-2">
                                     {{ row.item.name }}
                                 </h5>
                                 <p v-if="row.item.description" class="text-muted mb-1">
@@ -141,7 +141,7 @@
                                             }
                                         }"
                                     >
-                                        {{ row.item.num_songs }}
+                                        {{ row.item.num_songs }} {{ $gettext('Tracks') }}
                                     </router-link>
 
                                     ({{ formatLength(row.item.total_length) }})

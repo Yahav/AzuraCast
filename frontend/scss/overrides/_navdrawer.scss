@@ -1,6 +1,7 @@
 .offcanvas.navdrawer {
   width: $navdrawer-width;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, .14), 0 3px 4px 0 rgba(0, 0, 0, .12), 0 1px 5px 0 rgba(0, 0, 0, .2);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);
+  background: #ffffff;
 }
 
 @include media-breakpoint-up(lg) {
@@ -34,7 +35,7 @@
 
 .navdrawer-header {
   display: block;
-  border-bottom: 1px solid rgba(0, 0, 0, .2);
+  border-bottom: 2px solid rgba(0, 0, 0, .2);
   padding: $navdrawer-inner-spacer-y $navdrawer-inner-spacer-x;
 
   background-color: var(--bs-secondary-bg);
@@ -96,17 +97,19 @@
     align-items: center;
     width: 100%;
 
-    font-size: 1rem;
+    font-size: 15px;
     font-weight: 500;
 
     line-height: 1;
-    padding: .75rem 1rem;
+    padding: .85rem 1rem;
 
-    color: var(--bs-body-color);
+    color: rgb(33 33 33);
 
     & > .navdrawer-nav-icon {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       margin-right: .75rem;
+      fill: #4775ff;
+      color: #385dbb;
     }
 
     &:focus {
@@ -115,11 +118,13 @@
 
     &.active,
     &:active {
-      color: var(--bs-primary);
+      background-color: var(--bs-secondary-bg);
+      color: #212121;
     }
 
     &:hover {
       background-color: var(--bs-secondary-bg);
+      color: #212121;
     }
 
     &.disabled {

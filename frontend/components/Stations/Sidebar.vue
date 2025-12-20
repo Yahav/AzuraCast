@@ -15,35 +15,6 @@
         </router-link>
     </div>
 
-    <template v-if="userAllowedForStation(StationPermissions.Broadcasting)">
-        <div
-            v-if="!hasStarted"
-            class="navdrawer-alert bg-success-subtle text-success-emphasis"
-        >
-            <router-link
-                :to="{name: 'stations:restart:index'}"
-            >
-                <span class="fw-bold">{{ $gettext('Start Station') }}</span><br>
-                <small>
-                    {{ $gettext('Ready to start broadcasting? Click to start your station.') }}
-                </small>
-            </router-link>
-        </div>
-        <div
-            v-else-if="needsRestart"
-            class="navdrawer-alert bg-warning-subtle text-warning-emphasis"
-        >
-            <router-link
-                :to="{name: 'stations:restart:index'}"
-            >
-                <span class="fw-bold">{{ $gettext('Reload to Apply Changes') }}</span><br>
-                <small>
-                    {{ $gettext('Your station has changes that require a reload to apply.') }}
-                </small>
-            </router-link>
-        </div>
-    </template>
-
     <div class="offcanvas-body">
         <sidebar-menu :menu="menuItems" />
     </div>
@@ -56,15 +27,12 @@ import {toRefs, useIntervalFn} from "@vueuse/core";
 import {useStationsMenu} from "~/components/Stations/menu";
 import useStationDateTimeFormatter from "~/functions/useStationDateTimeFormatter.ts";
 import {useLuxon} from "~/vendor/luxon.ts";
-import {StationPermissions} from "~/entities/ApiInterfaces.ts";
 import {useStationData} from "~/functions/useStationQuery.ts";
-import {useUserAllowedForStation} from "~/functions/useUserallowedForStation.ts";
 
 const menuItems = useStationsMenu();
-const {userAllowedForStation} = useUserAllowedForStation();
 
 const stationData = useStationData();
-const {name, hasStarted, needsRestart, timezone} = toRefs(stationData);
+const {name, timezone} = toRefs(stationData);
 
 const {DateTime} = useLuxon();
 const {now, formatDateTimeAsTime} = useStationDateTimeFormatter(timezone);

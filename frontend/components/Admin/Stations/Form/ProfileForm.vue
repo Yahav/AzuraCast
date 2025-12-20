@@ -38,7 +38,7 @@
                 :field="r$.url"
                 input-type="url"
                 :label="$gettext('Web Site URL')"
-                :description="$gettext('Note: This should be the public-facing homepage of the radio station, not the AzuraCast URL. It will be included in broadcast details.')"
+                :description="$gettext('Note: This should be the public-facing homepage of the radio station, not the URL of this panel. It will be included in broadcast details.')"
             />
 
             <div class="col-md-6">
@@ -53,6 +53,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_short_name"
                         class="col-md-12"
                         :field="r$.short_name"
@@ -70,6 +71,7 @@
             </div>
 
             <form-group-field
+                v-if="isAdministrator"
                 id="edit_form_api_history_items"
                 class="col-md-6"
                 :field="r$.api_history_items"
@@ -151,6 +153,11 @@ import RadioWithCustomNumber from "~/components/Common/RadioWithCustomNumber.vue
 import {storeToRefs} from "pinia";
 import {useFormTabClass} from "~/functions/useFormTabClass.ts";
 import {useAdminStationsForm} from "~/components/Admin/Stations/Form/form.ts";
+import {useUserAllowed} from "~/functions/useUserAllowed.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+
+const {userAllowed} = useUserAllowed();
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 defineProps<{
     timezones: Record<string, string>,

@@ -361,22 +361,22 @@ export interface ApiAdminRelay {
   id?: number;
   /**
    * Station name
-   * @example "AzuraTest Radio"
+   * @example "Caster.fm Radio"
    */
   name?: string | null;
   /**
    * Station "short code", used for URL and folder paths
-   * @example "azuratest_radio"
+   * @example "casterfmtest_radio"
    */
   shortcode?: string | null;
   /**
    * Station description
-   * @example "An AzuraCast station!"
+   * @example "A Caster.fm station!"
    */
   description?: string | null;
   /**
    * Station homepage URL
-   * @example "https://www.azuracast.com/"
+   * @example "https://www.caster.fm/"
    */
   url?: string | null;
   /**
@@ -537,7 +537,7 @@ export type ApiAdminStorageLocation = HasLinks & {
   isFull?: boolean;
   /**
    * The URI associated with the storage location.
-   * @example "/var/azuracast/www"
+   * @example "/var/casterfm/www"
    */
   uri?: string;
   /** The stations using this storage location, if any. */
@@ -667,7 +667,7 @@ export interface ApiError {
    */
   formatted_message: string | null;
   /** Stack traces and other supplemental data. */
-  extra_data: any[];
+  extra_data: mixed[];
   /**
    * Used for API calls that expect an \Entity\Api\Status type response.
    * @example false
@@ -892,17 +892,17 @@ export interface ApiNowPlayingStation {
   id: number;
   /**
    * Station name
-   * @example "AzuraTest Radio"
+   * @example "Casterfm Radio"
    */
   name: string;
   /**
    * Station "short code", used for URL and folder paths
-   * @example "azuratest_radio"
+   * @example "casterfmtest_radio"
    */
   shortcode: string;
   /**
    * Station description
-   * @example "An AzuraCast station!"
+   * @example "A Caster.fm station!"
    */
   description: string;
   /**
@@ -969,7 +969,7 @@ export interface ApiNowPlayingStation {
   hls_is_default: boolean;
   /**
    * The full URL to listen to the HLS stream for the station.
-   * @example "https://example.com/hls/azuratest_radio/live.m3u8"
+   * @example "https://caster.fm/hls/casterfmtest_radio/live.m3u8"
    */
   hls_url: string | null;
   /**
@@ -1274,7 +1274,7 @@ export type ApiStationQueueDetailed = HasLinks & {
    */
   autodj_custom_uri?: string | null;
   /** Log entries on how the specific queue item was picked by the AutoDJ. */
-  log?: any[] | null;
+  log?: mixed[] | null;
 };
 
 export interface ApiStationQuota {
@@ -1829,12 +1829,12 @@ export interface Settings {
   app_unique_identifier?: string;
   /**
    * Site Base URL
-   * @example "https://your.azuracast.site"
+   * @example "https://your.casterfm.site"
    */
   base_url?: string | null;
   /**
-   * AzuraCast Instance Name
-   * @example "My AzuraCast Instance"
+   * Casterfm Instance Name
+   * @example "My Casterfm Instance"
    */
   instance_name?: string | null;
   /**
@@ -1917,7 +1917,7 @@ export interface Settings {
    */
   last_fm_api_key?: string | null;
   /**
-   * Hide AzuraCast Branding on Public Pages
+   * Hide Casterfm Branding on Public Pages
    * @example "false"
    */
   hide_product_name?: boolean;
@@ -2013,7 +2013,7 @@ export interface Settings {
   mail_enabled?: boolean;
   /**
    * The name of the sender of system e-mails.
-   * @example "AzuraCast"
+   * @example "Casterfm"
    */
   mail_sender_name?: string | null;
   /**
@@ -2079,12 +2079,12 @@ export type SftpUser = HasAutoIncrementId & {
 export type Station = HasAutoIncrementId & {
   /**
    * The full display name of the station.
-   * @example "AzuraTest Radio"
+   * @example "Casterfm Radio"
    */
   name?: string;
   /**
    * The URL-friendly name for the station, typically auto-generated from the full station name.
-   * @example "azuratest_radio"
+   * @example "casterfmtest_radio"
    */
   short_name?: string;
   /**
@@ -2098,11 +2098,11 @@ export type Station = HasAutoIncrementId & {
   backend_config?: StationBackendConfiguration;
   /** @example "A sample radio station." */
   description?: string | null;
-  /** @example "https://demo.azuracast.com/" */
+  /** @example "https://demo.caster.fm/" */
   url?: string | null;
   /** @example "Various" */
   genre?: string | null;
-  /** @example "/var/azuracast/stations/azuratest_radio" */
+  /** @example "/var/casterfm/stations/casterfmtest_radio" */
   radio_base_dir?: string;
   /**
    * Whether listeners can request songs to play on this station.
@@ -2435,7 +2435,7 @@ export type StationSchedule = HasAutoIncrementId & {
    * Array of ISO-8601 days (1 for Monday, 7 for Sunday)
    * @example "0,1,2,3"
    */
-  days?: int[];
+  days?: number[];
   /** @example false */
   loop_once?: boolean;
 };
@@ -2485,7 +2485,7 @@ export type StorageLocation = HasAutoIncrementId & {
   adapter?: StorageLocationAdapters;
   /**
    * The local path, if the local adapter is used, or path prefix for S3/remote adapters.
-   * @example "/var/azuracast/stations/azuratest_radio/media"
+   * @example "/var/casterfm/stations/casterfm_radio/media"
    */
   path?: string;
   /**
@@ -2595,7 +2595,7 @@ export interface HasUniqueId {
 }
 
 export type User = HasAutoIncrementId & {
-  /** @example "demo@azuracast.com" */
+  /** @example "demo@caster.fm" */
   email?: string;
   /** @example "" */
   auth_password?: string;

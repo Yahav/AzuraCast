@@ -12,6 +12,7 @@
                 </div>
                 <div class="flex-shrink-0">
                     <button
+                        v-if="isAdministrator"
                         type="button"
                         class="btn btn-dark"
                         @click="doChangePassword"
@@ -148,6 +149,11 @@ import IconIcLock from "~icons/ic/baseline-lock";
 import IconIcLockOpen from "~icons/ic/baseline-lock-open";
 import IconIcVpnKey from "~icons/ic/baseline-vpn-key";
 import {useApiRouter} from "~/functions/useApiRouter.ts";
+import {useUserAllowed} from "~/functions/useUserAllowed.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+
+const {userAllowed} = useUserAllowed();
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const {axios} = useAxios();
 

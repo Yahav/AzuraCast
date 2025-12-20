@@ -1,15 +1,12 @@
 openapi: 3.0.0
 info:
-  title: AzuraCast
-  description: 'AzuraCast is a standalone, turnkey web radio management tool. Radio stations hosted by AzuraCast expose a public API for viewing now playing data, making requests and more.'
-  license:
-    name: 'GNU Affero General Public License v3.0 or later'
-    url: 'https://www.gnu.org/licenses/agpl-3.0.txt'
+  title: 'Caster.fm Pro'
+  description: 'Using this API enable viewing now playing data, making requests and more.'
   version: 0.23.2
 servers:
   -
-    url: 'https://demo.azuracast.com/api'
-    description: 'AzuraCast Public Demo Server'
+    url: 'https://prodemo.caster.fm/api'
+    description: 'Caster.fm Pro Public Demo Server'
 paths:
   '/admin/acme-log/{path}':
     get:
@@ -832,7 +829,7 @@ paths:
     get:
       tags:
         - 'Administration: General'
-      summary: 'Return a list of all currently active AzuraRelay instances.'
+      summary: 'Return a list of all currently active Relay instances.'
       operationId: adminGetRelays
       responses:
         '200':
@@ -6572,22 +6569,22 @@ components:
         name:
           description: 'Station name'
           type: string
-          example: 'AzuraTest Radio'
+          example: 'Caster.fm Radio'
           nullable: true
         shortcode:
           description: 'Station "short code", used for URL and folder paths'
           type: string
-          example: azuratest_radio
+          example: casterfmtest_radio
           nullable: true
         description:
           description: 'Station description'
           type: string
-          example: 'An AzuraCast station!'
+          example: 'A Caster.fm station!'
           nullable: true
         url:
           description: 'Station homepage URL'
           type: string
-          example: 'https://www.azuracast.com/'
+          example: 'https://www.caster.fm/'
           nullable: true
         genre:
           description: 'The genre of the station'
@@ -6944,13 +6941,13 @@ components:
             uri:
               description: 'The URI associated with the storage location.'
               type: string
-              example: /var/azuracast/www
+              example: /var/casterfmpro/www
             stations:
               description: 'The stations using this storage location, if any.'
               type: array
               items:
                 type: string
-                example: 'AzuraTest Radio'
+                example: 'CasterfmTest Radio'
               nullable: true
           type: object
     Api_Admin_UpdateDetails:
@@ -7556,15 +7553,15 @@ components:
         name:
           description: 'Station name'
           type: string
-          example: 'AzuraTest Radio'
+          example: 'CasterfmTest Radio'
         shortcode:
           description: 'Station "short code", used for URL and folder paths'
           type: string
-          example: azuratest_radio
+          example: casterfmtest_radio
         description:
           description: 'Station description'
           type: string
-          example: 'An AzuraCast station!'
+          example: 'A Caster.fm station!'
         frontend:
           description: 'Which broadcasting software (frontend) the station uses'
           type: string
@@ -7625,7 +7622,7 @@ components:
         hls_url:
           description: 'The full URL to listen to the HLS stream for the station.'
           type: string
-          example: 'https://example.com/hls/azuratest_radio/live.m3u8'
+          example: 'https://www.caster.fm/hls/casterfmtest_radio/live.m3u8'
           nullable: true
         hls_listeners:
           description: 'HLS Listeners'
@@ -9120,12 +9117,12 @@ components:
         base_url:
           description: 'Site Base URL'
           type: string
-          example: 'https://your.azuracast.site'
+          example: 'https://your.casterfm.site'
           nullable: true
         instance_name:
-          description: 'AzuraCast Instance Name'
+          description: 'Casterfm Instance Name'
           type: string
-          example: 'My AzuraCast Instance'
+          example: 'My Casterfm Instance'
           nullable: true
         prefer_browser_url:
           description: 'Prefer Browser URL (If Available)'
@@ -9207,7 +9204,7 @@ components:
           example: SAMPLE-API-KEY
           nullable: true
         hide_product_name:
-          description: 'Hide AzuraCast Branding on Public Pages'
+          description: 'Hide Casterfm  Branding on Public Pages'
           type: boolean
           example: 'false'
         public_custom_css:
@@ -9294,7 +9291,7 @@ components:
         mail_sender_name:
           description: 'The name of the sender of system e-mails.'
           type: string
-          example: AzuraCast
+          example: Casterfm
           nullable: true
         mail_sender_email:
           description: 'The e-mail address of the sender of system e-mails.'
@@ -9376,11 +9373,11 @@ components:
             name:
               description: 'The full display name of the station.'
               type: string
-              example: 'AzuraTest Radio'
+              example: 'Casterfm Radio'
             short_name:
               description: 'The URL-friendly name for the station, typically auto-generated from the full station name.'
               type: string
-              example: azuratest_radio
+              example: casterfmtest_radio
             is_enabled:
               description: "If set to 'false', prevents the station from broadcasting but leaves it in the database."
               type: boolean
@@ -9399,7 +9396,7 @@ components:
               nullable: true
             url:
               type: string
-              example: 'https://demo.azuracast.com/'
+              example: 'https://demo.caster.fm/'
               nullable: true
             genre:
               type: string
@@ -9407,7 +9404,7 @@ components:
               nullable: true
             radio_base_dir:
               type: string
-              example: /var/azuracast/stations/azuratest_radio
+              example: /var/casterfm/stations/casterfmtest_radio
             enable_requests:
               description: 'Whether listeners can request songs to play on this station.'
               type: boolean
@@ -10007,7 +10004,7 @@ components:
             path:
               description: 'The local path, if the local adapter is used, or path prefix for S3/remote adapters.'
               type: string
-              example: /var/azuracast/stations/azuratest_radio/media
+              example: /var/casterfmpro/stations/casterfmtest_radio/media
             s3CredentialKey:
               description: 'The credential key for S3 adapters.'
               type: string
@@ -10155,7 +10152,7 @@ components:
           properties:
             email:
               type: string
-              example: demo@azuracast.com
+              example: demo@caster.fm
             auth_password:
               type: string
               example: ''
@@ -10609,9 +10606,7 @@ tags:
     name: 'My Account'
   -
     name: Miscellaneous
-externalDocs:
-  description: 'AzuraCast on GitHub'
-  url: 'https://github.com/AzuraCast/AzuraCast'
+
 x-tagGroups:
   -
     name: 'Public Endpoints'
