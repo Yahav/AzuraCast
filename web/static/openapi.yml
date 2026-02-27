@@ -71,6 +71,30 @@ paths:
           $ref: '#/components/responses/AccessDenied'
         '500':
           $ref: '#/components/responses/GenericError'
+    post:
+      tags:
+        - 'Administration: General'
+      summary: 'Create a new API key for a specified user.'
+      operationId: adminCreateApiKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Api_Admin_NewApiKey'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - { $ref: '#/components/schemas/Api_Account_NewApiKey' }
+                  - { $ref: '#/components/schemas/ApiKey' }
+                  - { $ref: '#/components/schemas/HasLinks' }
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '500':
+          $ref: '#/components/responses/GenericError'
   '/admin/api-key/{id}':
     delete:
       tags:
@@ -6487,6 +6511,22 @@ components:
           items:
             $ref: '#/components/schemas/Api_Admin_StationLogList'
       type: object
+    Api_Admin_NewApiKey:
+      required:
+        - user
+      properties:
+        user:
+          description: 'User ID or e-mail address.'
+          anyOf:
+            -
+              type: integer
+              format: int64
+            -
+              type: string
+        comment:
+          type: string
+          example: 'Admin-generated API key'
+      type: object
     Api_Admin_NewLoginToken:
       required:
         - user
@@ -7165,7 +7205,7 @@ components:
           description: 'Stack traces and other supplemental data.'
           type: array
           items:
-            type: mixed
+            type: any
         success:
           description: 'Used for API calls that expect an \Entity\Api\Status type response.'
           type: boolean
@@ -7353,6 +7393,31 @@ components:
             tail:
               type: boolean
               readOnly: true
+          type: object
+    Api_MediaBatchResult:
+      required:
+        - files
+        - directories
+        - responseRecord
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/Api_BatchResult'
+        -
+          properties:
+            files:
+              type: array
+              items:
+                type: string
+            directories:
+              type: array
+              items:
+                type: string
+            responseRecord:
+              type: array
+              items:
+                type: any
+              nullable: true
           type: object
     Api_Notification:
       required:
@@ -8040,6 +8105,10 @@ components:
           description: 'The song title.'
           type: string
           example: 'Aluko River'
+        last_played:
+          description: 'The UNIX timestamp when this specific track was last played.'
+          type: integer
+          nullable: true
       type: object
     Api_StationProfile:
       required:
@@ -8078,7 +8147,7 @@ components:
               description: 'Log entries on how the specific queue item was picked by the AutoDJ.'
               type: array
               items:
-                type: mixed
+                type: any
               nullable: true
           type: object
     Api_StationQuota:

@@ -777,6 +777,12 @@ export type ApiLogType = HasLinks & {
   readonly tail: boolean;
 };
 
+export type ApiMediaBatchResult = ApiBatchResult & {
+  files: string[];
+  directories: string[];
+  responseRecord: any[] | null;
+};
+
 export interface ApiNotification {
   id: string;
   title: string;
