@@ -23,13 +23,13 @@ final class StorageLocation
 
     #[OA\Property(
         description: 'The URI associated with the storage location.',
-        example: '/var/azuracast/www'
+        example: '/var/casterfm/www'
     )]
     public string $uri;
 
     #[OA\Property(
         description: 'The stations using this storage location, if any.',
-        items: new OA\Items(type: 'string', example: 'AzuraTest Radio')
+        items: new OA\Items(type: 'string', example: 'CasterPro Radio')
     )]
     public ?array $stations = [];
 }

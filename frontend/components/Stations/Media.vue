@@ -148,7 +148,7 @@
                     </div>
 
                     <album-art
-                        v-if="item.media?.art"
+                        v-if="item.type === FileTypes.Media && item.media?.art"
                         :src="item.media.art"
                         class="flex-shrink-1 ps-2"
                     />

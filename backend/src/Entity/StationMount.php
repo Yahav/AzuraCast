@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Entity\Api\ResolvableUrl;
+use App\Entity\Interfaces\EntityGroupsInterface;
 use App\Radio\Backend\Liquidsoap\EncodableInterface;
 use App\Radio\Backend\Liquidsoap\EncodingFormat;
 use App\Radio\Backend\Liquidsoap\OutputtableInterface;
@@ -18,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\UriInterface;
 use Stringable;
+use Symfony\Component\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -184,7 +186,8 @@ final class StationMount implements
 
     #[
         OA\Property(example: "https://custom-listen-url.example.com/stream.mp3"),
-        ORM\Column(length: 255, nullable: true)
+        ORM\Column(length: 255, nullable: true),
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     public ?string $custom_listen_url = null {
         set => $this->truncateNullableString($value);
@@ -203,7 +206,8 @@ final class StationMount implements
 
     #[
         OA\Property,
-        ORM\Column(type: 'text', nullable: true)
+        ORM\Column(type: 'text', nullable: true),
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL])
     ]
     public ?string $frontend_config = null;
 

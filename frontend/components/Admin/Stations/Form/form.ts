@@ -31,6 +31,7 @@ export type StationRecord = Omit<
     podcasts_storage_location: string | number,
 }
 
+// @TODO: Check if non admin can send admin fields
 export const useAdminStationsForm = defineStore(
     'form-admin-stations',
     () => {

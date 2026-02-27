@@ -1,10 +1,11 @@
 import {useTranslate} from "~/vendor/gettext.ts";
 import {filterMenu, MenuCategory, RawMenuCategory} from "~/functions/filterMenu.ts";
 import {shallowRef, watch} from "vue";
-import {StationPermissions} from "~/entities/ApiInterfaces.ts";
+import {StationPermissions, GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 import {useStationData} from "~/functions/useStationQuery.ts";
 import IconIcCode from "~icons/ic/baseline-code";
-import IconIcImage from "~icons/ic/baseline-image";
+import IconIcHome from "~icons/ic/baseline-home";
+import IconIcSettings from "~icons/ic/baseline-settings";
 import IconIcLibraryMusic from "~icons/ic/baseline-library-music";
 import IconIcAssignment from "~icons/ic/baseline-assignment";
 import IconIcMic from "~icons/ic/baseline-mic";
@@ -12,29 +13,31 @@ import IconIcQueueMusic from "~icons/ic/baseline-queue-music";
 import IconIcPodcasts from "~icons/ic/baseline-podcasts";
 import IconIcPublic from "~icons/ic/baseline-public";
 import IconIcInsertChart from "~icons/ic/baseline-insert-chart";
-import IconIcSettingsApplication from "~icons/ic/baseline-settings-applications";
 import IconBiBroadcast from "~icons/bi/broadcast";
 import {useUserAllowedForStation} from "~/functions/useUserallowedForStation.ts";
+import {useUserAllowed} from "~/functions/useUserAllowed.ts";
 
 export function useStationsMenu() {
     const {$gettext} = useTranslate();
 
     const station = useStationData();
     const {userAllowedForStation} = useUserAllowedForStation();
+    const {userAllowed} = useUserAllowed();
+    const isAdministrator = userAllowed(GlobalPermissions.All);
 
     const fullMenu: RawMenuCategory[] = [
         {
             key: 'profile',
             label: $gettext('Overview'),
-            icon: () => IconIcImage,
+            icon: () => IconIcHome,
             url: {
                 name: 'stations:index'
             }
         },
         {
             key: 'edit_profile',
-            label: $gettext('Edit Station Settings'),
-            icon: () => IconIcSettingsApplication,
+            label: $gettext('Station Settings'),
+            icon: () => IconIcSettings,
             url: {
                 name: 'stations:settings:index'
             },
@@ -304,6 +307,7 @@ export function useStationsMenu() {
                     },
                     visible: () => userAllowedForStation(StationPermissions.Broadcasting)
                         && station.value.features.customLiquidsoapConfig
+                        && isAdministrator
                 },
                 {
                     key: 'stereo_tool',
@@ -313,6 +317,7 @@ export function useStationsMenu() {
                     },
                     visible: () => userAllowedForStation(StationPermissions.Broadcasting)
                         && station.value.features.media
+                        && isAdministrator
                 },
                 {
                     key: 'queue',
@@ -341,6 +346,7 @@ export function useStationsMenu() {
                 name: 'stations:logs'
             },
             visible: () => userAllowedForStation(StationPermissions.Logs)
+                && isAdministrator
         }
     ];
 

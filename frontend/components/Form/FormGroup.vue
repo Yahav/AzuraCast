@@ -1,11 +1,11 @@
 <template>
     <div
-        class="form-group"
         v-bind="$attrs"
     >
         <label
             v-if="slots.label"
             :for="id"
+            class="form-label"
         >
             <slot name="label" />
         </label>
