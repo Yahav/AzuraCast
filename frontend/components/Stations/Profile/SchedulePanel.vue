@@ -16,10 +16,10 @@
                             <h5 class="m-0">
                                 <small>
                                     <template v-if="row.type === 'playlist'">
-                                        {{ $gettext('Playlist') }}
+                                        <small class="badge rounded-pill me-2 text-bg-info">{{ $gettext('Playlist') }}</small>
                                     </template>
                                     <template v-else>
-                                        {{ $gettext('Streamer/DJ') }}
+                                        <small class="badge rounded-pill me-2 text-bg-danger">{{ $gettext('Streamer/DJ') }}</small>
                                     </template>
                                 </small><br>
                                 {{ row.name }}

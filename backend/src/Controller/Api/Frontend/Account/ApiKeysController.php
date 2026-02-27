@@ -128,9 +128,13 @@ final class ApiKeysController extends AbstractApiCrudController
     ): ResponseInterface {
         $query = $this->em->createQuery(
             <<<'DQL'
-            SELECT e FROM App\Entity\ApiKey e WHERE e.user = :user
+            SELECT e FROM App\Entity\ApiKey e 
+            WHERE e.user = :user 
+            AND e.comment NOT LIKE :adminGenerated
         DQL
-        )->setParameter('user', $request->getUser());
+        )
+            ->setParameter('user', $request->getUser())
+            ->setParameter('adminGenerated', '%Admin-generated%');
 
         return $this->listPaginatedFromQuery($request, $response, $query);
     }
@@ -172,6 +176,12 @@ final class ApiKeysController extends AbstractApiCrudController
             'id' => $id,
             'user' => $request->getUser(),
         ]);
+        
+        // Prevent access to admin-generated API keys
+        if ($record !== null && str_contains($record->comment, 'Admin-generated')) {
+            return null;
+        }
+        
         return $record;
     }
 

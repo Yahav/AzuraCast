@@ -21,25 +21,25 @@ final class Relay
 
     #[OA\Property(
         description: 'Station name',
-        example: 'AzuraTest Radio'
+        example: 'Caster.fm Radio'
     )]
     public ?string $name = null;
 
     #[OA\Property(
         description: 'Station "short code", used for URL and folder paths',
-        example: 'azuratest_radio'
+        example: 'casterfmtest_radio'
     )]
     public ?string $shortcode = null;
 
     #[OA\Property(
         description: 'Station description',
-        example: 'An AzuraCast station!'
+        example: 'A Caster.fm station!'
     )]
     public ?string $description;
 
     #[OA\Property(
         description: 'Station homepage URL',
-        example: 'https://www.azuracast.com/'
+        example: 'https://www.caster.fm/'
     )]
     public ?string $url;
 

@@ -54,7 +54,7 @@ class StorageLocation implements Stringable, IdentifiableEntityInterface
         ORM\Column(length: 255, nullable: false),
         OA\Property(
             description: 'The local path, if the local adapter is used, or path prefix for S3/remote adapters.',
-            example: '/var/azuracast/stations/azuratest_radio/media'
+            example: '/var/casterfm/stations/casterfm_radio/media'
         )
     ]
     public string $path = '' {

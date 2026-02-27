@@ -62,25 +62,27 @@
                     </span>
                 </template>
 
-                <div class="row g-3 mb-3">
-                    <form-group-field
-                        id="edit_form_frontend_port"
-                        class="col-md-6"
-                        :field="r$.frontend_config.port"
-                        input-type="number"
-                        :input-attrs="{min: '0'}"
-                        :label="$gettext('Customize Broadcasting Port')"
-                        :description="$gettext('No other program can be using this port. Leave blank to automatically assign a port.')"
-                    />
+                <template v-if="isAdministrator">
+                    <div class="row g-3 mb-3">
+                        <form-group-field
+                            id="edit_form_frontend_port"
+                            class="col-md-6"
+                            :field="r$.frontend_config.port"
+                            input-type="number"
+                            :input-attrs="{min: '0'}"
+                            :label="$gettext('Customize Broadcasting Port')"
+                            :description="$gettext('No other program can be using this port. Leave blank to automatically assign a port.')"
+                        />
 
-                    <form-group-field
-                        id="edit_form_max_listeners"
-                        class="col-md-6"
-                        :field="r$.frontend_config.max_listeners"
-                        :label="$gettext('Maximum Listeners')"
-                        :description="$gettext('Maximum number of total listeners across all streams. Leave blank to use the default.')"
-                    />
-                </div>
+                        <form-group-field
+                            id="edit_form_max_listeners"
+                            class="col-md-6"
+                            :field="r$.frontend_config.max_listeners"
+                            :label="$gettext('Maximum Listeners')"
+                            :description="$gettext('Maximum number of total listeners across all streams. Leave blank to use the default.')"
+                        />
+                    </div>
+                </template>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-5">
@@ -135,7 +137,7 @@
                 </div>
             </form-fieldset>
 
-            <form-fieldset>
+            <form-fieldset v-if="isAdministrator">
                 <template #label>
                     {{ $gettext('Custom Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -174,10 +176,14 @@ import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
 import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
 import Tab from "~/components/Common/Tab.vue";
 import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
-import {FrontendAdapters} from "~/entities/ApiInterfaces.ts";
+import {FrontendAdapters, GlobalPermissions} from "~/entities/ApiInterfaces.ts";
 import {storeToRefs} from "pinia";
 import {useAdminStationsForm} from "~/components/Admin/Stations/Form/form.ts";
+import {useUserAllowed} from "~/functions/useUserAllowed.ts";
 import {useFormTabClass} from "~/functions/useFormTabClass.ts";
+
+const {userAllowed} = useUserAllowed();
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const props = defineProps<{
     isRsasInstalled: boolean,

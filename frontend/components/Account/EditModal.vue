@@ -19,6 +19,7 @@
                 />
 
                 <form-group-field
+                    v-if="isAdministrator"
                     id="form_email"
                     class="mb-3"
                     tabindex="2"
@@ -63,6 +64,11 @@ import TimeRadios from "~/components/Account/TimeRadios.vue";
 import {useTranslate} from "~/vendor/gettext.ts";
 import {objectToSimpleFormOptions} from "~/functions/objectToFormOptions.ts";
 import {useApiRouter} from "~/functions/useApiRouter.ts";
+import {useUserAllowed} from "~/functions/useUserAllowed.ts";
+import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+
+const {userAllowed} = useUserAllowed();
+const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const props = defineProps<{
     supportedLocales: Record<string, string>
@@ -79,29 +85,26 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 type AccountRow = {
-    name: string | null,
-    email: string | null,
-    locale: string | null,
-    show_24_hour_time: boolean | null
-}
+    name: string | null;
+    locale: string | null;
+    show_24_hour_time: boolean | null;
+    email?: string | null;            // <-- optional
+};
 
-const form = ref<AccountRow>({
-    name: '',
-    email: '',
-    locale: 'default',
-    show_24_hour_time: false,
-});
-
-const {r$} = useAppRegle(
-    form,
-    {
-        name: {},
-        email: {required, email},
-        locale: {required},
-        show_24_hour_time: {}
-    },
-    {}
+const form = ref<AccountRow>(
+    isAdministrator
+        ? { name: '', locale: 'default', show_24_hour_time: false, email: '' }
+        : { name: '', locale: 'default', show_24_hour_time: false }
 );
+
+const rules = {
+    name: {},
+    locale: { required },
+    show_24_hour_time: {},
+    ...(isAdministrator ? { email: { required, email } } : {}),
+};
+
+const { r$ } = useAppRegle(form, rules, {});
 
 const clearContents = () => {
     r$.$reset({

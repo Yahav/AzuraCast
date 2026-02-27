@@ -22,19 +22,19 @@ final class Station
 
     #[OA\Property(
         description: 'Station name',
-        example: 'AzuraTest Radio'
+        example: 'Casterfm Radio'
     )]
     public string $name;
 
     #[OA\Property(
         description: 'Station "short code", used for URL and folder paths',
-        example: 'azuratest_radio'
+        example: 'casterfmtest_radio'
     )]
     public string $shortcode = '';
 
     #[OA\Property(
         description: 'Station description',
-        example: 'An AzuraCast station!'
+        example: 'A Caster.fm station!'
     )]
     public string $description = '';
 
@@ -125,7 +125,7 @@ final class Station
     #[OA\Property(
         description: 'The full URL to listen to the HLS stream for the station.',
         type: 'string',
-        example: 'https://example.com/hls/azuratest_radio/live.m3u8',
+        example: 'https://caster.fm/hls/casterfmtest_radio/live.m3u8',
         nullable: true
     )]
     public ?ResolvableUrl $hls_url = null;
