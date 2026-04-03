@@ -10,7 +10,6 @@
 <script setup lang="ts">
 import {onMounted, shallowRef, useTemplateRef, watch} from "vue";
 import {Control, Icon, Map, map, tileLayer} from "leaflet";
-import {useTheme} from "~/functions/theme.ts";
 import "leaflet-fullscreen";
 import {useTranslate} from "~/vendor/gettext.ts";
 import {storeToRefs} from "pinia";
@@ -28,7 +27,6 @@ const $container = useTemplateRef('$container');
 
 const $map = shallowRef<Map | null>(null);
 
-const {currentTheme} = storeToRefs(useTheme());
 const {$gettext} = useTranslate();
 
 onMounted(() => {
@@ -54,11 +52,7 @@ onMounted(() => {
 
     // Add tile layer
     const addTileLayer = () => {
-        if (!currentTheme.value) {
-            return;
-        }
-
-        const tileUrl = `https://cartodb-basemaps-{s}.global.ssl.fastly.net/${currentTheme.value}_all/{z}/{x}/{y}.png`;
+        const tileUrl = `https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png`;
         const tileAttribution = 'Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.';
 
         tileLayer(tileUrl, {
@@ -68,10 +62,6 @@ onMounted(() => {
     };
 
     addTileLayer();
-
-    watch(currentTheme, () => {
-        addTileLayer();
-    });
 });
 </script>
 
