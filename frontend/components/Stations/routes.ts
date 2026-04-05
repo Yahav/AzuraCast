@@ -131,6 +131,11 @@ export default function useStationsRoutes(): RouteRecordRaw[] {
                     name: 'stations:settings:index'
                 },
                 {
+                    path: 'radio-website-cms',
+                    component: () => import('~/components/Stations/RadioWebsiteCms.vue'),
+                    name: 'stations:radio-website-cms'
+                },
+                {
                     path: 'sftp_users',
                     component: () => import('~/components/Stations/SftpUsers.vue'),
                     name: 'stations:sftp_users:index'

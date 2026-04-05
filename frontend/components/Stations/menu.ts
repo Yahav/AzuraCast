@@ -12,6 +12,7 @@ import IconIcMic from "~icons/ic/baseline-mic";
 import IconIcQueueMusic from "~icons/ic/baseline-queue-music";
 import IconIcPodcasts from "~icons/ic/baseline-podcasts";
 import IconIcPublic from "~icons/ic/baseline-public";
+import IconIcLanguage from "~icons/ic/baseline-language";
 import IconIcInsertChart from "~icons/ic/baseline-insert-chart";
 import IconBiBroadcast from "~icons/bi/broadcast";
 import {useUserAllowedForStation} from "~/functions/useUserallowedForStation.ts";
@@ -40,6 +41,15 @@ export function useStationsMenu() {
             icon: () => IconIcSettings,
             url: {
                 name: 'stations:settings:index'
+            },
+            visible: () => userAllowedForStation(StationPermissions.Profile)
+        },
+        {
+            key: 'radio_website_cms',
+            label: $gettext('Radio Website CMS'),
+            icon: () => IconIcLanguage,
+            url: {
+                name: 'stations:radio-website-cms'
             },
             visible: () => userAllowedForStation(StationPermissions.Profile)
         },

@@ -74,6 +74,11 @@ return static function (RouteCollectorProxy $group) {
                         '/passkey/{id}',
                         Controller\Api\Frontend\Account\PasskeysController::class . ':deleteAction'
                     );
+
+                    $group->post(
+                        '/radio-website-cms',
+                        Controller\Api\Frontend\Account\RadioWebsiteCmsAction::class
+                    )->setName('api:frontend:account:radio-website-cms');
                 }
             );
 
