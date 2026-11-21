@@ -83,7 +83,11 @@ final class ListenerRepository extends Repository
     {
         $query = $this->em->createQuery(
             <<<'DQL'
-                SELECT l
+                SELECT
+                    l,
+                    IDENTITY(l.mount) AS mount_id,
+                    IDENTITY(l.remote) AS remote_id,
+                    IDENTITY(l.hls_stream) AS hls_stream_id
                 FROM App\Entity\Listener l
                 WHERE l.station = :station
                 AND l.timestamp_end IS NULL
@@ -91,7 +95,16 @@ final class ListenerRepository extends Repository
             DQL
         )->setParameter('station', $station);
 
-        return $query->toIterable([], $query::HYDRATE_ARRAY);
+        // Virtual *_id properties are not included in result of array hydration
+        // need to explicitly select them and merge back into listener row
+        foreach ($query->toIterable([], $query::HYDRATE_ARRAY) as $row) {
+            yield [
+                ...$row[0],
+                'mount_id' => $row['mount_id'],
+                'remote_id' => $row['remote_id'],
+                'hls_stream_id' => $row['hls_stream_id'],
+            ];
+        }
     }
 
     /**
@@ -149,7 +162,7 @@ final class ListenerRepository extends Repository
         $tempCsvPath = File::generateTempPath('mariadb_listeners.csv');
         new Filesystem()->chmod($tempCsvPath, 0o777);
 
-        $csv = Writer::createFromPath($tempCsvPath);
+        $csv = Writer::from($tempCsvPath);
         $csv->setEscape('');
         $csv->addFormatter(function ($row) {
             return array_map(function ($col) {
@@ -193,7 +206,7 @@ final class ListenerRepository extends Repository
         $csvLoadQuery = sprintf(
             <<<'SQL'
                 LOAD DATA LOCAL INFILE %s IGNORE
-                INTO TABLE %s 
+                INTO TABLE %s
                 FIELDS TERMINATED BY ','
                 OPTIONALLY ENCLOSED BY '"'
                 LINES TERMINATED BY '\n'
@@ -226,7 +239,7 @@ final class ListenerRepository extends Repository
             'station_id' => $station->id,
             'timestamp_start' => $now,
             'listener_uid' => (int)$client->uid,
-            'listener_user_agent' => $this->truncateString($client->userAgent ?? ''),
+            'listener_user_agent' => $this->truncateString($client->userAgent),
             'listener_ip' => $client->ip,
             'listener_hash' => Listener::calculateListenerHash($client),
             'mount_id' => null,

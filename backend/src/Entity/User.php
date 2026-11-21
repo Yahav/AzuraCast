@@ -10,6 +10,7 @@ use App\Entity\Interfaces\IdentifiableEntityInterface;
 use App\OpenApi;
 use App\Validator\Constraints\UniqueEntity;
 use Azura\Normalizer\Attributes\DeepNormalize;
+use Carbon\FactoryImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -184,6 +185,14 @@ class User implements Stringable, IdentifiableEntityInterface
     ]
     public private(set) Collection $login_tokens;
 
+    /** @var Collection<int, Relay> */
+    #[
+        ORM\OneToMany(targetEntity: Relay::class, mappedBy: 'creator'),
+        Serializer\Groups([EntityGroupsInterface::GROUP_ADMIN, EntityGroupsInterface::GROUP_ALL]),
+        DeepNormalize(true)
+    ]
+    public private(set) Collection $relays;
+
     public function __construct()
     {
         $this->created_at = time();
@@ -193,6 +202,7 @@ class User implements Stringable, IdentifiableEntityInterface
         $this->api_keys = new ArrayCollection();
         $this->passkeys = new ArrayCollection();
         $this->login_tokens = new ArrayCollection();
+        $this->relays = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -220,7 +230,8 @@ class User implements Stringable, IdentifiableEntityInterface
             return false;
         }
 
-        return Factory::loadFromProvisioningUri($this->two_factor_secret)->verify($otp, null, Auth::TOTP_WINDOW);
+        return Factory::loadFromProvisioningUri($this->two_factor_secret, new FactoryImmutable())
+            ->verify($otp, null, Auth::TOTP_WINDOW);
     }
 
     public function __clone(): void

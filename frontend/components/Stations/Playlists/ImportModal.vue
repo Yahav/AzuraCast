@@ -4,6 +4,7 @@
         ref="$modal"
         :title="$gettext('Import from PLS/M3U')"
         size="lg"
+        :busy="loading"
         @hidden="onHidden"
     >
         <div v-if="results">
@@ -82,12 +83,14 @@
             <button
                 type="button"
                 class="btn btn-secondary"
+                :disabled="loading"
                 @click="hide"
             >
                 {{ $gettext('Close') }}
             </button>
             <button
                 v-if="!results"
+                :disabled="playlistFile === null || loading"
                 class="btn btn-primary"
                 type="submit"
                 @click="doSubmit"
@@ -99,49 +102,51 @@
 </template>
 
 <script setup lang="ts">
+import { ref, useTemplateRef } from "vue";
 import InvisibleSubmitButton from "~/components/Common/InvisibleSubmitButton.vue";
-import {ref, useTemplateRef} from "vue";
-import {useNotify} from "~/components/Common/Toasts/useNotify.ts";
-import {useAxios} from "~/vendor/axios";
-import FormGroup from "~/components/Form/FormGroup.vue";
 import Modal from "~/components/Common/Modal.vue";
+import { useNotify } from "~/components/Common/Toasts/useNotify.ts";
 import FormFile from "~/components/Form/FormFile.vue";
-import {useHasModal} from "~/functions/useHasModal.ts";
-import {HasRelistEmit} from "~/functions/useBaseEditModal.ts";
-import {ApiStatus} from "~/entities/ApiInterfaces.ts";
+import FormGroup from "~/components/Form/FormGroup.vue";
+import { ApiStatus } from "~/entities/ApiInterfaces.ts";
+import { HasRelistEmit } from "~/functions/useBaseEditModal.ts";
+import { useHasModal } from "~/functions/useHasModal.ts";
+import { useAxios } from "~/vendor/axios";
 
 type BatchImportResult = Required<ApiStatus> & {
     import_results: {
-        path: string,
-        match: string | null
-    }[]
-}
+        path: string;
+        match: string | null;
+    }[];
+};
 
 const emit = defineEmits<HasRelistEmit>();
 
 const importPlaylistUrl = ref<string | null>(null);
 const playlistFile = ref<File | null>(null);
 const overwritePlaylist = ref(false);
+const loading = ref<boolean>(false);
 
 const results = ref<BatchImportResult | null>(null);
 
 const uploaded = (file: File) => {
     playlistFile.value = file;
-}
+};
 
-const $modal = useTemplateRef('$modal');
-const {show, hide} = useHasModal($modal);
+const $modal = useTemplateRef("$modal");
+const { show, hide } = useHasModal($modal);
 
 const open = (newImportPlaylistUrl: string) => {
     playlistFile.value = null;
     overwritePlaylist.value = false;
+    loading.value = false;
 
     importPlaylistUrl.value = newImportPlaylistUrl;
     show();
 };
 
-const {notifySuccess, notifyError} = useNotify();
-const {axios} = useAxios();
+const { notifySuccess, notifyError } = useNotify();
+const { axios } = useAxios();
 
 const doSubmit = async () => {
     if (playlistFile.value === null || importPlaylistUrl.value === null) {
@@ -149,26 +154,35 @@ const doSubmit = async () => {
     }
 
     const formData = new FormData();
-    formData.append('playlist_file', playlistFile.value);
+    formData.append("playlist_file", playlistFile.value);
 
-    const {data} = await axios.post<BatchImportResult>(importPlaylistUrl.value, formData);
+    loading.value = true;
 
-    if (data.success) {
-        results.value = data;
+    try {
+        const { data } = await axios.post<BatchImportResult>(
+            importPlaylistUrl.value,
+            formData,
+        );
 
-        notifySuccess(data.message);
-    } else {
-        notifyError(data.message);
-        hide();
+        if (data.success) {
+            results.value = data;
+
+            notifySuccess(data.message);
+        } else {
+            notifyError(data.message);
+            hide();
+        }
+    } finally {
+        loading.value = false;
     }
 };
 
 const onHidden = () => {
-    emit('relist');
+    emit("relist");
     results.value = null;
 };
 
 defineExpose({
-    open
+    open,
 });
 </script>

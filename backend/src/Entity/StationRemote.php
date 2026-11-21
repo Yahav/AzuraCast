@@ -48,17 +48,17 @@ final class StationRemote implements
         $this->station = $station;
     }
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: false, insertable: false, updatable: false)]
-    public private(set) int $station_id;
+    public int $station_id {
+        get => $this->station->id;
+    }
 
     #[ORM\ManyToOne(inversedBy: 'remotes')]
     #[ORM\JoinColumn(name: 'relay_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     public ?Relay $relay = null;
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: true, insertable: false, updatable: false)]
-    public private(set) ?int $relay_id = null;
+    public ?int $relay_id {
+        get => $this->relay?->id;
+    }
 
     #[
         ORM\Column(length: 255, nullable: false),
@@ -79,7 +79,8 @@ final class StationRemote implements
 
             return Utilities\Strings::truncateUrl($this->url);
         }
-        set (string|null $value) => $this->truncateNullableString($value) ?? '';
+        // Prevent newlines (as they will appear in playlists and other places)
+        set (string|null $value) => $this->truncateString(str_replace(["\r", "\n"], '', $value ?? ''));
     }
 
     #[

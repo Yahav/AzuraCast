@@ -37,6 +37,7 @@ return static function (CallableEventDispatcherInterface $dispatcher) {
             $app->add(Middleware\EnforceSecurity::class);
 
             // Request injection middlewares.
+            $app->add(Middleware\InjectSettings::class);
             $app->add(Middleware\InjectRouter::class);
             $app->add(Middleware\InjectRateLimit::class);
 
@@ -67,6 +68,7 @@ return static function (CallableEventDispatcherInterface $dispatcher) {
             $e->addTasks([
                 App\Sync\Task\CheckFolderPlaylistsTask::class,
                 App\Sync\Task\CheckMediaTask::class,
+                App\Sync\Task\CheckPodcastMediaTask::class,
                 App\Sync\Task\CheckPodcastPlaylistsTask::class,
                 App\Sync\Task\CheckRequestsTask::class,
                 App\Sync\Task\CheckUpdatesTask::class,

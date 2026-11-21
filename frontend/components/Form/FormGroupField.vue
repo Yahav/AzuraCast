@@ -78,66 +78,85 @@
     </form-group>
 </template>
 
-<script setup lang="ts">
-import {computed, nextTick, onMounted, reactive, Reactive, useTemplateRef, WritableComputedRef} from "vue";
+<script setup lang="ts" generic="T extends string | number | null">
+import {
+    computed,
+    nextTick,
+    onMounted,
+    Reactive,
+    reactive,
+    useTemplateRef,
+    WritableComputedRef,
+} from "vue";
 import FormGroup from "~/components/Form/FormGroup.vue";
-import FormLabel, {FormLabelParentProps} from "~/components/Form/FormLabel.vue";
-import {FormFieldEmits, FormFieldProps, useFormField, ValidatedField} from "~/components/Form/useFormField";
+import FormLabel, {
+    FormLabelParentProps,
+} from "~/components/Form/FormLabel.vue";
+import {
+    FormFieldEmits,
+    FormFieldProps,
+    useFormField,
+    ValidatedField,
+} from "~/components/Form/useFormField";
 import ValidationError from "~/components/Form/ValidationError.vue";
 
-type T = string | number | null;
-
-type FormGroupFieldProps = FormFieldProps<T> & FormLabelParentProps & {
-    id: string,
-    name?: string,
-    label?: string,
-    description?: string,
-    inputType?: string,
-    inputNumber?: boolean,
-    inputTrim?: boolean,
-    inputEmptyIsNull?: boolean,
-    inputAttrs?: object,
-    autofocus?: boolean,
-    clearable?: boolean,
-}
+type FormGroupFieldProps = FormFieldProps<T> &
+    FormLabelParentProps & {
+        id: string;
+        name?: string;
+        label?: string;
+        description?: string;
+        inputType?: string;
+        inputNumber?: boolean;
+        inputTrim?: boolean;
+        inputEmptyIsNull?: boolean;
+        inputAttrs?: object;
+        autofocus?: boolean;
+        clearable?: boolean;
+    };
 
 interface FilteredModelObject {
-    $model: WritableComputedRef<T>
+    $model: WritableComputedRef<T>;
 }
 
-const props = withDefaults(
-    defineProps<FormGroupFieldProps>(),
-    {
-        inputType: 'text',
-        inputNumber: false,
-        inputTrim: false,
-        inputEmptyIsNull: false,
-        inputAttrs: () => ({}),
-        autofocus: false,
-        clearable: false
-    }
-);
+const props = withDefaults(defineProps<FormGroupFieldProps>(), {
+    inputType: "text",
+    inputNumber: false,
+    inputTrim: false,
+    inputEmptyIsNull: false,
+    inputAttrs: () => ({}),
+    autofocus: false,
+    clearable: false,
+});
 
 const slots = defineSlots<{
-    label?: () => any,
+    label?: () => any;
     default?: (props: {
-        id: string,
-        field?: ValidatedField<T>,
+        id: string;
+        field?: ValidatedField<T>;
         model: {
-            $model: T
-        },
-        inputAttrs?: object,
-        fieldClass: string | null
-    }) => any,
-    description?: () => any,
+            $model: T;
+        };
+        inputAttrs?: object;
+        fieldClass: string | null;
+    }) => any;
+    description?: () => any;
 }>();
 
 const emit = defineEmits<FormFieldEmits<T>>();
 
-const {model: parentModel, fieldClass, isRequired} = useFormField<T>(props, emit);
+const {
+    model: parentModel,
+    fieldClass,
+    isRequired,
+} = useFormField<T>(props, emit);
 
 const isNumeric = computed(() => {
-    return props.inputNumber || props.inputType === "number" || props.inputType === "range";
+    return (
+        props.inputNumber ||
+        props.inputType === "number" ||
+        props.inputType === "range"
+    );
 });
 
 const model = computed({
@@ -145,46 +164,50 @@ const model = computed({
         return parentModel.value;
     },
     set(newValue) {
-        if ((isNumeric.value || props.inputEmptyIsNull) && '' === newValue) {
+        if ((isNumeric.value || props.inputEmptyIsNull) && "" === newValue) {
+            // @ts-expect-error
             parentModel.value = null;
         } else {
             if (props.inputTrim && null !== newValue) {
-                newValue = String(newValue).replace(/^\s+|\s+$/gm, '');
+                // @ts-expect-error
+                newValue = String(newValue).replace(/^\s+|\s+$/gm, "");
             }
 
             if (isNumeric.value) {
+                // @ts-expect-error
                 newValue = Number(newValue);
             }
 
             parentModel.value = newValue;
         }
-    }
+    },
 });
 
 // Work around a Vue v-model limitation by passing model as an object to child slots.
 const modelObject: Reactive<FilteredModelObject> = reactive({
-    $model: model
+    $model: model,
 });
 
-const $input = useTemplateRef<HTMLInputElement | HTMLTextAreaElement>('$input');
+const $input = useTemplateRef<HTMLInputElement | HTMLTextAreaElement>("$input");
 
 const focus = () => {
     $input.value?.focus();
 };
 
 const clear = () => {
-    model.value = '';
-}
+    // @ts-expect-error
+    model.value = "";
+};
 
 onMounted(() => {
     if (props.autofocus) {
-        void nextTick(() => {
+        void nextTick().then(() => {
             focus();
         });
     }
-})
+});
 
 defineExpose({
-    focus
+    focus,
 });
 </script>

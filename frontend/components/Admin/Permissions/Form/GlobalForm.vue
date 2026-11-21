@@ -11,7 +11,7 @@
             <form-group-multi-check
                 id="edit_form_global_permissions"
                 class="col-md-12"
-                :field="r$.permissions.global"
+                :field="r$.permissions.global.$self"
                 :options="globalPermissions"
                 stacked
                 :label="$gettext('Global Permissions')"
@@ -22,32 +22,30 @@
 </template>
 
 <script setup lang="ts">
+import { required } from "@regle/rules";
+import { PermissionsRecord } from "~/components/Admin/Permissions/EditModal.vue";
+import Tab from "~/components/Common/Tab.vue";
 import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
-import Tab from "~/components/Common/Tab.vue";
-import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
-import {required} from "@regle/rules";
-import {useAppScopedRegle} from "~/vendor/regle.ts";
-import {PermissionsRecord} from "~/components/Admin/Permissions/EditModal.vue";
+import { SimpleFormOptionInput } from "~/functions/objectToFormOptions.ts";
+import { useAppScopedRegle } from "~/vendor/regle.ts";
 
 defineProps<{
-    globalPermissions: SimpleFormOptionInput,
+    globalPermissions: SimpleFormOptionInput;
 }>();
 
-const form = defineModel<PermissionsRecord>('form', {required: true});
+const form = defineModel<PermissionsRecord>("form", { required: true });
 
-const {r$} = useAppScopedRegle(
+const { r$ } = useAppScopedRegle(
     form,
     {
-        name: {required},
+        name: { required },
         permissions: {
-            global: {
-                $each: {}
-            }
-        }
+            global: {},
+        },
     },
     {
-        namespace: 'admin-permissions'
-    }
+        namespace: "admin-permissions",
+    },
 );
 </script>

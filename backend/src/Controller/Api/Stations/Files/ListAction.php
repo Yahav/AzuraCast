@@ -17,6 +17,7 @@ use App\Entity\Enums\FileTypes;
 use App\Entity\Station;
 use App\Entity\StationMedia;
 use App\Entity\StationPlaylist;
+use App\Flysystem\ExtendedFilesystemInterface;
 use App\Flysystem\StationFilesystems;
 use App\Http\Response;
 use App\Http\RouterInterface;
@@ -29,6 +30,7 @@ use App\Utilities\Types;
 use Doctrine\Common\Collections\Order;
 use Doctrine\ORM\QueryBuilder;
 use League\Flysystem\StorageAttributes;
+use League\Flysystem\UnableToRetrieveMetadata;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -176,11 +178,14 @@ final class ListAction implements SingleActionInterface
                         );
                     } elseif ('unassigned' === $special) {
                         $mediaQueryBuilder->andWhere(
-                            'sm.id NOT IN (SELECT spm2.media_id FROM App\Entity\StationPlaylistMedia spm2)'
-                        );
+                            'sm.id NOT IN (
+                                SELECT IDENTITY(spm2.media) FROM App\Entity\StationPlaylistMedia spm2
+                                JOIN spm2.playlist sp2 WHERE sp2.station = :station
+                            )'
+                        )->setParameter('station', $station);
                     } elseif (null !== $playlist) {
                         $mediaQueryBuilder->andWhere(
-                            'sm.id IN (SELECT spm2.media_id FROM App\Entity\StationPlaylistMedia spm2 '
+                            'sm.id IN (SELECT IDENTITY(spm2.media) FROM App\Entity\StationPlaylistMedia spm2 '
                             . 'WHERE spm2.playlist = :playlist)'
                         )->setParameter('playlist', $playlist);
                     }
@@ -245,9 +250,11 @@ final class ListAction implements SingleActionInterface
                 } else {
                     $isDir = false;
 
+                    $media = $mediaInDir[$file] ?? null;
+
                     $row->path = $file;
-                    $row->timestamp = $fs->lastModified($file);
-                    $row->size = $fs->fileSize($row->path);
+                    $row->timestamp = $this->getFileTimestamp($fs, $file, $media);
+                    $row->size = $this->getFileSize($fs, $file, $media);
                 }
 
                 $shortname = ($isSearch)
@@ -422,6 +429,7 @@ final class ListAction implements SingleActionInterface
             'sm.unique_id',
             'sm.song_id',
             'sm.path',
+            'sm.size',
             'sm.artist',
             'sm.title',
             'sm.album',
@@ -438,6 +446,7 @@ final class ListAction implements SingleActionInterface
          *     unique_id: string,
          *     song_id: string,
          *     path: string,
+         *     size: int,
          *     artist: string | null,
          *     title: string | null,
          *     album: string | null,
@@ -472,24 +481,28 @@ final class ListAction implements SingleActionInterface
         // Fetch playlists for all shown media.
         $allPlaylistsRaw = $this->em->createQuery(
             <<<'DQL'
-            SELECT spm, sp, spf
+            SELECT
+                IDENTITY(spm.media) AS media_id,
+                sp.id AS playlist_id,
+                sp.name AS playlist_name,
+                spf.path AS folder_path
             FROM App\Entity\StationPlaylistMedia spm
             JOIN spm.playlist sp
             LEFT JOIN spm.folder spf
-            WHERE sp.station = :station AND IDENTITY(spm.media) IN (:ids) 
+            WHERE sp.station = :station AND IDENTITY(spm.media) IN (:ids)
             DQL
         )->setParameter('station', $station)
             ->setParameter('ids', $mediaIds)
-            ->getArrayResult();
+            ->getScalarResult();
 
         $allPlaylists = [];
         foreach ($allPlaylistsRaw as $row) {
             $allPlaylists[$row['media_id']] ??= [];
             $allPlaylists[$row['media_id']][] = new StationMediaPlaylist(
-                id: $row['playlist']['id'],
-                name: $row['playlist']['name'],
-                short_name: StationPlaylist::generateShortName($row['playlist']['name']),
-                folder: $row['folder']['path'] ?? null
+                id: (int) $row['playlist_id'],
+                name: $row['playlist_name'],
+                short_name: StationPlaylist::generateShortName($row['playlist_name']),
+                folder: $row['folder_path'] ?? null
             );
         }
 
@@ -506,6 +519,37 @@ final class ListAction implements SingleActionInterface
         }
 
         return $mediaInDir;
+    }
+
+    private function getFileTimestamp(
+        ExtendedFilesystemInterface $fs,
+        string $path,
+        ?ApiStationMedia $media
+    ): int {
+        try {
+            return $fs->lastModified($path);
+        } catch (UnableToRetrieveMetadata) {
+            return $media->mtime ?? 0;
+        }
+    }
+
+    /**
+     * @param ?ApiStationMedia $media Data from entity will be used if given
+     */
+    private function getFileSize(
+        ExtendedFilesystemInterface $fs,
+        string $path,
+        ?ApiStationMedia $media
+    ): ?int {
+        if ($media !== null) {
+            return $media->size;
+        }
+
+        try {
+            return $fs->fileSize($path);
+        } catch (UnableToRetrieveMetadata) {
+            return null;
+        }
     }
 
     private static function sortRows(

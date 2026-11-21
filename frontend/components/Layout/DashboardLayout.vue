@@ -120,12 +120,17 @@
 </template>
 
 <script setup lang="ts">
-import {useTemplateRef} from "vue";
-import {useAzuraCastDashboardGlobals, useAzuraCastUser} from "~/vendor/azuracast.ts";
-import {useProvideLightbox} from "~/vendor/lightbox.ts";
-import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
-import InlinePlayer from "~/components/InlinePlayer.vue";
+import { useTemplateRef } from "vue";
+import logo from "~/caster_logo.svg";
 import Lightbox from "~/components/Common/Lightbox.vue";
+import InlinePlayer from "~/components/InlinePlayer.vue";
+import { GlobalPermissions } from "~/entities/ApiInterfaces.ts";
+import { useUserAllowed } from "~/functions/useUserAllowed.ts";
+import {
+    useAzuraCastDashboardGlobals,
+    useAzuraCastUser,
+} from "~/vendor/azuracast.ts";
+import { useProvideLightbox } from "~/vendor/lightbox.ts";
 import IconIcAccountCircle from "~icons/ic/baseline-account-circle";
 import IconIcExitToApp from "~icons/ic/baseline-exit-to-app";
 import IconIcHelp from "~icons/ic/baseline-help";
@@ -133,18 +138,14 @@ import IconIcHome from "~icons/ic/baseline-home";
 import IconIcMenu from "~icons/ic/baseline-menu";
 import IconIcMenuOpen from "~icons/ic/baseline-menu-open";
 import IconIcSettings from "~icons/ic/baseline-settings";
-import {useUserAllowed} from "~/functions/useUserAllowed.ts";
-import logo from '~/caster_logo.svg';
 
-const {
-    logoutUrl
-} = useAzuraCastDashboardGlobals();
+const { logoutUrl } = useAzuraCastDashboardGlobals();
 
-const {displayName} = useAzuraCastUser();
+const { displayName } = useAzuraCastUser();
 
-const {userAllowed} = useUserAllowed();
+const { userAllowed } = useUserAllowed();
 const showAdmin = userAllowed(GlobalPermissions.View);
 
-const $lightbox = useTemplateRef('$lightbox');
+const $lightbox = useTemplateRef("$lightbox");
 useProvideLightbox($lightbox);
 </script>

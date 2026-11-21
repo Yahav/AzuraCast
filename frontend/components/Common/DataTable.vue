@@ -90,6 +90,22 @@
                                 </ul>
                             </div>
 
+                            <dropdown-menu
+                                v-if="filters.length > 0"
+                                class="btn-group"
+                                role="group"
+                                :items="filterMenuItems"
+                                :title="$gettext('Filter rows')"
+                            >
+                                <span class="position-relative d-inline-flex align-items-center">
+                                    <icon-ic-filter-alt/>
+                                    <span
+                                        v-if="activeFilterCount > 0"
+                                        class="datatable-filter-badge position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-primary"
+                                    >{{ activeFilterCount }}</span>
+                                </span>
+                            </dropdown-menu>
+
                             <div
                                 v-if="selectFields"
                                 class="dropdown btn-group"
@@ -291,54 +307,90 @@
 </template>
 
 <script setup lang="ts" generic="Row extends DataTableRow = DataTableRow">
-import {filter, forEach, get, isEmpty, some} from "es-toolkit/compat";
-import {computed, ref, shallowRef, toRaw, watch} from "vue";
-import {watchDebounced} from "@vueuse/core";
-import FormMultiCheck from "~/components/Form/FormMultiCheck.vue";
-import FormCheckbox from "~/components/Form/FormCheckbox.vue";
+import { watchDebounced } from "@vueuse/core";
+import { isString } from "es-toolkit";
+import { filter, forEach, get, isEmpty, some } from "es-toolkit/compat";
+import { type Component, computed, ref, shallowRef, toRaw, watch } from "vue";
+import DropdownMenu from "~/components/Common/DropdownMenu/DropdownMenu.vue";
+import {
+    MenuActionItem,
+    MenuCheckboxItem,
+    MenuItem,
+    MenuItemType,
+} from "~/components/Common/DropdownMenu/useDropdownMenu.ts";
 import Pagination from "~/components/Common/Pagination.vue";
-import useOptionalStorage from "~/functions/useOptionalStorage";
-import {SimpleFormOptionInput} from "~/functions/objectToFormOptions.ts";
+import FormCheckbox from "~/components/Form/FormCheckbox.vue";
+import FormMultiCheck from "~/components/Form/FormMultiCheck.vue";
+import { SimpleFormOptionInput } from "~/functions/objectToFormOptions.ts";
 import {
     DATATABLE_DEFAULT_CONTEXT,
     DataTableFilterContext,
+    DataTableFilterType,
+    DataTableFilterValue,
     DataTableItemProvider,
-    DataTableRow
+    DataTableRow,
 } from "~/functions/useHasDatatable.ts";
-import {isString} from "es-toolkit";
-import IconIcArrowDropUp from "~icons/ic/baseline-arrow-drop-up";
+import useOptionalStorage from "~/functions/useOptionalStorage";
+import { useTranslate } from "~/vendor/gettext";
 import IconIcArrowDropDown from "~icons/ic/baseline-arrow-drop-down";
+import IconIcArrowDropUp from "~icons/ic/baseline-arrow-drop-up";
+import IconIcClearAll from "~icons/ic/baseline-clear-all";
+import IconIcFilterAlt from "~icons/ic/baseline-filter-alt";
 import IconIcFilterList from "~icons/ic/baseline-filter-list";
 import IconIcRefresh from "~icons/ic/baseline-refresh";
 import IconIcSearch from "~icons/ic/baseline-search";
 
 export interface DataTableField<Row extends DataTableRow = DataTableRow> {
-    key: string,
-    label: string,
-    isRowHeader?: boolean,
-    sortable?: boolean,
-    selectable?: boolean,
-    visible?: boolean,
-    "class"?: string | Array<any>,
+    key: string;
+    label: string;
+    isRowHeader?: boolean;
+    sortable?: boolean;
+    selectable?: boolean;
+    visible?: boolean;
+    class?: string | Array<any>;
 
-    formatter?(value: any, key: string, row: Row): string,
+    formatter?(value: any, key: string, row: Row): string;
 
-    sorter?(row: Row): string
+    sorter?(row: Row): string;
 }
 
+export interface DataTableFilterOption {
+    value: string;
+    text: string;
+    icon?: () => Component;
+}
+
+export interface DataTableSelectFilter {
+    key: string;
+    label: string;
+    type: DataTableFilterType.Select;
+    options: DataTableFilterOption[];
+    multiple?: boolean;
+}
+
+export interface DataTableTextFilter {
+    key: string;
+    label: string;
+    type: DataTableFilterType.Text;
+    placeholder?: string;
+}
+
+export type DataTableFilter = DataTableSelectFilter | DataTableTextFilter;
+
 export interface DataTableProps<Row extends DataTableRow = DataTableRow> {
-    id?: string,
-    fields: DataTableField<Row>[],
-    provider: DataTableItemProvider<Row>, // The data provider for this table.
-    responsive?: boolean | string, // Make table responsive (boolean or CSS class for specific responsiveness width)
-    paginated?: boolean, // Enable pagination.
-    hideOnLoading?: boolean, // Replace the table contents with a loading animation when data is being retrieved.
-    showToolbar?: boolean, // Show the header "Toolbar" with search, refresh, per-page, etc.
-    pageOptions?: number[],
-    defaultPerPage?: number,
-    selectable?: boolean, // Allow selecting individual rows with checkboxes at the side of each row
-    detailed?: boolean, // Allow showing "Detail" panel for selected rows.
-    selectFields?: boolean, // Allow selecting which columns are visible.
+    id?: string;
+    fields: DataTableField<Row>[];
+    provider: DataTableItemProvider<Row>; // The data provider for this table.
+    responsive?: boolean | string; // Make table responsive (boolean or CSS class for specific responsiveness width)
+    paginated?: boolean; // Enable pagination.
+    hideOnLoading?: boolean; // Replace the table contents with a loading animation when data is being retrieved.
+    showToolbar?: boolean; // Show the header "Toolbar" with search, refresh, per-page, etc.
+    pageOptions?: number[];
+    defaultPerPage?: number;
+    selectable?: boolean; // Allow selecting individual rows with checkboxes at the side of each row
+    detailed?: boolean; // Allow showing "Detail" panel for selected rows.
+    selectFields?: boolean; // Allow selecting which columns are visible.
+    filters?: DataTableFilter[]; // Quick filters offered in the toolbar menu.
 }
 
 const props = withDefaults(defineProps<DataTableProps<Row>>(), {
@@ -350,28 +402,26 @@ const props = withDefaults(defineProps<DataTableProps<Row>>(), {
     defaultPerPage: DATATABLE_DEFAULT_CONTEXT.perPage,
     selectable: false,
     detailed: false,
-    selectFields: false
+    selectFields: false,
+    filters: () => [],
 });
 
 const slots = defineSlots<{
-    [key: `header(${string})`]: (props: DataTableField<Row>) => any,
+    [key: `header(${string})`]: (props: DataTableField<Row>) => any;
     [key: `cell(${string})`]: (props: {
-        column: DataTableField<Row>,
-        item: Row,
-        isActive: boolean,
-        toggleDetails: () => void
-    }) => any,
-    'detail'?: (props: {
-        item: Row,
-        index: number
-    }) => any,
-    'caption'?: () => any,
-    'empty'?: () => any,
+        column: DataTableField<Row>;
+        item: Row;
+        isActive: boolean;
+        toggleDetails: () => void;
+    }) => any;
+    detail?: (props: { item: Row; index: number }) => any;
+    caption?: () => any;
+    empty?: () => any;
 }>();
 
 const emit = defineEmits<{
-    (e: 'row-selected', rows: Row[]): void,
-    (e: 'filtered', newPhrase: string): void,
+    (e: "row-selected", rows: Row[]): void;
+    (e: "filtered", newPhrase: string): void;
 }>();
 
 const total = computed<number>(() => {
@@ -389,11 +439,164 @@ const isLoading = computed<boolean>(() => {
 const selectedRows = shallowRef<Row[]>([]);
 
 watch(selectedRows, (newRows: Row[]) => {
-    emit('row-selected', newRows);
+    emit("row-selected", newRows);
 });
 
 const searchPhrase = ref<string>(DATATABLE_DEFAULT_CONTEXT.searchPhrase);
 const currentPage = ref<number>(DATATABLE_DEFAULT_CONTEXT.currentPage);
+
+const activeFilters = ref<Record<string, DataTableFilterValue>>({});
+
+const activeFilterCount = computed<number>(() => {
+    return Object.keys(activeFilters.value).length;
+});
+
+const applyFilter = (key: string, value: string) => {
+    const updatedFilters = { ...activeFilters.value };
+
+    if (value === "" || updatedFilters[key] === value) {
+        delete updatedFilters[key];
+    } else {
+        updatedFilters[key] = value;
+    }
+
+    activeFilters.value = updatedFilters;
+};
+
+const isFilterValueActive = (key: string, value: string): boolean => {
+    const currentValue = activeFilters.value[key];
+
+    if (currentValue === undefined) {
+        return false;
+    }
+
+    if (isString(currentValue)) {
+        return currentValue === value;
+    }
+
+    return currentValue.includes(value);
+};
+
+const toggleFilterValue = (filter: DataTableSelectFilter, value: string) => {
+    const currentValue = activeFilters.value[filter.key];
+    const currentValues = Array.isArray(currentValue) ? currentValue : [];
+
+    const toggledValues = currentValues.includes(value)
+        ? currentValues.filter((selectedValue) => {
+              return selectedValue !== value;
+          })
+        : [...currentValues, value];
+
+    // Kept in option order so equal selections share one query cache entry
+    const selectedValues = filter.options
+        .map((option) => {
+            return option.value;
+        })
+        .filter((optionValue) => {
+            return toggledValues.includes(optionValue);
+        });
+
+    const updatedFilters = { ...activeFilters.value };
+
+    if (selectedValues.length === 0) {
+        delete updatedFilters[filter.key];
+    } else {
+        updatedFilters[filter.key] = selectedValues;
+    }
+
+    activeFilters.value = updatedFilters;
+};
+
+const clearFilters = () => {
+    activeFilters.value = {};
+};
+
+const { $gettext } = useTranslate();
+
+const filterMenuItems = computed<MenuItem[]>(() => {
+    const items = props.filters.map((filter): MenuItem => {
+        if (filter.type === DataTableFilterType.Text) {
+            const currentValue = activeFilters.value[filter.key];
+
+            return {
+                type: MenuItemType.Submenu,
+                key: filter.key,
+                label: filter.label,
+                indicator: currentValue !== undefined,
+                items: [
+                    {
+                        type: MenuItemType.Input,
+                        key: `${filter.key}:input`,
+                        label: filter.label,
+                        placeholder: filter.placeholder,
+                        value: isString(currentValue) ? currentValue : "",
+                        onSelect: (value) => {
+                            applyFilter(filter.key, value);
+                        },
+                    },
+                ],
+            };
+        }
+
+        if (filter.multiple) {
+            return {
+                type: MenuItemType.Submenu,
+                key: filter.key,
+                label: filter.label,
+                indicator: activeFilters.value[filter.key] !== undefined,
+                items: filter.options.map((option): MenuCheckboxItem => {
+                    return {
+                        type: MenuItemType.Checkbox,
+                        key: `${filter.key}:${option.value}`,
+                        label: option.text,
+                        icon: option.icon,
+                        checked: isFilterValueActive(filter.key, option.value),
+                        onToggle: () => {
+                            toggleFilterValue(filter, option.value);
+                        },
+                    };
+                }),
+            };
+        }
+
+        return {
+            type: MenuItemType.Submenu,
+            key: filter.key,
+            label: filter.label,
+            indicator: activeFilters.value[filter.key] !== undefined,
+            items: filter.options.map((option): MenuActionItem => {
+                return {
+                    type: MenuItemType.Action,
+                    key: `${filter.key}:${option.value}`,
+                    label: option.text,
+                    icon: option.icon,
+                    checked: isFilterValueActive(filter.key, option.value),
+                    onSelect: () => {
+                        applyFilter(filter.key, option.value);
+                    },
+                };
+            }),
+        };
+    });
+
+    if (activeFilterCount.value > 0) {
+        items.push(
+            {
+                type: MenuItemType.Separator,
+                key: "separator",
+            },
+            {
+                type: MenuItemType.Action,
+                key: "clear",
+                label: $gettext("Clear Filters"),
+                icon: () => IconIcClearAll,
+                onSelect: clearFilters,
+            },
+        );
+    }
+
+    return items;
+});
 
 const sortField = ref<DataTableField<Row> | null>(null);
 const sortOrder = ref<string | null>(null);
@@ -405,8 +608,8 @@ watch(visibleItems, () => {
     activeDetailsRow.value = null;
 });
 
-type RowField = DataTableField<Row>
-type RowFields = RowField[]
+type RowField = DataTableField<Row>;
+type RowFields = RowField[];
 
 const allFields = computed<RowFields>(() => {
     return props.fields.map((field: RowField): RowField => {
@@ -418,41 +621,45 @@ const allFields = computed<RowFields>(() => {
             class: undefined,
             formatter: undefined,
             sorter: (row: Row): string => get(row, field.key),
-            ...field
+            ...field,
         };
     });
 });
 
 const selectableFields = computed<RowFields>(() => {
-    return filter({...allFields.value}, (field: RowField) => {
+    return filter({ ...allFields.value }, (field: RowField) => {
         return field.selectable ?? false;
     });
 });
 
-const selectableFieldOptions = computed<SimpleFormOptionInput>(() => selectableFields.value.map((field) => {
-    return {
-        value: field.key,
-        text: field.label
-    };
-}));
+const selectableFieldOptions = computed<SimpleFormOptionInput>(() =>
+    selectableFields.value.map((field) => {
+        return {
+            value: field.key,
+            text: field.label,
+        };
+    }),
+);
 
 const defaultSelectableFields = computed<RowFields>(() => {
-    return filter({...selectableFields.value}, (field: RowField) => {
+    return filter({ ...selectableFields.value }, (field: RowField) => {
         return field.visible ?? true;
     });
 });
 
 const settings = useOptionalStorage(
-    'datatable_' + props.id + '_settings',
+    `datatable_${props.id}_settings`,
     {
         sortBy: null,
         sortDesc: false,
         perPage: props.defaultPerPage,
-        visibleFieldKeys: defaultSelectableFields.value.map((field) => field.key),
+        visibleFieldKeys: defaultSelectableFields.value.map(
+            (field) => field.key,
+        ),
     },
     {
-        mergeDefaults: true
-    }
+        mergeDefaults: true,
+    },
 );
 
 const visibleFieldKeys = computed({
@@ -470,7 +677,7 @@ const visibleFieldKeys = computed({
         }
 
         settings.value.visibleFieldKeys = newValue;
-    }
+    },
 });
 
 const perPage = computed<number>(() => {
@@ -489,6 +696,7 @@ const context = computed<DataTableFilterContext>(() => {
         sortOrder: sortOrder.value,
         paginated: props.paginated,
         perPage: perPage.value,
+        filters: activeFilters.value,
     };
 });
 
@@ -498,8 +706,8 @@ watch(
         props.provider.setContext(newContext);
     },
     {
-        immediate: true
-    }
+        immediate: true,
+    },
 );
 
 const visibleFields = computed<DataTableField<Row>[]>(() => {
@@ -521,7 +729,7 @@ const visibleFields = computed<DataTableField<Row>[]>(() => {
 });
 
 const getPerPageLabel = (num: number): string => {
-    return (num === 0) ? 'All' : num.toString();
+    return num === 0 ? "All" : num.toString();
 };
 
 const perPageLabel = computed<string>(() => {
@@ -534,7 +742,7 @@ const showPagination = computed<boolean>(() => {
 
 const doRefresh = async (flushCache: boolean = false): Promise<void> => {
     await props.provider.refresh(flushCache);
-}
+};
 
 const refresh = () => {
     void doRefresh(false);
@@ -542,7 +750,7 @@ const refresh = () => {
 
 const onPageChange = (p: number) => {
     currentPage.value = p;
-}
+};
 
 const relist = () => {
     void doRefresh(true);
@@ -553,7 +761,8 @@ const onClickRefresh = (e: MouseEvent) => {
 };
 
 const navigate = () => {
-    searchPhrase.value = '';
+    searchPhrase.value = "";
+    activeFilters.value = {};
     currentPage.value = 1;
 };
 
@@ -566,15 +775,24 @@ watch(perPage, () => {
     relist();
 });
 
-watchDebounced(searchPhrase, (newSearchPhrase) => {
+watch(activeFilters, () => {
     currentPage.value = 1;
     relist();
-
-    emit('filtered', newSearchPhrase);
-}, {
-    debounce: 500,
-    maxWait: 1000
 });
+
+watchDebounced(
+    searchPhrase,
+    (newSearchPhrase) => {
+        currentPage.value = 1;
+        relist();
+
+        emit("filtered", newSearchPhrase);
+    },
+    {
+        debounce: 500,
+        maxWait: 1000,
+    },
+);
 
 const isAllChecked = computed<boolean>(() => {
     if (visibleItems.value.length === 0) {
@@ -593,7 +811,7 @@ const isRowChecked = (row: Row) => {
 const columnCount = computed(() => {
     let count = visibleFields.value.length;
     count += props.selectable ? 1 : 0;
-    return count
+    return count;
 });
 
 const sort = (column: DataTableField) => {
@@ -601,13 +819,11 @@ const sort = (column: DataTableField) => {
         return;
     }
 
-    if (sortField.value?.key === column.key && sortOrder.value === 'desc') {
+    if (sortField.value?.key === column.key && sortOrder.value === "desc") {
         sortOrder.value = null;
         sortField.value = null;
     } else {
-        sortOrder.value = (sortField.value?.key === column.key)
-            ? 'desc'
-            : 'asc';
+        sortOrder.value = sortField.value?.key === column.key ? "desc" : "asc";
         sortField.value = column;
     }
 
@@ -627,7 +843,7 @@ const checkRow = (row: Row) => {
     }
 
     selectedRows.value = newSelectedRows;
-}
+};
 
 const checkAll = () => {
     const newSelectedRows: Row[] = [];
@@ -646,9 +862,7 @@ const isActiveDetailRow = (row: Row) => {
 };
 
 const toggleDetails = (row: Row) => {
-    activeDetailsRow.value = isActiveDetailRow(row)
-        ? null
-        : row;
+    activeDetailsRow.value = isActiveDetailRow(row) ? null : row;
 };
 
 const responsiveClass = computed(() => {
@@ -656,22 +870,22 @@ const responsiveClass = computed(() => {
         return props.responsive;
     }
 
-    return (props.responsive ? 'table-responsive' : '');
+    return props.responsive ? "table-responsive" : "";
 });
 
 const getColumnValue = (field: DataTableField<Row>, row: Row): string => {
-    const columnValue = get(row, field.key, '');
+    const columnValue = get(row, field.key, "");
 
-    return (field.formatter)
+    return field.formatter
         ? field.formatter(columnValue, field.key, row)
         : columnValue;
-}
+};
 
 defineExpose({
     refresh,
     relist,
     navigate,
     setFilter,
-    toggleDetails
+    toggleDetails,
 });
 </script>

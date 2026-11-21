@@ -1,12 +1,15 @@
 openapi: 3.0.0
 info:
-  title: 'Caster.fm Pro'
-  description: 'Using this API enable viewing now playing data, making requests and more.'
-  version: 0.23.2
+  title: AzuraCast
+  description: 'AzuraCast is a standalone, turnkey web radio management tool. Radio stations hosted by AzuraCast expose a public API for viewing now playing data, making requests and more.'
+  license:
+    name: 'GNU Affero General Public License v3.0 or later'
+    url: 'https://www.gnu.org/licenses/agpl-3.0.txt'
+  version: 0.24.1
 servers:
   -
-    url: 'https://prodemo.caster.fm/api'
-    description: 'Caster.fm Pro Public Demo Server'
+    url: 'https://demo.azuracast.com/api'
+    description: 'AzuraCast Public Demo Server'
 paths:
   '/admin/acme-log/{path}':
     get:
@@ -477,9 +480,24 @@ paths:
               - high_priority
               - normal_priority
               - low_priority
-              - search_index
               - media
-              - podcast_media
+              - backup
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '500':
+          $ref: '#/components/responses/GenericError'
+  '/admin/debug/station/{station_id}/clear-computed-autocue':
+    put:
+      tags:
+        - 'Administration: Debugging'
+      summary: 'Clear the AutoCue values Liquidsoap computed for the media of this station.'
+      operationId: adminDebugClearStationComputedAutoCue
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
       responses:
         '200':
           $ref: '#/components/responses/Success'
@@ -624,6 +642,26 @@ paths:
           required: true
           schema:
             type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Api_Admin_Debug_LogResult'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '500':
+          $ref: '#/components/responses/GenericError'
+  '/admin/debug/station/{station_id}/sync-media-allow-empty-storage':
+    put:
+      tags:
+        - 'Administration: Debugging'
+      summary: 'Run the media sync for this station without skipping cleanup when its storage shows no files.'
+      operationId: adminDebugSyncStationMediaAllowEmptyStorage
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
       responses:
         '200':
           description: Success
@@ -853,7 +891,7 @@ paths:
     get:
       tags:
         - 'Administration: General'
-      summary: 'Return a list of all currently active Relay instances.'
+      summary: 'Return a list of all currently active AzuraRelay instances.'
       operationId: adminGetRelays
       responses:
         '200':
@@ -2545,8 +2583,8 @@ paths:
           in: query
           schema:
             type: boolean
-            default: false
             nullable: true
+            default: false
       responses:
         '200':
           description: Success
@@ -3480,7 +3518,7 @@ paths:
                 clone:
                   description: 'Which parts of the original playlist to clone.'
                   type: array
-                  items: { type: string, enum: [schedule, media] }
+                  items: { type: string, enum: [schedule, media, members] }
               type: object
       responses:
         '200':
@@ -3602,6 +3640,48 @@ paths:
             enum:
               - pls
               - m3u
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessWithDownload'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '404':
+          $ref: '#/components/responses/RecordNotFound'
+        '500':
+          $ref: '#/components/responses/GenericError'
+  '/station/{station_id}/playlists/export-config':
+    get:
+      tags:
+        - 'Stations: Playlists'
+      summary: "Export all of a station's playlists as a JSON configuration dump."
+      operationId: getStationPlaylistsExportConfig
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessWithDownload'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '500':
+          $ref: '#/components/responses/GenericError'
+  '/station/{station_id}/playlist/{id}/export-config':
+    get:
+      tags:
+        - 'Stations: Playlists'
+      summary: 'Export a single playlist (and any group members) as a JSON configuration dump.'
+      operationId: getStationPlaylistExportConfig
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
+        -
+          name: id
+          in: path
+          description: 'Playlist ID'
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
           $ref: '#/components/responses/SuccessWithDownload'
@@ -3739,6 +3819,62 @@ paths:
           $ref: '#/components/responses/RecordNotFound'
         '500':
           $ref: '#/components/responses/GenericError'
+  '/station/{station_id}/playlists/import-config':
+    post:
+      tags:
+        - 'Stations: Playlists'
+      summary: 'Import playlists from a JSON configuration dump, creating new playlists on the station.'
+      operationId: postStationPlaylistsImportConfig
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                config_file:
+                  description: 'The JSON configuration dump to import.'
+                  type: string
+                  format: binary
+                name_prefix:
+                  description: 'Optional prefix prepended to every imported playlist name.'
+                  type: string
+                  nullable: true
+              type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '500':
+          $ref: '#/components/responses/GenericError'
+  '/station/{station_id}/playlist/{id}/members':
+    put:
+      tags:
+        - 'Stations: Playlists'
+      summary: 'Set the member playlists of the specified playlist group.'
+      operationId: putStationPlaylistMembers
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
+        -
+          name: id
+          in: path
+          description: 'Playlist ID'
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '404':
+          $ref: '#/components/responses/RecordNotFound'
+        '500':
+          $ref: '#/components/responses/GenericError'
   '/station/{station_id}/playlist/{id}/reshuffle':
     put:
       tags:
@@ -3800,6 +3936,24 @@ paths:
       parameters:
         -
           $ref: '#/components/parameters/StationIdRequired'
+        -
+          name: 'filter[source]'
+          in: query
+          description: 'Filter by playlist source. Repeat as filter[source][] to match several values.'
+          schema:
+            $ref: '#/components/schemas/PlaylistSources'
+        -
+          name: 'filter[type]'
+          in: query
+          description: 'Filter by playlist type. Repeat as filter[type][] to match several values.'
+          schema:
+            $ref: '#/components/schemas/PlaylistTypes'
+        -
+          name: 'filter[order]'
+          in: query
+          description: 'Filter by playback order. Repeat as filter[order][] to match several values.'
+          schema:
+            $ref: '#/components/schemas/PlaylistOrders'
       responses:
         '200':
           description: Success
@@ -3808,7 +3962,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StationPlaylist'
+                  allOf: [{ $ref: '#/components/schemas/StationPlaylist' }, { $ref: '#/components/schemas/HasLinks' }, { $ref: '#/components/schemas/Api_StationPlaylistComputedFields' }]
         '403':
           $ref: '#/components/responses/AccessDenied'
         '500':
@@ -3832,7 +3986,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StationPlaylist'
+                allOf:
+                  - { $ref: '#/components/schemas/StationPlaylist' }
+                  - { $ref: '#/components/schemas/HasLinks' }
+                  - { $ref: '#/components/schemas/Api_StationPlaylistComputedFields' }
         '403':
           $ref: '#/components/responses/AccessDenied'
         '500':
@@ -3860,7 +4017,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StationPlaylist'
+                allOf:
+                  - { $ref: '#/components/schemas/StationPlaylist' }
+                  - { $ref: '#/components/schemas/HasLinks' }
+                  - { $ref: '#/components/schemas/Api_StationPlaylistComputedFields' }
         '403':
           $ref: '#/components/responses/AccessDenied'
         '404':
@@ -3920,6 +4080,29 @@ paths:
           $ref: '#/components/responses/AccessDenied'
         '404':
           $ref: '#/components/responses/RecordNotFound'
+        '500':
+          $ref: '#/components/responses/GenericError'
+  '/station/{station_id}/playlists/schedule':
+    get:
+      tags:
+        - 'Stations: Playlists'
+      summary: "Return calendar events for the station's playlist schedule."
+      description: 'Controller used to respond to AJAX requests from the playlist "Schedule View".'
+      operationId: getStationPlaylistsSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Api_StationSchedulePlaylistEvent'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
         '500':
           $ref: '#/components/responses/GenericError'
   '/station/{station_id}/podcast/{podcast_id}/episodes':
@@ -5978,6 +6161,28 @@ paths:
           $ref: '#/components/responses/RecordNotFound'
         '500':
           $ref: '#/components/responses/GenericError'
+  '/station/{station_id}/streamers/schedule':
+    get:
+      tags:
+        - 'Stations: Streamers/DJs'
+      summary: "Return calendar events for the station's streamer/DJ schedule."
+      operationId: getStationStreamersSchedule
+      parameters:
+        -
+          $ref: '#/components/parameters/StationIdRequired'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Api_StationScheduleStreamerEvent'
+        '403':
+          $ref: '#/components/responses/AccessDenied'
+        '500':
+          $ref: '#/components/responses/GenericError'
   '/station/{station_id}/nowplaying/update':
     post:
       tags:
@@ -6389,9 +6594,8 @@ components:
             - high_priority
             - normal_priority
             - low_priority
-            - search_index
             - media
-            - podcast_media
+            - backup
         count:
           type: integer
         url:
@@ -6404,6 +6608,8 @@ components:
         - clearQueueUrl
         - getNextSongUrl
         - getNowPlayingUrl
+        - clearComputedAutoCueUrl
+        - syncMediaAllowEmptyStorageUrl
       properties:
         id:
           type: integer
@@ -6414,6 +6620,10 @@ components:
         getNextSongUrl:
           type: string
         getNowPlayingUrl:
+          type: string
+        clearComputedAutoCueUrl:
+          type: string
+        syncMediaAllowEmptyStorageUrl:
           type: string
       type: object
     Api_Admin_Debug_LogEntry:
@@ -6446,12 +6656,10 @@ components:
           type: string
         context:
           type: array
-          items:
-            type: '{}'
+          items: {}
         extra:
           type: array
-          items:
-            type: '{}'
+          items: {}
         formatted:
           type: '{}'
       type: object
@@ -6543,7 +6751,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/LoginTokenTypes'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
         comment:
           type: string
           example: 'SSO Login'
@@ -6609,22 +6821,22 @@ components:
         name:
           description: 'Station name'
           type: string
-          example: 'Caster.fm Radio'
+          example: 'AzuraTest Radio'
           nullable: true
         shortcode:
           description: 'Station "short code", used for URL and folder paths'
           type: string
-          example: casterfmtest_radio
+          example: azuratest_radio
           nullable: true
         description:
           description: 'Station description'
           type: string
-          example: 'A Caster.fm station!'
+          example: 'An AzuraCast station!'
           nullable: true
         url:
           description: 'Station homepage URL'
           type: string
-          example: 'https://www.caster.fm/'
+          example: 'https://www.azuracast.com/'
           nullable: true
         genre:
           description: 'The genre of the station'
@@ -6981,13 +7193,13 @@ components:
             uri:
               description: 'The URI associated with the storage location.'
               type: string
-              example: /var/casterfmpro/www
+              example: /var/azuracast/www
             stations:
               description: 'The stations using this storage location, if any.'
               type: array
               items:
                 type: string
-                example: 'CasterfmTest Radio'
+                example: 'AzuraTest Radio'
               nullable: true
           type: object
     Api_Admin_UpdateDetails:
@@ -7046,8 +7258,14 @@ components:
     Api_Admin_Vue_CustomFieldProps:
       required:
         - autoAssignTypes
+        - autoAssignAliases
       properties:
         autoAssignTypes:
+          type: object
+          additionalProperties:
+            type: string
+        autoAssignAliases:
+          description: 'Alternative tag names mapped to the known tag they are saved as.'
           type: object
           additionalProperties:
             type: string
@@ -7128,7 +7346,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/Api_Admin_UpdateDetails'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
       type: object
     Api_Admin_Vue_UsersProps:
       required:
@@ -7204,8 +7426,7 @@ components:
         extra_data:
           description: 'Stack traces and other supplemental data.'
           type: array
-          items:
-            type: any
+          items: {}
         success:
           description: 'Used for API calls that expect an \Entity\Api\Status type response.'
           type: boolean
@@ -7235,12 +7456,18 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/Api_StationMedia'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
             dir:
               oneOf:
                 -
                   $ref: '#/components/schemas/Api_FileListDir'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
           type: object
     Api_FileListDir:
       properties:
@@ -7254,7 +7481,7 @@ components:
         - value
         - text
       properties:
-        value: {  }
+        value: {}
         text:
           type: string
         description:
@@ -7415,8 +7642,7 @@ components:
                 type: string
             responseRecord:
               type: array
-              items:
-                type: any
+              items: {}
               nullable: true
           type: object
     Api_Notification:
@@ -7528,12 +7754,20 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/Api_NowPlaying_CurrentSong'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
         playing_next:
           oneOf:
             -
               $ref: '#/components/schemas/Api_NowPlaying_StationQueue'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
         song_history:
           type: array
           items:
@@ -7545,11 +7779,11 @@ components:
         cache:
           description: 'Debugging information about where the now playing data comes from.'
           type: string
+          nullable: true
           enum:
             - hit
             - database
             - station
-          nullable: true
       type: object
     Api_NowPlaying_SongHistory:
       required:
@@ -7557,6 +7791,8 @@ components:
         - played_at
         - duration
         - playlist
+        - playlist_chain
+        - playlist_source
         - streamer
         - is_request
         - song
@@ -7577,6 +7813,26 @@ components:
           type: string
           example: 'Top 100'
           nullable: true
+        playlist_chain:
+          description: 'Names of the playlist group chain the song was picked through if played from a group'
+          type: array
+          items:
+            type: string
+          example:
+            - 'Main Rotation'
+            - Rock
+            - 'Rock Hits'
+          nullable: true
+        playlist_source:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PlaylistSources'
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
+          description: 'The source of the playlist that the song was played from, if available.'
         streamer:
           description: 'Indicates the current streamer that was connected, if available, or empty string if not.'
           type: string
@@ -7618,15 +7874,15 @@ components:
         name:
           description: 'Station name'
           type: string
-          example: 'CasterfmTest Radio'
+          example: 'AzuraTest Radio'
         shortcode:
           description: 'Station "short code", used for URL and folder paths'
           type: string
-          example: casterfmtest_radio
+          example: azuratest_radio
         description:
           description: 'Station description'
           type: string
-          example: 'A Caster.fm station!'
+          example: 'An AzuraCast station!'
         frontend:
           description: 'Which broadcasting software (frontend) the station uses'
           type: string
@@ -7687,7 +7943,7 @@ components:
         hls_url:
           description: 'The full URL to listen to the HLS stream for the station.'
           type: string
-          example: 'https://www.caster.fm/hls/casterfmtest_radio/live.m3u8'
+          example: 'https://example.com/hls/azuratest_radio/live.m3u8'
           nullable: true
         hls_listeners:
           description: 'HLS Listeners'
@@ -7719,6 +7975,8 @@ components:
         - played_at
         - duration
         - playlist
+        - playlist_chain
+        - playlist_source
         - is_request
         - song
       properties:
@@ -7741,6 +7999,26 @@ components:
           type: string
           example: 'Top 100'
           nullable: true
+        playlist_chain:
+          description: 'Names of the playlist group chain the song was picked through if played from a group'
+          type: array
+          items:
+            type: string
+          example:
+            - 'Main Rotation'
+            - Rock
+            - 'Rock Hits'
+          nullable: true
+        playlist_source:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PlaylistSources'
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
+          description: 'The source of the playlist that the song was played from, if available.'
         is_request:
           description: 'Indicates whether the song is a listener request.'
           type: boolean
@@ -7794,6 +8072,30 @@ components:
         useSse:
           type: boolean
       type: object
+    Api_PlaylistConfigurationImportResult:
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/Api_Status'
+        -
+          properties:
+            playlists_created:
+              type: integer
+              example: 3
+            media_relinked:
+              type: integer
+              example: 10
+            media_generated:
+              type: integer
+              example: 2
+            members_created:
+              type: integer
+              example: 1
+            warnings:
+              type: array
+              items:
+                type: string
+          type: object
     Api_Podcast:
       type: object
       allOf:
@@ -7932,12 +8234,18 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/Api_Song'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
             media:
               oneOf:
                 -
                   $ref: '#/components/schemas/Api_PodcastMedia'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
             has_custom_art:
               type: boolean
             art:
@@ -7963,6 +8271,10 @@ components:
         path:
           type: string
           nullable: true
+        size:
+          description: 'The file size (in bytes).'
+          type: integer
+          example: 19693056
       type: object
     Api_ResolvableUrl:
       type: string
@@ -8016,6 +8328,10 @@ components:
               description: 'The relative path of the media file.'
               type: string
               example: test.mp3
+            size:
+              description: 'The size of the media file in bytes.'
+              type: integer
+              example: 4194304
             mtime:
               description: 'The UNIX timestamp when the database was last modified.'
               type: integer
@@ -8083,6 +8399,46 @@ components:
         playlist:
           type: string
       type: object
+    Api_StationPlaylistComputedFields:
+      properties:
+        short_name:
+          description: 'A URL-safe version of the playlist name.'
+          type: string
+          readOnly: true
+        num_songs:
+          description: 'The number of songs in the playlist, if it is a song-based playlist.'
+          type: integer
+          readOnly: true
+          example: 25
+          nullable: true
+        total_length:
+          description: 'The total length of the playlist in seconds, if it is a song-based playlist.'
+          type: number
+          format: float
+          readOnly: true
+          example: 3600
+          nullable: true
+        playlist_groups:
+          description: 'The parent groups that this playlist is a member of.'
+          type: array
+          items:
+            $ref: '#/components/schemas/Api_StationPlaylistParentGroup'
+          readOnly: true
+      type: object
+    Api_StationPlaylistParentGroup:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          description: 'The unique identifier of the parent group.'
+          type: integer
+          example: 1
+        name:
+          description: 'The name of the parent group.'
+          type: string
+          example: 'My Group'
+      type: object
     Api_StationPlaylistQueue:
       properties:
         spm_id:
@@ -8090,7 +8446,7 @@ components:
           type: integer
           example: 1
         media_id:
-          description: 'ID of the StationPlaylistMedia record associating this track with the playlist'
+          description: 'ID of the StationMedia record associating this track with the media'
           type: integer
           example: 1
         song_id:
@@ -8146,8 +8502,7 @@ components:
             log:
               description: 'Log entries on how the specific queue item was picked by the AutoDJ.'
               type: array
-              items:
-                type: any
+              items: {}
               nullable: true
           type: object
     Api_StationQuota:
@@ -8206,10 +8561,10 @@ components:
         type:
           description: 'The type of this schedule entry.'
           type: string
+          example: playlist
           enum:
             - playlist
             - streamer
-          example: playlist
         name:
           description: "Either the playlist or streamer's display name."
           type: string
@@ -8242,6 +8597,223 @@ components:
           description: 'Whether the event is currently ongoing.'
           type: boolean
           example: true
+      type: object
+    Api_StationScheduleGroupMember:
+      required:
+        - id
+        - name
+        - source
+        - order
+        - weight
+        - count
+        - consecutive_plays
+        - play_full_cycle
+        - is_enabled
+      properties:
+        id:
+          description: 'The unique identifier of the member playlist.'
+          type: integer
+          example: 1
+        name:
+          description: 'The name of the member playlist.'
+          type: string
+          example: 'Example Playlist'
+        source:
+          $ref: '#/components/schemas/PlaylistSources'
+        order:
+          $ref: '#/components/schemas/PlaylistOrders'
+        weight:
+          description: 'The weighting of this member within the group.'
+          type: integer
+          example: 3
+        count:
+          description: 'The number of songs or member playlists in this member, if applicable.'
+          type: integer
+          example: 25
+          nullable: true
+        consecutive_plays:
+          description: 'The number of consecutive plays configured for this member.'
+          type: integer
+          example: 1
+        play_full_cycle:
+          description: 'Whether the member plays through its full cycle before advancing.'
+          type: boolean
+          example: false
+        is_enabled:
+          description: 'Whether the member playlist is enabled.'
+          type: boolean
+          example: true
+      type: object
+    Api_StationSchedulePlaylistEvent:
+      required:
+        - id
+        - title
+        - type
+        - start
+        - end
+        - edit_url
+        - source
+        - order
+        - playlist_type
+        - play_per_songs
+        - play_per_minutes
+        - play_per_hour_minute
+        - weight
+        - is_jingle
+        - include_in_on_demand
+        - avoid_duplicates
+        - plays_via_group_schedule
+        - members
+        - num_songs
+        - total_length
+        - remote_url
+        - remote_type
+      properties:
+        id:
+          description: 'The unique identifier of the playlist.'
+          type: integer
+          example: 1
+        title:
+          description: 'The playlist name representing the event title.'
+          type: string
+          example: 'Example Playlist'
+        type:
+          description: 'The type of this schedule event.'
+          type: string
+          example: playlist
+          enum:
+            - playlist
+        start:
+          description: 'The start time of this schedule event, in ISO 8601 format.'
+          type: string
+          example: '2020-02-19T03:00:00-06:00'
+        end:
+          description: 'The end time of this schedule event, in ISO 8601 format.'
+          type: string
+          example: '2020-02-19T05:00:00-06:00'
+        edit_url:
+          description: 'The API URL used to edit the underlying playlist.'
+          type: string
+          example: /api/station/1/playlist/1
+        source:
+          $ref: '#/components/schemas/PlaylistSources'
+        order:
+          $ref: '#/components/schemas/PlaylistOrders'
+        playlist_type:
+          $ref: '#/components/schemas/PlaylistTypes'
+        play_per_songs:
+          type: integer
+          example: 0
+        play_per_minutes:
+          type: integer
+          example: 0
+        play_per_hour_minute:
+          type: integer
+          example: 0
+        weight:
+          type: integer
+          example: 3
+        is_jingle:
+          type: boolean
+          example: false
+        include_in_on_demand:
+          type: boolean
+          example: false
+        avoid_duplicates:
+          type: boolean
+          example: false
+        plays_via_group_schedule:
+          description: "True if this playlist is a group member and an ancestor group's schedule covers this entire event, so it plays via that group instead of on its own. Partially covered events report false."
+          type: boolean
+          readOnly: true
+          example: false
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Api_StationScheduleGroupMember'
+        num_songs:
+          description: 'The number of songs in the playlist, if it is a song-based playlist.'
+          type: integer
+          example: 25
+          nullable: true
+        total_length:
+          description: 'The total length of the playlist in seconds, if it is a song-based playlist.'
+          type: number
+          format: float
+          example: 3600
+          nullable: true
+        remote_url:
+          description: 'The remote URL, if this is a remote URL playlist.'
+          type: string
+          example: 'https://example.com/stream'
+          nullable: true
+        remote_type:
+          oneOf:
+            -
+              $ref: '#/components/schemas/PlaylistRemoteTypes'
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
+      type: object
+    Api_StationScheduleStreamerEvent:
+      required:
+        - id
+        - title
+        - type
+        - start
+        - end
+        - edit_url
+        - streamer_username
+        - comments
+        - has_custom_art
+        - art
+      properties:
+        id:
+          description: 'The unique identifier of the streamer.'
+          type: integer
+          example: 1
+        title:
+          description: 'The streamer display name representing the event title.'
+          type: string
+          example: 'Example Streamer'
+        type:
+          description: 'The type of this schedule event.'
+          type: string
+          example: streamer
+          enum:
+            - streamer
+        start:
+          description: 'The start time of this schedule event, in ISO 8601 format.'
+          type: string
+          example: '2020-02-19T03:00:00-06:00'
+        end:
+          description: 'The end time of this schedule event, in ISO 8601 format.'
+          type: string
+          example: '2020-02-19T05:00:00-06:00'
+        edit_url:
+          description: 'The API URL used to edit the underlying streamer.'
+          type: string
+          example: /api/station/1/streamer/1
+        streamer_username:
+          description: 'The streamer login username.'
+          type: string
+          example: example_dj
+        comments:
+          description: 'Comments about the streamer.'
+          type: string
+          example: 'Live every weekday evening.'
+          nullable: true
+        has_custom_art:
+          description: 'Whether the streamer has custom artwork.'
+          type: boolean
+          example: true
+        art:
+          description: 'The URL of the streamer artwork, if custom artwork is present.'
+          type: string
+          example: /api/station/1/streamer/1/art/1.jpg
+          nullable: true
       type: object
     Api_StationServiceStatus:
       required:
@@ -8294,12 +8866,18 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/Api_StationStreamer'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
             recording:
               oneOf:
                 -
                   $ref: '#/components/schemas/Api_StationStreamerBroadcastRecording'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
           type: object
     Api_StationStreamerBroadcastRecording:
       required:
@@ -8609,20 +9187,27 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/Vue_DashboardGlobals'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
         user:
           oneOf:
             -
               $ref: '#/components/schemas/Vue_UserGlobals'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
         notifications:
           type: array
           items:
             $ref: '#/components/schemas/Api_ToastNotification'
         componentProps:
           type: array
-          items:
-            type: '{}'
+          items: {}
           nullable: true
       type: object
     Vue_DashboardGlobals:
@@ -8856,9 +9441,9 @@ components:
         initialVolume:
           description: 'Initial player volume (0-100).'
           type: integer
+          example: 75
           maximum: 100
           minimum: 0
-          example: 75
         layout:
           description: 'Layout variant for the widget.'
           type: string
@@ -8949,7 +9534,7 @@ components:
               description: 'The programmatic name for the field. Can be auto-generated from the full name.'
               type: string
             auto_assign:
-              description: 'An ID3v2 field to automatically assign to this value, if it exists in the media file.'
+              description: 'The media file tag this field is read from on import and written back to when the media is saved.'
               type: string
               nullable: true
           type: object
@@ -8995,6 +9580,16 @@ components:
       x-enumNames:
         - ResetPassword
         - Login
+    PlaylistGroupAllowedRequests:
+      type: string
+      enum:
+        - any
+        - playlist
+        - none
+      x-enumNames:
+        - Any
+        - Playlist
+        - None
     PlaylistOrders:
       type: string
       enum:
@@ -9019,10 +9614,14 @@ components:
       type: string
       enum:
         - songs
+        - playlists
         - remote_url
+        - requests
       x-enumNames:
         - Songs
+        - Playlists
         - RemoteUrl
+        - Requests
     PlaylistTypes:
       type: string
       enum:
@@ -9186,12 +9785,12 @@ components:
         base_url:
           description: 'Site Base URL'
           type: string
-          example: 'https://your.casterfm.site'
+          example: 'https://your.azuracast.site'
           nullable: true
         instance_name:
-          description: 'Casterfm Instance Name'
+          description: 'AzuraCast Instance Name'
           type: string
-          example: 'My Casterfm Instance'
+          example: 'My AzuraCast Instance'
           nullable: true
         prefer_browser_url:
           description: 'Prefer Browser URL (If Available)'
@@ -9213,6 +9812,18 @@ components:
           type: string
           example: '*'
           nullable: true
+        enable_liquidsoap_editing:
+          description: 'Allow stations to manually edit Liquidsoap code.'
+          type: boolean
+          example: 'true'
+        enable_all_webhooks:
+          description: 'Allow stations to dispatch webhooks.'
+          type: boolean
+          example: 'true'
+        filter_local_user_urls:
+          description: 'Prevent users from using local IPs or URLs in Webhooks, etc.'
+          type: boolean
+          example: 'true'
         enable_static_nowplaying:
           description: 'Whether to use high-performance static JSON for Now Playing data updates.'
           type: boolean
@@ -9221,7 +9832,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/AnalyticsLevel'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
           description: 'Listener Analytics Collection'
         check_for_updates:
           description: 'Check for Updates and Announcements'
@@ -9231,7 +9846,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/Api_Admin_UpdateDetails'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
           description: 'Results of the latest update check.'
           example: ''
         update_last_run:
@@ -9242,7 +9861,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/SupportedThemes'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
           description: 'Base Theme for Public Pages'
           example: light
         hide_album_art:
@@ -9273,7 +9896,7 @@ components:
           example: SAMPLE-API-KEY
           nullable: true
         hide_product_name:
-          description: 'Hide Casterfm  Branding on Public Pages'
+          description: 'Hide AzuraCast Branding on Public Pages'
           type: boolean
           example: 'false'
         public_custom_css:
@@ -9360,7 +9983,7 @@ components:
         mail_sender_name:
           description: 'The name of the sender of system e-mails.'
           type: string
-          example: Casterfm
+          example: AzuraCast
           nullable: true
         mail_sender_email:
           description: 'The e-mail address of the sender of system e-mails.'
@@ -9414,7 +10037,11 @@ components:
           oneOf:
             -
               $ref: '#/components/schemas/IpSources'
-          nullable: true
+            -
+              type: object
+              nullable: true
+              enum:
+                - null
           description: 'IP Address Source'
       type: object
     SftpUser:
@@ -9442,11 +10069,11 @@ components:
             name:
               description: 'The full display name of the station.'
               type: string
-              example: 'Casterfm Radio'
+              example: 'AzuraTest Radio'
             short_name:
               description: 'The URL-friendly name for the station, typically auto-generated from the full station name.'
               type: string
-              example: casterfmtest_radio
+              example: azuratest_radio
             is_enabled:
               description: "If set to 'false', prevents the station from broadcasting but leaves it in the database."
               type: boolean
@@ -9465,7 +10092,7 @@ components:
               nullable: true
             url:
               type: string
-              example: 'https://demo.caster.fm/'
+              example: 'https://demo.azuracast.com/'
               nullable: true
             genre:
               type: string
@@ -9473,7 +10100,7 @@ components:
               nullable: true
             radio_base_dir:
               type: string
-              example: /var/casterfm/stations/casterfmtest_radio
+              example: /var/azuracast/stations/azuratest_radio
             enable_requests:
               description: 'Whether listeners can request songs to play on this station.'
               type: boolean
@@ -9486,6 +10113,9 @@ components:
               type: integer
               example: 15
               nullable: true
+            requests_only_via_playlists:
+              type: boolean
+              example: false
             disconnect_deactivate_streamer:
               type: integer
               example: 0
@@ -9499,7 +10129,11 @@ components:
               type: boolean
               example: false
             enable_public_page:
-              description: 'Whether this station is visible as a public page and in a now-playing API response.'
+              description: "Whether this station's public pages (player, on-demand streaming, etc.) are visible to non-authenticated users."
+              type: boolean
+              example: true
+            enable_public_api:
+              description: "Whether the public-facing API endpoints (now playing, art, etc.) are visible to non-authenticated users. Automatically enabled if 'enable_public_page' is true."
               type: boolean
               example: true
             enable_on_demand:
@@ -9555,6 +10189,10 @@ components:
           type: integer
         use_manual_autodj:
           type: boolean
+        reset_sequential_queues_on_restart:
+          description: 'Reset the internal queue of sequential playlists when the station is restarted or its configuration is rewritten.'
+          type: boolean
+          example: false
         autodj_queue_length:
           type: integer
         dj_mount_point:
@@ -9583,8 +10221,27 @@ components:
         crossfade:
           type: number
           format: float
+        crossfade_smart_high:
+          description: "The dB level above which a track is considered 'loud' ('high' parameter in 'cross.smart')."
+          type: number
+          format: float
+        crossfade_smart_medium:
+          description: "The dB level below which a track is considered 'quiet' ('medium' parameter in 'cross.smart')."
+          type: number
+          format: float
+        crossfade_smart_margin:
+          description: "The dB difference above which two tracks are considered too different to overlap ('margin' parameter in 'cross.smart')."
+          type: number
+          format: float
         duplicate_prevention_time_range:
+          description: 'The time range (in minutes) of the song history that duplicate prevention checks tracks and titles against, also applies to artists when duplicate_prevention_artist_time_range is not set.'
           type: integer
+          example: 120
+        duplicate_prevention_artist_time_range:
+          description: 'The time range (in minutes) of the song history that duplicate prevention checks artists against, uses duplicate_prevention_time_range if set to null.'
+          type: integer
+          example: 120
+          nullable: true
         performance_mode:
           type: string
         hls_segment_length:
@@ -9699,7 +10356,10 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/HlsStreamProfiles'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
               example: aac
             bitrate:
               type: integer
@@ -9789,7 +10449,10 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/StreamFormats'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
               example: mp3
             autodj_bitrate:
               type: integer
@@ -9839,7 +10502,10 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/PlaylistRemoteTypes'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
               example: stream
             remote_buffer:
               description: 'The total time (in seconds) that Liquidsoap should buffer remote URL streams.'
@@ -9880,14 +10546,47 @@ components:
             avoid_duplicates:
               type: boolean
               example: true
+            preserve_queue_on_restart:
+              description: "Don't reset this playlist's queue when the station is restarted or its configuration is rewritten."
+              type: boolean
+              example: false
             schedule_items:
-              description: StationSchedule>
               type: array
-              items: {  }
+              items: {}
             podcasts:
-              description: Podcast>
               type: array
-              items: {  }
+              items: {}
+            playlists:
+              type: array
+              items: {}
+          type: object
+    StationPlaylistGroup:
+      type: object
+      allOf:
+        -
+          $ref: '#/components/schemas/HasAutoIncrementId'
+        -
+          properties:
+            name:
+              description: 'The playlist name.'
+              type: string
+              readOnly: true
+              example: 'My Playlist'
+            weight:
+              type: integer
+              example: 1
+            consecutive_plays:
+              type: integer
+              example: 0
+            play_full_cycle:
+              type: boolean
+              example: false
+            preserve_queue_on_recursive_reset:
+              description: "Keep the member's queue on a recursive queue reset of a parent playlist group, also keeps the queues of its nested members. If the same playlist is added to a group more than once, all of its entries share this setting."
+              type: boolean
+              example: false
+            allowed_requests:
+              $ref: '#/components/schemas/PlaylistGroupAllowedRequests'
           type: object
     StationRemote:
       type: object
@@ -9915,7 +10614,10 @@ components:
               oneOf:
                 -
                   $ref: '#/components/schemas/StreamFormats'
-              nullable: true
+                -
+                  type: object
+                  nullable: true
+                  enum: [null]
               example: mp3
             autodj_bitrate:
               type: integer
@@ -9986,6 +10688,18 @@ components:
             loop_once:
               type: boolean
               example: false
+            prevent_requests:
+              description: 'Used to suppress the global request queue while this schedule window is active.'
+              type: boolean
+              example: false
+            reset_queue_at_start:
+              description: "Reset the playlist's internal queue when this schedule window becomes active."
+              type: boolean
+              example: false
+            reset_queue_recursive:
+              description: 'Also reset nested playlist groups and member playlists (playlist groups only). Members with preserve_queue_on_recursive_reset keep their queues.'
+              type: boolean
+              example: false
           type: object
     StationStreamer:
       description: 'Station streamers (DJ accounts) allowed to broadcast to a station.'
@@ -10019,9 +10733,8 @@ components:
               example: 1609480800
               nullable: true
             schedule_items:
-              description: StationSchedule>
               type: array
-              items: {  }
+              items: {}
           type: object
     StationStreamerBroadcast:
       description: 'Each individual broadcast associated with a streamer.'
@@ -10049,15 +10762,15 @@ components:
             triggers:
               description: 'List of events that should trigger the webhook notification.'
               type: array
-              items: {  }
+              items: {}
             config:
               description: 'Detailed webhook configuration (if applicable)'
               type: array
-              items: {  }
+              items: {}
             metadata:
               description: 'Internal details used by the webhook to preserve state.'
               type: array
-              items: {  }
+              items: {}
           type: object
     StorageLocation:
       type: object
@@ -10073,7 +10786,7 @@ components:
             path:
               description: 'The local path, if the local adapter is used, or path prefix for S3/remote adapters.'
               type: string
-              example: /var/casterfmpro/stations/casterfmtest_radio/media
+              example: /var/azuracast/stations/azuratest_radio/media
             s3CredentialKey:
               description: 'The credential key for S3 adapters.'
               type: string
@@ -10153,7 +10866,6 @@ components:
               nullable: true
             storageQuotaBytes:
               example: '120000'
-              nullable: true
             storageQuota:
               type: string
               example: '50 GB'
@@ -10165,7 +10877,6 @@ components:
               example: '1 GB'
             storageAvailableBytes:
               example: '120000'
-              nullable: true
             storageAvailable:
               type: string
               example: '1 GB'
@@ -10221,7 +10932,7 @@ components:
           properties:
             email:
               type: string
-              example: demo@caster.fm
+              example: demo@azuracast.com
             auth_password:
               type: string
               example: ''
@@ -10248,9 +10959,8 @@ components:
               type: integer
               example: 1609480800
             roles:
-              description: Role>
               type: array
-              items: {  }
+              items: {}
           type: object
     UserLoginToken:
       type: object
@@ -10675,7 +11385,9 @@ tags:
     name: 'My Account'
   -
     name: Miscellaneous
-
+externalDocs:
+  description: 'AzuraCast on GitHub'
+  url: 'https://github.com/AzuraCast/AzuraCast'
 x-tagGroups:
   -
     name: 'Public Endpoints'

@@ -18,7 +18,8 @@ return static function (RouteCollectorProxy $group) {
                         ['GET', 'POST'],
                         '/liquidsoap/{action}',
                         Controller\Api\Internal\LiquidsoapAction::class
-                    )->setName('api:internal:liquidsoap');
+                    )->setName('api:internal:liquidsoap')
+                        ->add(Middleware\RequireInternalConnection::class);
 
                     // Icecast internal auth functions
                     $group->map(
@@ -26,6 +27,13 @@ return static function (RouteCollectorProxy $group) {
                         '/listener-auth[/{api_auth}]',
                         Controller\Api\Internal\ListenerAuthAction::class
                     )->setName('api:internal:listener-auth');
+
+                    // NGINX auth_request handler for HLS
+                    $group->map(
+                        ['GET', 'POST'],
+                        '/hls-listener-auth[/{api_auth}]',
+                        Controller\Api\Internal\HlsListenerAuthAction::class
+                    )->setName('api:internal:hls-listener-auth');
                 }
             )->add(Middleware\GetStation::class);
 

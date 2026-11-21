@@ -79,22 +79,50 @@
                     :label="$gettext('End Date')"
                 />
 
-                <form-group-checkbox
-                    :id="'edit_form_loop_once_'+index"
+                <form-group-multi-check
+                    :id="'edit_form_days_'+index"
                     class="col-md-4"
+                    :field="r$.days.$self"
+                    :label="$gettext('Scheduled Play Days of Week')"
+                    :description="$gettext('Leave blank to play on every day of the week.')"
+                    :options="dayOptions"
+                    stacked
+                />
+
+                <form-group-checkbox
+                    v-if="form.source !== PlaylistSources.Requests"
+                    :id="'edit_form_loop_once_'+index"
+                    class="col-md-6"
                     :field="r$.loop_once"
                     :label="$gettext('Loop Once')"
                     :description="$gettext('Only loop through playlist once.')"
                 />
 
-                <form-group-multi-check
-                    :id="'edit_form_days_'+index"
-                    class="col-md-4"
-                    :field="r$.days"
-                    :label="$gettext('Scheduled Play Days of Week')"
-                    :description="$gettext('Leave blank to play on every day of the week.')"
-                    :options="dayOptions"
-                    stacked
+                <form-group-checkbox
+                    v-if="form.source !== PlaylistSources.Requests"
+                    :id="'edit_form_prevent_requests_'+index"
+                    class="col-md-6"
+                    :field="r$.prevent_requests"
+                    :label="$gettext('Block Request Queue While Active')"
+                    :description="$gettext('While this scheduled window is active, listener requests will not be played via the automatic request queue.')"
+                />
+
+                <form-group-checkbox
+                    v-if="form.source === PlaylistSources.Songs || form.source === PlaylistSources.Playlists"
+                    :id="'edit_form_reset_queue_at_start_'+index"
+                    class="col-md-6"
+                    :field="r$.reset_queue_at_start"
+                    :label="$gettext('Reset Queue at Schedule Start')"
+                    :description="$gettext('When this scheduled window starts, restart the playlist from the beginning of its rotation instead of resuming where it was interrupted.')"
+                />
+
+                <form-group-checkbox
+                    v-if="form.source === PlaylistSources.Playlists && row.reset_queue_at_start"
+                    :id="'edit_form_reset_queue_recursive_'+index"
+                    class="col-md-6"
+                    :field="r$.reset_queue_recursive"
+                    :label="$gettext('Also Reset Nested Playlists')"
+                    :description="$gettext('Also restart every nested playlist group and member playlist from the beginning. Members exempted from nested reset in the Playlist Grouping tab keep their queues.')"
                 />
             </div>
         </div>
@@ -102,60 +130,66 @@
 </template>
 
 <script setup lang="ts">
+import { required } from "@regle/rules";
+import { storeToRefs } from "pinia";
+import { toRef } from "vue";
 import PlaylistTime from "~/components/Common/TimeCode.vue";
-import FormGroupField from "~/components/Form/FormGroupField.vue";
-import {required} from "@regle/rules";
-import {toRef} from "vue";
-import {useTranslate} from "~/vendor/gettext";
 import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
-import FormMarkup from "~/components/Form/FormMarkup.vue";
+import FormGroupField from "~/components/Form/FormGroupField.vue";
 import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
+import FormMarkup from "~/components/Form/FormMarkup.vue";
 import TimeZone from "~/components/Stations/Common/TimeZone.vue";
-import {useAppScopedRegle} from "~/vendor/regle.ts";
+import { useStationsPlaylistsForm } from "~/components/Stations/Playlists/Form/form.ts";
+import { PlaylistSources } from "~/entities/ApiInterfaces";
+import { useTranslate } from "~/vendor/gettext";
+import { useAppScopedRegle } from "~/vendor/regle.ts";
 import IconIcRemove from "~icons/ic/baseline-remove";
 
+const { form } = storeToRefs(useStationsPlaylistsForm());
+
 interface PlaylistScheduleRow {
-    start_time: number,
-    end_time: number,
-    start_date: string,
-    end_date: string,
-    days: number[],
-    loop_once: boolean,
+    start_time: number;
+    end_time: number;
+    start_date: string;
+    end_date: string;
+    days: number[];
+    loop_once: boolean;
+    prevent_requests: boolean;
+    reset_queue_at_start: boolean;
+    reset_queue_recursive: boolean;
 }
 
 const props = defineProps<{
-    index: number,
-    row: PlaylistScheduleRow
+    index: number;
+    row: PlaylistScheduleRow;
 }>();
 
-const emit = defineEmits<{
-    (e: 'remove'): void
-}>();
+const emit = defineEmits<(e: "remove") => void>();
 
-const {r$} = useAppScopedRegle(
-    toRef(props, 'row'),
+const { r$ } = useAppScopedRegle(
+    toRef(props, "row"),
     {
-        start_time: {required},
-        end_time: {required},
+        start_time: { required },
+        end_time: { required },
     },
     {
-        namespace: 'stations-playlists'
-    }
+        namespace: "stations-playlists",
+    },
 );
 
-const {$gettext} = useTranslate();
+const { $gettext } = useTranslate();
 
 const dayOptions = [
-    {value: 1, text: $gettext('Monday')},
-    {value: 2, text: $gettext('Tuesday')},
-    {value: 3, text: $gettext('Wednesday')},
-    {value: 4, text: $gettext('Thursday')},
-    {value: 5, text: $gettext('Friday')},
-    {value: 6, text: $gettext('Saturday')},
-    {value: 7, text: $gettext('Sunday')}
+    { value: 1, text: $gettext("Monday") },
+    { value: 2, text: $gettext("Tuesday") },
+    { value: 3, text: $gettext("Wednesday") },
+    { value: 4, text: $gettext("Thursday") },
+    { value: 5, text: $gettext("Friday") },
+    { value: 6, text: $gettext("Saturday") },
+    { value: 7, text: $gettext("Sunday") },
 ];
 
 const doRemove = () => {
-    emit('remove');
+    emit("remove");
 };
 </script>

@@ -54,9 +54,9 @@ final class StationMount implements
         $this->station = $station;
     }
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: false, insertable: false, updatable: false)]
-    public private(set) int $station_id;
+    public int $station_id {
+        get => $this->station->id;
+    }
 
     #[
         OA\Property(example: "/radio.mp3"),
@@ -86,7 +86,8 @@ final class StationMount implements
 
             return $this->name;
         }
-        set (string|null $value) => $this->truncateNullableString($value) ?? '';
+        // Prevent newlines (as they will appear in playlists and other places)
+        set (string|null $value) => $this->truncateString(str_replace(["\r", "\n"], '', $value ?? ''));
     }
 
     #[
@@ -123,22 +124,10 @@ final class StationMount implements
 
     public function getRelayUrlAsUri(): ?UriInterface
     {
-        $relayUri = Urls::tryParseUserUrl(
+        return Urls::tryParseUserUrl(
             $this->relay_url,
             'Mount Point ' . $this->__toString() . ' Relay URL'
         );
-
-        if (null !== $relayUri) {
-            // Relays need port explicitly provided.
-            $port = $relayUri->getPort();
-            if ($port === null && '' !== $relayUri->getScheme()) {
-                $relayUri = $relayUri->withPort(
-                    ('https' === $relayUri->getScheme()) ? 443 : 80
-                );
-            }
-        }
-
-        return $relayUri;
     }
 
     #[

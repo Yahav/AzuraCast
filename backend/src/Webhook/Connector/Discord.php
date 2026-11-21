@@ -9,6 +9,8 @@ use App\Entity\Station;
 use App\Entity\StationWebhook;
 use App\Utilities\Time;
 use App\Utilities\Types;
+use App\Utilities\Urls;
+use GuzzleHttp\RequestOptions;
 
 /*
  * https://discordapp.com/developers/docs/resources/webhook#execute-webhook
@@ -75,7 +77,10 @@ final class Discord extends AbstractConnector
     ): void {
         $config = $webhook->config ?? [];
 
-        $webhookUrl = $this->getValidUrl($config['webhook_url']);
+        $webhookUrl = $this->userUrlFilter->filterSensitiveUserUrl(
+            $config['webhook_url'],
+            'Discord Webhook'
+        );
 
         if (empty($webhookUrl)) {
             throw $this->incompleteConfigException($webhook);
@@ -109,7 +114,10 @@ final class Discord extends AbstractConnector
             [
                 'title' => $vars['title'] ?? '',
                 'description' => $vars['description'] ?? '',
-                'url' => $this->getValidUrl($vars['url']) ?? '',
+                'url' => Urls::tryParseUserUrl(
+                    $vars['url'],
+                    'Discord Webhook'
+                ) ?? '',
                 'color' => $colorDecimal,
             ]
         );
@@ -149,10 +157,10 @@ final class Discord extends AbstractConnector
             'POST',
             $webhookUrl,
             [
-                'headers' => [
+                RequestOptions::HEADERS => [
                     'Content-Type' => 'application/json',
                 ],
-                'json' => $webhookBody,
+                RequestOptions::JSON => $webhookBody,
             ]
         );
 
@@ -166,9 +174,13 @@ final class Discord extends AbstractConnector
     /** @noinspection HttpUrlsUsage */
     private function getImageUrl(?string $url = null): ?string
     {
-        $url = $this->getValidUrl($url);
+        $url = Urls::tryParseUserUrl(
+            $url,
+            'Discord Webhook Image URL'
+        );
+
         if (null !== $url) {
-            return str_replace('http://', 'https://', $url);
+            return str_replace('http://', 'https://', (string)$url);
         }
 
         return null;

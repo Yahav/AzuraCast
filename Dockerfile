@@ -38,7 +38,7 @@ COPY --from=icecast /usr/local/share/icecast /usr/local/share/icecast
 #
 # Final build image
 #
-FROM php:8.5-fpm-trixie AS pre-final
+FROM php:8.5.13-fpm-trixie AS pre-final
 
 ENV TZ="UTC" \
     LANGUAGE="en_US.UTF-8" \
@@ -104,7 +104,6 @@ VOLUME "/var/azuracast/storage/stereo_tool"
 VOLUME "/var/azuracast/storage/uploads"
 
 EXPOSE 80 443 2022
-EXPOSE 8000-8999
 
 # Sensible default environment variables.
 ENV LANG="en_US.UTF-8" \

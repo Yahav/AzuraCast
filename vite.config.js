@@ -2,10 +2,12 @@ import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import {glob} from "glob";
 import {resolve} from "path";
-import eslintPlugin from "@nabla/vite-plugin-eslint";
+import biomePlugin from 'vite-plugin-biome';
 import Icons from 'unplugin-icons/vite';
 
 const inputs = {};
+
+const __dirname = import.meta.dirname;
 
 glob.sync('./frontend/js/pages/**/*.js').forEach((path) => {
     // vue/pages/Admin/Index becomes AdminIndex
@@ -39,13 +41,6 @@ export default defineConfig({
         rollupOptions: {
             input: inputs,
             output: {
-                manualChunks: {
-                    vue: ['vue'],
-                    estoolkit: ['es-toolkit'],
-                    leaflet: ['leaflet'],
-                    hlsjs: ['hls.js'],
-                    zxcvbn: ['zxcvbn'],
-                },
                 chunkFileNames: (assetInfo) => {
                     // Special handling for translations
                     if (assetInfo.name && assetInfo.name === 'translations') {
@@ -101,7 +96,7 @@ export default defineConfig({
         },
         manifest: true,
         emptyOutDir: true,
-        chunkSizeWarningLimit: '1m',
+        chunkSizeWarningLimit: 1000,
         outDir: resolve(__dirname, './web/static/vite_dist')
     },
     css: {
@@ -142,6 +137,9 @@ export default defineConfig({
                 props['aria-hidden'] = 'true';
             },
         }),
-        eslintPlugin(),
+        biomePlugin({
+            mode: 'lint',
+            files: '.',
+        }),
     ],
 })

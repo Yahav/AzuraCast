@@ -287,7 +287,7 @@ check-install-requirements() {
   CURRENT_ARCH=$(uname -m)
   if [[ $CURRENT_ARCH == "x86_64" ]]; then
     echo -en "\e[32m[PASS]\e[0m Architecture: ${CURRENT_ARCH}\n"
-  elif [[ $CURRENT_ARCH == "aarch64" ]]; then
+  elif [[ $CURRENT_ARCH == "aarch64" ]] || [[ $CURRENT_ARCH == "arm64" ]]; then
     echo -en "\e[32m[PASS]\e[0m Architecture: ${CURRENT_ARCH}\n"
   else
     echo -en "\e[41m[FAIL]\e[0m Architecture: ${CURRENT_ARCH}\n"
@@ -312,7 +312,10 @@ check-install-requirements() {
     fi
   done
 
-  if [[ $EUID -ne 0 ]]; then
+  if [[ $CURRENT_OS == "Darwin" ]]; then
+    # On macOS with Docker Desktop, root is not needed
+    echo -en "\e[32m[PASS]\e[0m User Permissions (macOS Docker Desktop)\n"
+  elif [[ $EUID -ne 0 ]]; then
     if [[ $(command -v sudo) ]]; then
       echo -en "\e[32m[PASS]\e[0m User Permissions\n"
     else
@@ -349,6 +352,13 @@ install-docker() {
   set -e
 
   CURRENT_OS=$(uname -s)
+  if [[ $CURRENT_OS == "Darwin" ]]; then
+    echo "On macOS, Docker must be installed manually via Docker Desktop."
+    echo "Download it from: https://www.docker.com/products/docker-desktop/"
+    echo "Once Docker Desktop is installed and running, re-run this script."
+    exit 1
+  fi
+
   if [[ $CURRENT_OS != "Linux" ]]; then
     echo "The automatic Docker installation can only take place on Linux."
     echo "Install Docker Desktop for your operating system."
@@ -376,6 +386,13 @@ install-docker-compose() {
   echo "Installing Docker Compose..."
 
   CURRENT_OS=$(uname -s)
+  if [[ $CURRENT_OS == "Darwin" ]]; then
+    echo "On macOS, Docker Compose is bundled with Docker Desktop."
+    echo "No separate installation is needed. Make sure Docker Desktop is running."
+    set +e
+    return 0
+  fi
+
   if [[ $CURRENT_OS != "Linux" ]]; then
     echo "The automatic Docker installation can only take place on Linux."
     echo "Install Docker Desktop for your operating system."
@@ -390,7 +407,7 @@ install-docker-compose() {
     curl -fsSL -o docker-compose https://github.com/docker/compose/releases/download/v5.0.0/docker-compose-linux-$(uname -m)
 
     ARCHITECTURE=amd64
-    if [ "$(uname -m)" = "aarch64" ]; then
+    if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then
       ARCHITECTURE=arm64
     fi
     curl -fsSL -o docker-compose-switch https://github.com/docker/compose-switch/releases/download/v1.0.5/docker-compose-linux-${ARCHITECTURE}
@@ -874,7 +891,11 @@ rollback() {
 
   echo "[NOTICE] Before you continue, please make sure you have a recent snapshot of your system and or backed it up."
   if ask "Are you ready to continue with the rollback?" Y; then
-    dc exec --user="azuracast" web azuracast_cli azuracast:setup:rollback "${AZURACAST_ROLLBACK_VERSION}"
+    if ! dc exec --user="azuracast" web azuracast_cli azuracast:setup:rollback "${AZURACAST_ROLLBACK_VERSION}"; then
+      echo "The database rollback failed. AzuraCast has not been switched to version '${AZURACAST_ROLLBACK_VERSION}'."
+      exit 1
+    fi
+
     dc down --timeout 60
 
     .env --file .env set AZURACAST_VERSION=${AZURACAST_ROLLBACK_VERSION}
@@ -901,7 +922,7 @@ rollback() {
 setup-letsencrypt() {
   echo "LetsEncrypt is now managed from within the web interface."
   echo "You can manage it via the 'Administration' panel, then 'System Settings'."
-  echo "Under 'Services' you will find the LetsEncrypt settings." 
+  echo "Under 'Services' you will find the LetsEncrypt settings."
 }
 
 letsencrypt-create() {

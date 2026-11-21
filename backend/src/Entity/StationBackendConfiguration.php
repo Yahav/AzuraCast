@@ -84,6 +84,14 @@ final class StationBackendConfiguration extends AbstractArrayEntity
         set (bool|null $value) => Types::bool($value);
     }
 
+    #[OA\Property(
+        description: 'Reset the internal queue of sequential playlists when the station is restarted or its configuration is rewritten.',
+        example: false
+    )]
+    public bool $reset_sequential_queues_on_restart = false {
+        set (bool|null $value) => Types::bool($value);
+    }
+
     protected const int DEFAULT_QUEUE_LENGTH = 3;
 
     #[OA\Property]
@@ -223,11 +231,63 @@ final class StationBackendConfiguration extends AbstractArrayEntity
         return $this->getCrossfadeDuration() > 0;
     }
 
+    protected const float DEFAULT_CROSSFADE_SMART_HIGH = -15.0;
+
+    #[OA\Property(
+        description: "The dB level above which a track is considered 'loud' ('high' parameter in 'cross.smart')."
+    )]
+    public float $crossfade_smart_high = self::DEFAULT_CROSSFADE_SMART_HIGH {
+        set (float|string|null $value) => round(
+            Types::float($value, self::DEFAULT_CROSSFADE_SMART_HIGH),
+            1
+        );
+    }
+
+    protected const float DEFAULT_CROSSFADE_SMART_MEDIUM = -32.0;
+
+    #[OA\Property(
+        description: "The dB level below which a track is considered 'quiet' ('medium' parameter in 'cross.smart')."
+    )]
+    public float $crossfade_smart_medium = self::DEFAULT_CROSSFADE_SMART_MEDIUM {
+        set (float|string|null $value) => round(
+            Types::float($value, self::DEFAULT_CROSSFADE_SMART_MEDIUM),
+            1
+        );
+    }
+
+    protected const float DEFAULT_CROSSFADE_SMART_MARGIN = 8.0;
+
+    #[OA\Property(
+        description: "The dB difference above which two tracks are considered too different to overlap ('margin' parameter in 'cross.smart')."
+    )]
+    public float $crossfade_smart_margin = self::DEFAULT_CROSSFADE_SMART_MARGIN {
+        set (float|string|null $value) => round(
+            Types::float($value, self::DEFAULT_CROSSFADE_SMART_MARGIN),
+            1
+        );
+    }
+
     protected const int DEFAULT_DUPLICATE_PREVENTION_TIME_RANGE = 120;
 
-    #[OA\Property]
+    #[OA\Property(
+        description: 'The time range (in minutes) of the song history that duplicate prevention checks tracks and titles against, also applies to artists when duplicate_prevention_artist_time_range is not set.',
+        example: 120
+    )]
     public int $duplicate_prevention_time_range = self::DEFAULT_DUPLICATE_PREVENTION_TIME_RANGE {
         set (int|string|null $value) => Types::int($value, self::DEFAULT_DUPLICATE_PREVENTION_TIME_RANGE);
+    }
+
+    #[OA\Property(
+        description: 'The time range (in minutes) of the song history that duplicate prevention checks artists against, uses duplicate_prevention_time_range if set to null.',
+        example: 120
+    )]
+    public ?int $duplicate_prevention_artist_time_range = null {
+        set (int|string|null $value) => Types::intOrNull($value);
+    }
+
+    public function getDuplicatePreventionArtistTimeRange(): int
+    {
+        return $this->duplicate_prevention_artist_time_range ?? $this->duplicate_prevention_time_range;
     }
 
     #[OA\Property]

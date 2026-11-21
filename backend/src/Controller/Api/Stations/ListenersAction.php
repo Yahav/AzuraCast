@@ -17,10 +17,10 @@ use App\Entity\Station;
 use App\Http\Response;
 use App\Http\ServerRequest;
 use App\OpenApi;
+use App\Utilities\Csv;
 use App\Utilities\Types;
 use Carbon\CarbonImmutable;
 use Doctrine\ORM\AbstractQuery;
-use League\Csv\Writer;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -90,9 +90,13 @@ final class ListenersAction implements SingleActionInterface
 
             $range = $dateRange->format('Y-m-d_H-i-s', '_to_');
 
-            $listenersIterator = $this->em->createQuery(
+            $query = $this->em->createQuery(
                 <<<'DQL'
-                    SELECT l
+                    SELECT
+                        l,
+                        IDENTITY(l.mount) AS mount_id,
+                        IDENTITY(l.remote) AS remote_id,
+                        IDENTITY(l.hls_stream) AS hls_stream_id
                     FROM App\Entity\Listener l
                     WHERE l.station = :station
                     AND l.timestamp_start < :time_end
@@ -101,8 +105,20 @@ final class ListenersAction implements SingleActionInterface
                 DQL
             )->setParameter('station', $station)
                 ->setParameter('time_start', $start)
-                ->setParameter('time_end', $end)
-                ->toIterable([], AbstractQuery::HYDRATE_ARRAY);
+                ->setParameter('time_end', $end);
+
+            // Virtual *_id properties are not included in result of array hydration
+            // need to explicitly select them and merge back into listener row
+            $listenersIterator = (static function () use ($query) {
+                foreach ($query->toIterable([], AbstractQuery::HYDRATE_ARRAY) as $row) {
+                    yield [
+                        ...$row[0],
+                        'mount_id' => $row['mount_id'],
+                        'remote_id' => $row['remote_id'],
+                        'hls_stream_id' => $row['hls_stream_id'],
+                    ];
+                }
+            })();
         }
 
         $mountNames = $this->mountRepo->getDisplayNames($station);
@@ -111,6 +127,8 @@ final class ListenersAction implements SingleActionInterface
 
         /** @var ApiListener[] $listeners */
         $listeners = [];
+
+        /** @var non-empty-array $listenersByHash */
         $listenersByHash = [];
 
         $groupByUnique = Types::bool($queryParams['unique'] ?? null, true, true);
@@ -226,7 +244,7 @@ final class ListenersAction implements SingleActionInterface
         if (!($tempFile = tmpfile())) {
             throw new RuntimeException('Could not create temp file.');
         }
-        $csv = Writer::createFromStream($tempFile);
+        $csv = Csv::exportWriter($tempFile);
 
         $tz = $station->getTimezoneObject();
 

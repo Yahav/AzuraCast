@@ -102,10 +102,15 @@
                                             {{ np.now_playing?.song?.text ?? '' }}
                                         </h6>
                                     </div>
-                                    <div v-if="np.now_playing?.playlist">
-                                        <small class="text-muted">
-                                            {{ $gettext('Playlist') }}
-                                            : {{ np.now_playing.playlist }}</small>
+                                    <div
+                                        v-if="np.now_playing?.playlist"
+                                        class="mt-2 mb-1"
+                                    >
+                                        <playlist-source-badge
+                                            :chain="np.now_playing.playlist_chain"
+                                            :playlist-name="np.now_playing.playlist"
+                                            :source="np.now_playing.playlist_source"
+                                        />
                                     </div>
                                     <div
                                         v-if="currentTrackElapsedDisplay"
@@ -171,10 +176,15 @@
                                         </h6>
                                     </div>
 
-                                    <div v-if="np.playing_next.playlist">
-                                        <small class="text-muted">
-                                            {{ $gettext('Playlist') }}
-                                            : {{ np.playing_next.playlist }}</small>
+                                    <div
+                                        v-if="np.playing_next.playlist"
+                                        class="mt-2"
+                                    >
+                                        <playlist-source-badge
+                                            :chain="np.playing_next.playlist_chain"
+                                            :playlist-name="np.playing_next.playlist"
+                                            :source="np.playing_next.playlist_source"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -252,55 +262,56 @@
 </template>
 
 <script setup lang="ts">
-import {computed, useTemplateRef} from "vue";
-import {useTranslate} from "~/vendor/gettext";
-import useNowPlaying from "~/functions/useNowPlaying";
+import { toRefs } from "@vueuse/core";
+import { computed, useTemplateRef } from "vue";
+import PlayButton from "~/components/Common/Audio/PlayButton.vue";
 import CardPage from "~/components/Common/CardPage.vue";
-import {useLightbox} from "~/vendor/lightbox";
-import {useUserAllowedForStation} from "~/functions/useUserallowedForStation.ts";
+import PlaylistSourceBadge from "~/components/Stations/Common/PlaylistSourceBadge.vue";
 import UpdateMetadataModal from "~/components/Stations/Profile/UpdateMetadataModal.vue";
 import useMakeApiCall from "~/components/Stations/Profile/useMakeApiCall.ts";
-import {BackendAdapters, StationPermissions} from "~/entities/ApiInterfaces.ts";
-import {useStationData} from "~/functions/useStationQuery.ts";
-import {useStationProfileData} from "~/components/Stations/Profile/useProfileQuery.ts";
-import {toRefs} from "@vueuse/core";
-import IconIcHeadphones from "~icons/ic/baseline-headphones";
+import { useStationProfileData } from "~/components/Stations/Profile/useProfileQuery.ts";
+import {
+    BackendAdapters,
+    StationPermissions,
+} from "~/entities/ApiInterfaces.ts";
+import { useApiRouter } from "~/functions/useApiRouter.ts";
+import useNowPlaying from "~/functions/useNowPlaying";
+import { useStationData } from "~/functions/useStationQuery.ts";
+import { useUserAllowedForStation } from "~/functions/useUserallowedForStation.ts";
+import { useTranslate } from "~/vendor/gettext";
+import { useLightbox } from "~/vendor/lightbox";
 import IconIcAssignment from "~icons/ic/baseline-assignment";
+import IconIcHeadphones from "~icons/ic/baseline-headphones";
 import IconIcMic from "~icons/ic/baseline-mic";
 import IconIcMusicNote from "~icons/ic/baseline-music-note";
 import IconIcSkipNext from "~icons/ic/baseline-skip-next";
 import IconIcUpdate from "~icons/ic/baseline-update";
 import IconIcVolumeOff from "~icons/ic/baseline-volume-off";
-import {useApiRouter} from "~/functions/useApiRouter.ts";
-import PlayButton from "~/components/Common/Audio/PlayButton.vue";
 
 const stationData = useStationData();
 const profileData = useStationProfileData();
-const {nowPlayingProps} = toRefs(profileData);
+const { nowPlayingProps } = toRefs(profileData);
 
-const {userAllowedForStation} = useUserAllowedForStation();
+const { userAllowedForStation } = useUserAllowedForStation();
 
-const {getStationApiUrl} = useApiRouter();
+const { getStationApiUrl } = useApiRouter();
 
-const backendSkipSongUri = getStationApiUrl('/backend/skip');
-const backendDisconnectStreamerUri = getStationApiUrl('/backend/disconnect');
+const backendSkipSongUri = getStationApiUrl("/backend/skip");
+const backendDisconnectStreamerUri = getStationApiUrl("/backend/disconnect");
 
-const {
-    np,
-    currentTrackDurationDisplay,
-    currentTrackElapsedDisplay
-} = useNowPlaying(nowPlayingProps);
+const { np, currentTrackDurationDisplay, currentTrackElapsedDisplay } =
+    useNowPlaying(nowPlayingProps);
 
-const {$gettext, $ngettext} = useTranslate();
+const { $gettext, $ngettext } = useTranslate();
 
 const langListeners = computed(() => {
     return $ngettext(
-        '%{listeners} Listener',
-        '%{listeners} Listeners',
+        "%{listeners} Listener",
+        "%{listeners} Listeners",
         np.value?.listeners?.total ?? 0,
         {
-            listeners: String(np.value?.listeners?.total ?? 0)
-        }
+            listeners: String(np.value?.listeners?.total ?? 0),
+        },
     );
 });
 
@@ -308,27 +319,21 @@ const isLiquidsoap = computed(() => {
     return stationData.value.backendType === BackendAdapters.Liquidsoap;
 });
 
-const {vLightbox} = useLightbox();
+const { vLightbox } = useLightbox();
 
-const doSkipSong = useMakeApiCall(
-    backendSkipSongUri,
-    {
-        title: $gettext('Skip current song?'),
-        confirmButtonText: $gettext('Skip Song')
-    }
-);
+const doSkipSong = useMakeApiCall(backendSkipSongUri, {
+    title: $gettext("Skip current song?"),
+    confirmButtonText: $gettext("Skip Song"),
+});
 
-const doDisconnectStreamer = useMakeApiCall(
-    backendDisconnectStreamerUri,
-    {
-        title: $gettext('Disconnect current streamer?'),
-        confirmButtonText: $gettext('Disconnect Streamer')
-    }
-);
+const doDisconnectStreamer = useMakeApiCall(backendDisconnectStreamerUri, {
+    title: $gettext("Disconnect current streamer?"),
+    confirmButtonText: $gettext("Disconnect Streamer"),
+});
 
-const $updateMetadataModal = useTemplateRef('$updateMetadataModal');
+const $updateMetadataModal = useTemplateRef("$updateMetadataModal");
 
 const updateMetadata = () => {
     $updateMetadataModal.value?.open();
-}
+};
 </script>

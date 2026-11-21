@@ -7,10 +7,12 @@ namespace App\Webhook\Connector;
 use App\Container\LoggerAwareTrait;
 use App\Entity\Api\NowPlaying\NowPlaying;
 use App\Entity\StationWebhook;
+use App\Service\GuzzleFactory;
 use App\Utilities\Arrays;
 use App\Utilities\Types;
-use App\Utilities\Urls;
+use App\Utilities\UserUrlFilter;
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 
@@ -20,9 +22,15 @@ abstract class AbstractConnector implements ConnectorInterface
 
     public const string RATE_LIMIT_KEY = 'rate_limit';
 
+    protected readonly Client $httpClient;
+
     public function __construct(
-        protected Client $httpClient
+        GuzzleFactory $httpFactory,
+        protected readonly UserUrlFilter $userUrlFilter
     ) {
+        $this->httpClient = $httpFactory->buildClient([
+            RequestOptions::ALLOW_REDIRECTS => false,
+        ]);
     }
 
     /**
@@ -99,25 +107,6 @@ abstract class AbstractConnector implements ConnectorInterface
                 $varValue
             );
         }, $rawVars);
-    }
-
-    /**
-     * Determine if a passed URL is valid and return it if so, or return null otherwise.
-     */
-    protected function getValidUrl(mixed $urlString = null): ?string
-    {
-        $urlString = Types::stringOrNull($urlString, true);
-
-        $uri = Urls::tryParseUserUrl(
-            $urlString,
-            'Webhook'
-        );
-
-        if (null === $uri) {
-            return null;
-        }
-
-        return (string)$uri;
     }
 
     protected function incompleteConfigException(StationWebhook $webhook): InvalidArgumentException

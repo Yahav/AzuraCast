@@ -59,33 +59,35 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
+import { onMounted, onUnmounted, ref, toRef, watch } from "vue";
 import WaveSurfer from "wavesurfer.js";
-import timelinePlugin from "wavesurfer.js/dist/plugins/timeline.js";
-import regionsPlugin, {RegionParams} from "wavesurfer.js/dist/plugins/regions.js";
-import {onMounted, onUnmounted, ref, toRef, watch} from "vue";
-import {useAxios} from "~/vendor/axios";
+import RegionsPlugin, {
+    RegionParams,
+} from "wavesurfer.js/dist/plugins/regions.js";
+import TimelinePlugin from "wavesurfer.js/dist/plugins/timeline.js";
 import MuteButton from "~/components/Common/Audio/MuteButton.vue";
-import {usePlayerStore} from "~/functions/usePlayerStore.ts";
-import {storeToRefs} from "pinia";
+import { usePlayerStore } from "~/functions/usePlayerStore.ts";
+import { useAxios } from "~/vendor/axios";
 
 const props = withDefaults(
     defineProps<{
-        regions?: RegionParams[],
-        audioUrl: string,
-        waveformUrl: string,
-        waveformCacheUrl?: string,
+        regions?: RegionParams[];
+        audioUrl: string;
+        waveformUrl: string;
+        waveformCacheUrl?: string;
     }>(),
     {
         regions: () => [],
-    }
+    },
 );
 
 let wavesurfer: WaveSurfer | null = null;
-let wsRegions: regionsPlugin | null = null;
+let wsRegions: ReturnType<typeof RegionsPlugin.create> | null = null;
 
 const playerStore = usePlayerStore();
-const {showVolume, volume, logVolume, isMuted} = storeToRefs(playerStore);
-const {toggle, toggleMute, setDuration, setCurrentTime} = playerStore;
+const { showVolume, volume, logVolume, isMuted } = storeToRefs(playerStore);
+const { toggle, toggleMute, setDuration, setCurrentTime } = playerStore;
 
 const zoom = ref(0);
 watch(zoom, (val) => {
@@ -102,7 +104,7 @@ watch(isMuted, (val) => {
 
 const isExternalJson = ref(false);
 
-const {axiosSilent} = useAxios();
+const { axiosSilent } = useAxios();
 
 const cacheWaveformRemotely = () => {
     if (!props.waveformCacheUrl) {
@@ -117,28 +119,28 @@ const cacheWaveformRemotely = () => {
     }
 
     const dataToCache = {
-        source: 'wavesurfer',
+        source: "wavesurfer",
         channels: decodedData.numberOfChannels,
         sample_rate: decodedData.sampleRate,
         length: decodedData.length,
-        data: peaks
+        data: peaks,
     };
 
     void axiosSilent.post(props.waveformCacheUrl, dataToCache);
 };
 
 onMounted(async () => {
+    wsRegions = RegionsPlugin.create();
+    const wsTimeline = TimelinePlugin.create();
+
     wavesurfer = WaveSurfer.create({
-        container: '#waveform_container',
-        waveColor: '#2196f3',
-        progressColor: '#4081CF',
+        container: "#waveform_container",
+        waveColor: "#2196f3",
+        progressColor: "#4081CF",
+        plugins: [wsRegions, wsTimeline],
     });
 
-    wavesurfer.registerPlugin(timelinePlugin.create());
-
-    wsRegions = wavesurfer.registerPlugin(regionsPlugin.create());
-
-    wavesurfer.on('ready', (newDuration: number) => {
+    wavesurfer.on("ready", (newDuration: number) => {
         // Disable any other players.
         toggle();
 
@@ -151,16 +153,16 @@ onMounted(async () => {
         setDuration(newDuration);
     });
 
-    wavesurfer.on('decode', (newDuration: number) => {
+    wavesurfer.on("decode", (newDuration: number) => {
         setDuration(newDuration);
     });
 
-    wavesurfer.on('timeupdate', (newTime: number) => {
+    wavesurfer.on("timeupdate", (newTime: number) => {
         setCurrentTime(newTime);
     });
 
     try {
-        const {data} = await axiosSilent.get(props.waveformUrl);
+        const { data } = await axiosSilent.get(props.waveformUrl);
         const waveformJson = data?.data ?? null;
 
         if (waveformJson) {
@@ -176,22 +178,17 @@ onMounted(async () => {
     }
 });
 
-watch(
-    toRef(props, 'regions'),
-    (regions: RegionParams[]) => {
-        wsRegions?.clearRegions();
+watch(toRef(props, "regions"), (regions: RegionParams[]) => {
+    wsRegions?.clearRegions();
 
-        regions.forEach((region) => {
-            wsRegions?.addRegion(
-                {
-                    resize: false,
-                    drag: false,
-                    ...region,
-                }
-            );
+    regions.forEach((region) => {
+        wsRegions?.addRegion({
+            resize: false,
+            drag: false,
+            ...region,
         });
-    },
-);
+    });
+});
 
 onUnmounted(() => {
     wavesurfer = null;
@@ -207,8 +204,8 @@ const stop = () => {
 
 defineExpose({
     play,
-    stop
-})
+    stop,
+});
 </script>
 
 <style lang="scss">

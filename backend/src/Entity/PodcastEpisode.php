@@ -29,9 +29,9 @@ final class PodcastEpisode implements IdentifiableEntityInterface
     #[ORM\JoinColumn(name: 'playlist_media_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
     public ?StationMedia $playlist_media = null;
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: true, insertable: false, updatable: false)]
-    public private(set) ?int $playlist_media_id = null;
+    public ?int $playlist_media_id {
+        get => $this->playlist_media?->id;
+    }
 
     #[ORM\OneToOne(mappedBy: 'episode')]
     public ?PodcastMedia $media = null;
@@ -59,13 +59,13 @@ final class PodcastEpisode implements IdentifiableEntityInterface
     }
 
     #[ORM\Column]
-    public bool $explicit;
+    public bool $explicit = false;
 
     #[ORM\Column(nullable: true)]
-    public ?int $season_number;
+    public ?int $season_number = null;
 
     #[ORM\Column(nullable: true)]
-    public ?int $episode_number;
+    public ?int $episode_number = null;
 
     #[ORM\Column]
     public int $created_at;

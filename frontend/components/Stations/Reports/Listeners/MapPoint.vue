@@ -5,38 +5,38 @@
 </template>
 
 <script setup lang="ts">
-import {onUnmounted, toRef, useTemplateRef, watch} from "vue";
-import {LatLngTuple, Map, marker, Popup} from "leaflet";
+import { LngLatLike, Map as MapLibreMap, Marker, Popup } from "maplibre-gl";
+import { onUnmounted, toRef, useTemplateRef, watch } from "vue";
 
 const props = defineProps<{
-    map: Map,
-    position: LatLngTuple
+    map: MapLibreMap;
+    position: LngLatLike;
 }>();
 
-const mapMarker = marker(props.position);
+const mapMarker = new Marker().setLngLat(props.position);
 
 watch(
-    toRef(props, 'map'),
+    toRef(props, "map"),
     (mapRef) => {
         if (mapRef !== null) {
             mapMarker.addTo(mapRef);
         }
     },
-    {immediate: true}
+    { immediate: true },
 );
 
 const popup = new Popup();
-const $content = useTemplateRef('$content');
+const $content = useTemplateRef("$content");
 
 watch(
     $content,
     (newContent) => {
         if (newContent !== null) {
-            popup.setContent(newContent);
-            mapMarker.bindPopup(popup);
+            popup.setDOMContent(newContent);
+            mapMarker.setPopup(popup);
         }
     },
-    {immediate: true}
+    { immediate: true },
 );
 
 onUnmounted(() => {

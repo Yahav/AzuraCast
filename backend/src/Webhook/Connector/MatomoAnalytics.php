@@ -9,21 +9,24 @@ use App\Entity\Repository\ListenerRepository;
 use App\Entity\Station;
 use App\Entity\StationWebhook;
 use App\Http\RouterInterface;
+use App\Service\GuzzleFactory;
 use App\Utilities\Time;
 use App\Utilities\Types;
-use App\Utilities\Urls;
+use App\Utilities\UserUrlFilter;
 use Carbon\CarbonImmutable;
-use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 
 final class MatomoAnalytics extends AbstractConnector
 {
     public function __construct(
-        Client $httpClient,
+        GuzzleFactory $httpFactory,
+        UserUrlFilter $userUrlFilter,
         private readonly RouterInterface $router,
         private readonly ListenerRepository $listenerRepo
     ) {
-        parent::__construct($httpClient);
+        parent::__construct($httpFactory, $userUrlFilter);
     }
 
     protected function webhookShouldTrigger(StationWebhook $webhook, array $triggers = []): bool
@@ -42,10 +45,13 @@ final class MatomoAnalytics extends AbstractConnector
     ): void {
         $config = $webhook->config ?? [];
 
-        $matomoUrl = Types::stringOrNull($config['matomo_url'], true);
+        $matomoUrl = $this->userUrlFilter->filterSensitiveUserUrl(
+            $config['matomo_url'] ?? null,
+            'Matomo URL'
+        );
         $siteId = Types::intOrNull($config['site_id']);
 
-        if (null === $matomoUrl || null === $siteId) {
+        if (null === $siteId) {
             throw $this->incompleteConfigException($webhook);
         }
 
@@ -71,10 +77,7 @@ final class MatomoAnalytics extends AbstractConnector
         }
 
         // Build Matomo URI
-        $apiUrl = Urls::parseUserUrl(
-            $matomoUrl,
-            'Matomo Analytics URL',
-        )->withPath('/matomo.php');
+        $apiUrl = new Uri($matomoUrl)->withPath('/matomo.php');
 
         $apiToken = Types::stringOrNull($config['token'], true);
 
@@ -161,7 +164,7 @@ final class MatomoAnalytics extends AbstractConnector
         }
 
         $response = $this->httpClient->post($apiUrl, [
-            'json' => $jsonBody,
+            RequestOptions::JSON => $jsonBody,
         ]);
 
         $this->logHttpResponse(

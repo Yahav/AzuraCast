@@ -50,76 +50,77 @@
 </template>
 
 <script setup lang="ts">
-import mergeExisting from "~/functions/mergeExisting";
-import {email, required} from "@regle/rules";
-import ModalForm from "~/components/Common/ModalForm.vue";
-import {computed, ref, useTemplateRef} from "vue";
-import {useNotify} from "~/components/Common/Toasts/useNotify.ts";
-import {getErrorAsString, useAxios} from "~/vendor/axios";
-import {useHasModal} from "~/functions/useHasModal.ts";
-import {useAppRegle} from "~/vendor/regle.ts";
-import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
-import FormGroupField from "~/components/Form/FormGroupField.vue";
+import { email, required } from "@regle/rules";
+import { computed, ref, useTemplateRef } from "vue";
 import TimeRadios from "~/components/Account/TimeRadios.vue";
-import {useTranslate} from "~/vendor/gettext.ts";
-import {objectToSimpleFormOptions} from "~/functions/objectToFormOptions.ts";
-import {useApiRouter} from "~/functions/useApiRouter.ts";
-import {useUserAllowed} from "~/functions/useUserAllowed.ts";
-import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+import ModalForm from "~/components/Common/ModalForm.vue";
+import { useNotify } from "~/components/Common/Toasts/useNotify.ts";
+import FormGroupField from "~/components/Form/FormGroupField.vue";
+import FormGroupMultiCheck from "~/components/Form/FormGroupMultiCheck.vue";
+import { GlobalPermissions } from "~/entities/ApiInterfaces.ts";
+import mergeExisting from "~/functions/mergeExisting";
+import { objectToSimpleFormOptions } from "~/functions/objectToFormOptions.ts";
+import { useApiRouter } from "~/functions/useApiRouter.ts";
+import { useHasModal } from "~/functions/useHasModal.ts";
+import { useUserAllowed } from "~/functions/useUserAllowed.ts";
+import { getErrorAsString, useAxios } from "~/vendor/axios";
+import { useTranslate } from "~/vendor/gettext.ts";
+import { useAppRegle } from "~/vendor/regle.ts";
 
-const {userAllowed} = useUserAllowed();
+const { userAllowed } = useUserAllowed();
 const isAdministrator = userAllowed(GlobalPermissions.All);
 
 const props = defineProps<{
-    supportedLocales: Record<string, string>
+    supportedLocales: Record<string, string>;
 }>();
 
-const emit = defineEmits<{
-    (e: 'reload'): void
-}>();
+const emit = defineEmits<(e: "reload") => void>();
 
-const {getApiUrl} = useApiRouter();
-const userUrl = getApiUrl('/frontend/account/me');
+const { getApiUrl } = useApiRouter();
+const userUrl = getApiUrl("/frontend/account/me");
 
 const loading = ref(true);
 const error = ref<string | null>(null);
 
 type AccountRow = {
     name: string | null;
+    email: string | null;
     locale: string | null;
     show_24_hour_time: boolean | null;
-    email?: string | null;            // <-- optional
 };
 
-const form = ref<AccountRow>(
-    isAdministrator
-        ? { name: '', locale: 'default', show_24_hour_time: false, email: '' }
-        : { name: '', locale: 'default', show_24_hour_time: false }
+const form = ref<AccountRow>({
+    name: "",
+    email: "",
+    locale: "default",
+    show_24_hour_time: false,
+});
+
+const { r$ } = useAppRegle(
+    form,
+    {
+        name: {},
+        email: { required, email },
+        locale: { required },
+        show_24_hour_time: {},
+    },
+    {},
 );
-
-const rules = {
-    name: {},
-    locale: { required },
-    show_24_hour_time: {},
-    ...(isAdministrator ? { email: { required, email } } : {}),
-};
-
-const { r$ } = useAppRegle(form, rules, {});
 
 const clearContents = () => {
     r$.$reset({
-        toOriginalState: true
+        toOriginalState: true,
     });
-    
+
     loading.value = false;
     error.value = null;
 };
 
-const $modal = useTemplateRef('$modal');
-const {show, hide} = useHasModal($modal);
+const $modal = useTemplateRef("$modal");
+const { show, hide } = useHasModal($modal);
 
-const {notifySuccess} = useNotify();
-const {axios} = useAxios();
+const { notifySuccess } = useNotify();
+const { axios } = useAxios();
 
 const doOpen = async () => {
     clearContents();
@@ -127,36 +128,38 @@ const doOpen = async () => {
     show();
 
     try {
-        const {data} = await axios.get(userUrl.value);
+        const { data } = await axios.get(userUrl.value);
         r$.$reset({
-            toState: mergeExisting(r$.$value, data)
+            toState: mergeExisting(r$.$value, data),
         });
 
         loading.value = false;
     } catch {
         hide();
     }
-}
+};
 
 const open = () => {
     void doOpen();
 };
 
-const {$gettext} = useTranslate();
+const { $gettext } = useTranslate();
 
 const localeOptions = computed(() => {
-    const localeOptions = objectToSimpleFormOptions(props.supportedLocales).value;
+    const localeOptions = objectToSimpleFormOptions(
+        props.supportedLocales,
+    ).value;
 
     localeOptions.unshift({
-        text: $gettext('Use Browser Default'),
-        value: 'default'
+        text: $gettext("Use Browser Default"),
+        value: "default",
     });
 
     return localeOptions;
 });
 
 const doSubmit = async () => {
-    const {valid, data: postData} = await r$.$validate();
+    const { valid, data: postData } = await r$.$validate();
     if (!valid) {
         return;
     }
@@ -165,13 +168,13 @@ const doSubmit = async () => {
 
     try {
         await axios({
-            method: 'PUT',
+            method: "PUT",
             url: userUrl.value,
-            data: postData
+            data: postData,
         });
 
         notifySuccess();
-        emit('reload');
+        emit("reload");
         hide();
     } catch (e) {
         error.value = getErrorAsString(e);
@@ -179,6 +182,6 @@ const doSubmit = async () => {
 };
 
 defineExpose({
-    open
+    open,
 });
 </script>

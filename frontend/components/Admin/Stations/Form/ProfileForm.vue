@@ -104,7 +104,16 @@
                     class="col-md-12"
                     :field="r$.enable_public_page"
                     :label="$gettext('Enable Public Pages')"
-                    :description="$gettext('Show the station in public pages and general API results.')"
+                    :description="$gettext('Allow non-authenticated users to see public-facing pages related to this station (Player, Requests, On Demand, etc.).')"
+                />
+
+                <form-group-checkbox
+                    v-if="!form.enable_public_page"
+                    id="edit_form_enable_public_api"
+                    class="col-md-12"
+                    :field="r$.enable_public_api"
+                    :label="$gettext('Enable Public APIs')"
+                    :description="$gettext('Allow non-authenticated users to see public-facing APIs even when public pages are disabled.')"
                 />
             </div>
         </form-fieldset>
@@ -142,43 +151,43 @@
 </template>
 
 <script setup lang="ts">
-import FormFieldset from "~/components/Form/FormFieldset.vue";
-import FormGroupField from "~/components/Form/FormGroupField.vue";
-import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
-import {computed} from "vue";
-import {useTranslate} from "~/vendor/gettext";
-import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
-import Tab from "~/components/Common/Tab.vue";
+import { storeToRefs } from "pinia";
+import { computed } from "vue";
+import { useAdminStationsForm } from "~/components/Admin/Stations/Form/form.ts";
 import RadioWithCustomNumber from "~/components/Common/RadioWithCustomNumber.vue";
-import {storeToRefs} from "pinia";
-import {useFormTabClass} from "~/functions/useFormTabClass.ts";
-import {useAdminStationsForm} from "~/components/Admin/Stations/Form/form.ts";
-import {useUserAllowed} from "~/functions/useUserAllowed.ts";
-import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+import Tab from "~/components/Common/Tab.vue";
+import FormFieldset from "~/components/Form/FormFieldset.vue";
+import FormGroupCheckbox from "~/components/Form/FormGroupCheckbox.vue";
+import FormGroupField from "~/components/Form/FormGroupField.vue";
+import FormGroupSelect from "~/components/Form/FormGroupSelect.vue";
+import { GlobalPermissions } from "~/entities/ApiInterfaces.ts";
+import { useFormTabClass } from "~/functions/useFormTabClass.ts";
+import { useUserAllowed } from "~/functions/useUserAllowed.ts";
+import { useTranslate } from "~/vendor/gettext";
 
-const {userAllowed} = useUserAllowed();
+const { userAllowed } = useUserAllowed();
 const isAdministrator = userAllowed(GlobalPermissions.All);
 
 defineProps<{
-    timezones: Record<string, string>,
+    timezones: Record<string, string>;
 }>();
 
-const {r$, form} = storeToRefs(useAdminStationsForm());
+const { r$, form } = storeToRefs(useAdminStationsForm());
 
 const tabClass = useFormTabClass(computed(() => r$.value.$groups.profileTab));
 
-const {$gettext} = useTranslate();
+const { $gettext } = useTranslate();
 
 const historyItemsOptions = computed(() => {
     return [
         {
-            text: $gettext('Disabled'),
+            text: $gettext("Disabled"),
             value: 0,
         },
-        {text: '1', value: 1},
-        {text: '5', value: 5},
-        {text: '10', value: 10},
-        {text: '15', value: 15}
+        { text: "1", value: 1 },
+        { text: "5", value: 5 },
+        { text: "10", value: 10 },
+        { text: "15", value: 15 },
     ];
 });
 </script>

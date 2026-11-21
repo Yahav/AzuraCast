@@ -22,57 +22,61 @@
                 :edit-intro-url="record.links.intro"
             />
             <mount-form-advanced
-                :station-frontend-type="frontendType"
                 v-if="isAdministrator"
+                :station-frontend-type="frontendType"
             />
         </tabs>
     </modal-form>
 </template>
 
 <script setup lang="ts">
-import MountFormBasicInfo from "~/components/Stations/Mounts/Form/BasicInfo.vue";
-import MountFormAutoDj from "~/components/Stations/Mounts/Form/AutoDj.vue";
-import MountFormAdvanced from "~/components/Stations/Mounts/Form/Advanced.vue";
-import MountFormIntro from "~/components/Stations/Mounts/Form/Intro.vue";
-import mergeExisting from "~/functions/mergeExisting";
-import {BaseEditModalEmits, BaseEditModalProps, useBaseEditModal} from "~/functions/useBaseEditModal";
-import {computed, toRef, useTemplateRef} from "vue";
-import {useNotify} from "~/components/Common/Toasts/useNotify.ts";
-import {useTranslate} from "~/vendor/gettext";
+import { toRefs } from "@vueuse/core";
+import { storeToRefs } from "pinia";
+import { computed, toRef, useTemplateRef } from "vue";
 import ModalForm from "~/components/Common/ModalForm.vue";
 import Tabs from "~/components/Common/Tabs.vue";
-import {storeToRefs} from "pinia";
+import { useNotify } from "~/components/Common/Toasts/useNotify.ts";
+import MountFormAdvanced from "~/components/Stations/Mounts/Form/Advanced.vue";
+import MountFormAutoDj from "~/components/Stations/Mounts/Form/AutoDj.vue";
+import MountFormBasicInfo from "~/components/Stations/Mounts/Form/BasicInfo.vue";
 import {
     StationMountHttpResponse,
     StationMountRecord,
-    useStationsMountsForm
+    useStationsMountsForm,
 } from "~/components/Stations/Mounts/Form/form.ts";
-import {useStationData} from "~/functions/useStationQuery.ts";
-import {toRefs} from "@vueuse/core";
-import {useUserAllowed} from "~/functions/useUserAllowed.ts";
-import {GlobalPermissions} from "~/entities/ApiInterfaces.ts";
+import MountFormIntro from "~/components/Stations/Mounts/Form/Intro.vue";
+import { GlobalPermissions } from "~/entities/ApiInterfaces.ts";
+import mergeExisting from "~/functions/mergeExisting";
+import {
+    BaseEditModalEmits,
+    BaseEditModalProps,
+    useBaseEditModal,
+} from "~/functions/useBaseEditModal";
+import { useStationData } from "~/functions/useStationQuery.ts";
+import { useUserAllowed } from "~/functions/useUserAllowed.ts";
+import { useTranslate } from "~/vendor/gettext";
 
-const {userAllowed} = useUserAllowed();
+const { userAllowed } = useUserAllowed();
 const isAdministrator = userAllowed(GlobalPermissions.All);
 
-const props = defineProps<BaseEditModalProps & {
-    newIntroUrl: string
-}>();
+const props = defineProps<
+    BaseEditModalProps & {
+        newIntroUrl: string;
+    }
+>();
 
-const emit = defineEmits<BaseEditModalEmits & {
-    (e: 'needs-restart'): void
-}>();
+const emit = defineEmits<BaseEditModalEmits & ((e: "needs-restart") => void)>();
 
 const stationData = useStationData();
-const {frontendType} = toRefs(stationData);
+const { frontendType } = toRefs(stationData);
 
-const $modal = useTemplateRef('$modal');
+const $modal = useTemplateRef("$modal");
 
-const {notifySuccess} = useNotify();
+const { notifySuccess } = useNotify();
 
 const formStore = useStationsMountsForm();
-const {form, record, r$} = storeToRefs(formStore);
-const {$reset: resetForm} = formStore;
+const { form, record, r$ } = storeToRefs(formStore);
+const { $reset: resetForm } = formStore;
 
 const {
     loading,
@@ -82,12 +86,9 @@ const {
     create,
     edit,
     doSubmit,
-    close
-} = useBaseEditModal<
-    StationMountRecord,
-    StationMountHttpResponse
->(
-    toRef(props, 'createUrl'),
+    close,
+} = useBaseEditModal<StationMountRecord, StationMountHttpResponse>(
+    toRef(props, "createUrl"),
     emit,
     $modal,
     resetForm,
@@ -95,34 +96,34 @@ const {
         record.value = mergeExisting(record.value, data);
 
         r$.value.$reset({
-            toState: mergeExisting(r$.value.$value, data)
-        })
+            toState: mergeExisting(r$.value.$value, data),
+        });
     },
     async () => {
-        const {valid} = await r$.value.$validate();
-        return {valid, data: form.value};
+        const { valid } = await r$.value.$validate();
+        return { valid, data: form.value };
     },
     {
         onSubmitSuccess: () => {
             notifySuccess();
-            emit('relist');
-            emit('needs-restart');
+            emit("relist");
+            emit("needs-restart");
             close();
         },
-    }
+    },
 );
 
-const {$gettext} = useTranslate();
+const { $gettext } = useTranslate();
 
 const langTitle = computed(() => {
     return isEditMode.value
-        ? $gettext('Edit Mount Point')
-        : $gettext('Add Mount Point');
+        ? $gettext("Edit Mount Point")
+        : $gettext("Add Mount Point");
 });
 
 defineExpose({
     create,
     edit,
-    close
+    close,
 });
 </script>

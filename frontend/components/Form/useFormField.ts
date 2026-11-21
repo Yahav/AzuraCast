@@ -1,43 +1,48 @@
-import {computed, UnwrapNestedRefs, WritableComputedRef} from "vue";
-import {reactiveComputed} from "@vueuse/core";
-import {InferRegleRules, InferRegleShortcuts, RegleFieldStatus} from "@regle/core";
-import {useAppRegle} from "~/vendor/regle.ts";
+import { RegleFieldStatus } from "@regle/core";
+import { reactiveComputed } from "@vueuse/core";
+import { computed, UnwrapNestedRefs, WritableComputedRef } from "vue";
 
-export type ModelFormField = string | number | boolean | Array<any> | null | undefined
+export type ModelFormField =
+    | string
+    | number
+    | boolean
+    | Array<any>
+    | null
+    | undefined;
 
-export type ValidatedField<T = ModelFormField> = RegleFieldStatus<
-    T,
-    InferRegleRules<typeof useAppRegle>,
-    InferRegleShortcuts<typeof useAppRegle>
->
+export type ValidatedField<T = ModelFormField> = RegleFieldStatus<T>;
 
 export type FormFieldProps<T = ModelFormField> = {
-    required?: boolean
-} & ({
-    modelValue: T,
-    field?: never
-} | {
-    field: ValidatedField<T>
-    modelValue?: never
-})
+    required?: boolean;
+} & (
+    | {
+          modelValue: T;
+          field?: never;
+      }
+    | {
+          field: ValidatedField<T>;
+          modelValue?: never;
+      }
+);
 
-export interface FormFieldEmits<T = ModelFormField> {
-    (e: 'update:modelValue', value: T): void
-}
+export type FormFieldEmits<T = ModelFormField> = (
+    e: "update:modelValue",
+    value: T,
+) => void;
 
 export function useFormField<T = ModelFormField>(
     initialProps: FormFieldProps<T>,
-    emit: FormFieldEmits<T>
+    emit: FormFieldEmits<T>,
 ) {
     const props = reactiveComputed(() => ({
         required: false,
-        ...initialProps
+        ...initialProps,
     })) as FormFieldProps<T>;
 
     const model: WritableComputedRef<T, T> = computed({
         get() {
-            return (props.field !== undefined)
-                ? props.field.$value as T
+            return props.field !== undefined
+                ? (props.field.$value as T)
                 : props.modelValue;
         },
         set(newValue) {
@@ -45,9 +50,9 @@ export function useFormField<T = ModelFormField>(
                 props.field.$value = newValue as UnwrapNestedRefs<T>;
                 props.field.$touch();
             } else {
-                emit('update:modelValue', newValue);
+                emit("update:modelValue", newValue);
             }
-        }
+        },
     });
 
     const fieldClass = computed(() => {
@@ -59,9 +64,7 @@ export function useFormField<T = ModelFormField>(
             return null;
         }
 
-        return props.field.$error
-            ? 'is-invalid'
-            : 'is-valid';
+        return props.field.$error ? "is-invalid" : "is-valid";
     });
 
     const isRequired = computed(() => {
@@ -69,14 +72,20 @@ export function useFormField<T = ModelFormField>(
             return props.required;
         }
 
-        return (props.field !== undefined)
-            ? !!props.field.$rules?.required?.$active
-            : false;
+        if (props.field === undefined) {
+            return false;
+        }
+
+        if ("$rules" in props.field) {
+            return !!props.field.$rules?.required?.$active;
+        }
+
+        return false;
     });
 
     return {
         model,
         fieldClass,
-        isRequired
-    }
+        isRequired,
+    };
 }

@@ -51,7 +51,10 @@ final class ListenerAuthAction implements SingleActionInterface
         $station = $request->getStation();
         $listenerIp = Types::string($request->getParam('ip'));
 
-        if ($this->blocklistParser->isAllowed($station, $listenerIp)) {
+        // RSAS has no "deny-agents" so user-agent bans must be enforced here too.
+        $userAgent = Types::stringOrNull($request->getParam('agent'), true);
+
+        if ($this->blocklistParser->isAllowed($station, $listenerIp, $userAgent)) {
             return $response->withHeader('icecast-auth-user', '1');
         }
 

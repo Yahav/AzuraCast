@@ -48,20 +48,20 @@
 </template>
 
 <script setup lang="ts">
-import Sidebar from "~/components/Stations/Sidebar.vue";
-import {useStationData, useStationQuery} from "~/functions/useStationQuery.ts";
+import { toRefs } from "@vueuse/core";
 import Loading from "~/components/Common/Loading.vue";
 import DashboardWithSidebar from "~/components/Layout/DashboardWithSidebar.vue";
-import {toRefs} from "@vueuse/core";
-import {useUserAllowedForStation} from "~/functions/useUserallowedForStation.ts";
-import {StationPermissions} from "~/entities/ApiInterfaces.ts";
+import Sidebar from "~/components/Stations/Sidebar.vue";
+import { StationPermissions } from "~/entities/ApiInterfaces.ts";
+import {
+    useStationData,
+    useStationQuery,
+} from "~/functions/useStationQuery.ts";
+import { useUserAllowedForStation } from "~/functions/useUserallowedForStation.ts";
 
-const {userAllowedForStation} = useUserAllowedForStation();
-const {
-    isLoading,
-    isPlaceholderData
-} = useStationQuery();
+const { userAllowedForStation } = useUserAllowedForStation();
+const { isLoading, isPlaceholderData } = useStationQuery();
 
 const stationData = useStationData();
-const {hasStarted, needsRestart} = toRefs(stationData);
+const { hasStarted, needsRestart } = toRefs(stationData);
 </script>

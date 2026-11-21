@@ -12,6 +12,8 @@ use NowPlaying\Result\Client;
     ORM\Entity,
     ORM\Table(name: 'listener'),
     ORM\Index(name: 'idx_timestamps', columns: ['timestamp_end', 'timestamp_start']),
+    ORM\Index(name: 'idx_timestamp_start', columns: ['timestamp_start']),
+    ORM\Index(name: 'idx_station_timestamps_hash', columns: ['station_id', 'timestamp_end', 'timestamp_start', 'listener_hash']),
     ORM\Index(name: 'idx_statistics_country', columns: ['location_country']),
     ORM\Index(name: 'idx_statistics_os', columns: ['device_os_family']),
     ORM\Index(name: 'idx_statistics_browser', columns: ['device_browser_family'])
@@ -22,37 +24,37 @@ final class Listener implements
 {
     use Traits\HasAutoIncrementId;
 
-    #[ORM\ManyToOne(inversedBy: 'history')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'station_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     public readonly Station $station;
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: false, insertable: false, updatable: false)]
-    public private(set) int $station_id;
+    public int $station_id {
+        get => $this->station->id;
+    }
 
     #[ORM\ManyToOne(targetEntity: StationMount::class)]
     #[ORM\JoinColumn(name: 'mount_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     public readonly ?StationMount $mount;
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: true, insertable: false, updatable: false)]
-    public private(set) ?int $mount_id = null;
+    public ?int $mount_id {
+        get => $this->mount?->id;
+    }
 
     #[ORM\ManyToOne(targetEntity: StationRemote::class)]
     #[ORM\JoinColumn(name: 'remote_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     public readonly ?StationRemote $remote;
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: true, insertable: false, updatable: false)]
-    public private(set) ?int $remote_id = null;
+    public ?int $remote_id {
+        get => $this->remote?->id;
+    }
 
     #[ORM\ManyToOne(targetEntity: StationHlsStream::class)]
     #[ORM\JoinColumn(name: 'hls_stream_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     public readonly ?StationHlsStream $hls_stream;
 
-    /* TODO Remove direct identifier access. */
-    #[ORM\Column(nullable: true, insertable: false, updatable: false)]
-    public private(set) ?int $hls_stream_id = null;
+    public ?int $hls_stream_id {
+        get => $this->hls_stream?->id;
+    }
 
     #[ORM\Column]
     public int $listener_uid;

@@ -13,6 +13,7 @@ use App\Environment;
 use App\Radio\Enums\BackendAdapters;
 use App\Radio\Enums\FrontendAdapters;
 use App\Utilities\File;
+use App\Utilities\Time;
 use App\Utilities\Types;
 use App\Validator\Constraints as AppAssert;
 use Azura\Normalizer\Attributes\DeepNormalize;
@@ -118,7 +119,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
             example: "icecast"
         ),
         ORM\Column(type: 'string', length: 100, enumType: FrontendAdapters::class),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public FrontendAdapters $frontend_type;
 
@@ -130,7 +131,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
 
     #[
         OA\Property(description: "An array containing station-specific broadcasting software (frontend) configuration"),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public StationFrontendConfiguration $frontend_config {
         get => new StationFrontendConfiguration((array)$this->frontend_config_raw);
@@ -153,7 +154,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
             example: "liquidsoap"
         ),
         ORM\Column(type: 'string', length: 100, enumType: BackendAdapters::class),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public BackendAdapters $backend_type;
 
@@ -165,7 +166,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
 
     #[
         OA\Property(description: "An array containing station-specific AutoDJ (backend) configuration"),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public StationBackendConfiguration $backend_config {
         get => new StationBackendConfiguration((array)$this->backend_config_raw);
@@ -311,9 +312,16 @@ final class Station implements Stringable, IdentifiableEntityInterface
     public ?int $request_threshold = 15;
 
     #[
+        OA\Property(example: false),
+        ORM\Column,
+        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+    ]
+    public bool $requests_only_via_playlists = false;
+
+    #[
         OA\Property(example: 0),
         ORM\Column(nullable: true, options: ['default' => 0]),
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public ?int $disconnect_deactivate_streamer = 0;
 
@@ -323,7 +331,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
             example: false
         ),
         ORM\Column,
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public bool $enable_streamers = false {
         set {
@@ -347,13 +355,33 @@ final class Station implements Stringable, IdentifiableEntityInterface
 
     #[
         OA\Property(
-            description: "Whether this station is visible as a public page and in a now-playing API response.",
+            description: "Whether this station's public pages (player, on-demand streaming, etc.) are visible to "
+            . "non-authenticated users.",
             example: true
         ),
         ORM\Column,
         Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
     ]
     public bool $enable_public_page = true;
+
+    #[
+        OA\Property(
+            description: "Whether the public-facing API endpoints (now playing, art, etc.) are visible to "
+            . "non-authenticated users. Automatically enabled if 'enable_public_page' is true.",
+            example: true
+        ),
+        ORM\Column,
+        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+    ]
+    public bool $enable_public_api = true {
+        get {
+            if ($this->enable_public_page) {
+                return true;
+            }
+
+            return $this->enable_public_api;
+        }
+    }
 
     #[
         OA\Property(
@@ -381,7 +409,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
             example: true
         ),
         ORM\Column,
-        Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
+        Serializer\Groups([EntityGroupsInterface::GROUP_BROADCAST_MANAGER, EntityGroupsInterface::GROUP_ALL])
     ]
     public bool $enable_hls = false;
 
@@ -417,7 +445,16 @@ final class Station implements Stringable, IdentifiableEntityInterface
         ORM\Column(length: 100, nullable: false),
         Serializer\Groups([EntityGroupsInterface::GROUP_GENERAL, EntityGroupsInterface::GROUP_ALL])
     ]
-    public string $timezone = 'UTC';
+    public string $timezone = 'UTC' {
+        set {
+            try {
+                Time::validateTimezone($value);
+                $this->timezone = $value;
+            } catch (InvalidArgumentException) {
+                $this->timezone = 'UTC';
+            }
+        }
+    }
 
     public function getTimezoneObject(): DateTimeZone
     {
@@ -498,7 +535,7 @@ final class Station implements Stringable, IdentifiableEntityInterface
     /** @var Collection<int, SongHistory> */
     #[
         ORM\OneToMany(targetEntity: SongHistory::class, mappedBy: 'station'),
-        ORM\OrderBy(['timestamp_start' => 'desc'])
+        ORM\OrderBy(['timestamp_start' => 'DESC'])
     ]
     public private(set) Collection $history;
 

@@ -115,6 +115,16 @@ return static function (RouteCollectorProxy $group) {
                                 Controller\Api\Admin\Debug\ClearStationQueueAction::class
                             )->setName('api:admin:debug:clear-station-queue');
 
+                            $group->put(
+                                '/clear-computed-autocue',
+                                Controller\Api\Admin\Debug\ClearStationComputedAutoCueAction::class
+                            )->setName('api:admin:debug:clear-computed-autocue');
+
+                            $group->put(
+                                '/sync-media-allow-empty-storage',
+                                Controller\Api\Admin\Debug\SyncMediaAllowEmptyStorageAction::class
+                            )->setName('api:admin:debug:sync-media-allow-empty-storage');
+
                             $group->put('/telnet', Controller\Api\Admin\Debug\TelnetAction::class)
                                 ->setName('api:admin:debug:telnet');
                         }

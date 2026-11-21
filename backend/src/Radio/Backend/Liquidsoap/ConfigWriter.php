@@ -27,6 +27,7 @@ use App\Radio\Enums\StreamFormats;
 use App\Radio\Enums\StreamProtocols;
 use App\Radio\FallbackFile;
 use App\Radio\StereoTool;
+use App\Utilities\Strings;
 use App\Utilities\Types;
 use Carbon\CarbonImmutable;
 use RuntimeException;
@@ -83,10 +84,10 @@ final class ConfigWriter implements EventSubscriberInterface
         $pidfile = $configDir . '/liquidsoap.pid';
         $httpApiPort = $this->liquidsoap->getHttpApiPort($station);
 
-        $stationTz = self::cleanUpString($station->timezone ?? 'UTC');
+        $stationTz = self::toRawString($station->timezone);
 
-        $stationApiAuth = self::cleanUpString($station->adapter_api_key);
-        $stationApiUrl = self::cleanUpString(
+        $stationApiAuth = self::toRawString($station->adapter_api_key);
+        $stationApiUrl = self::toRawString(
             (string)$this->environment->getInternalUri()
                 ->withPath('/api/internal/' . $station->id . '/liquidsoap')
         );
@@ -109,16 +110,19 @@ final class ConfigWriter implements EventSubscriberInterface
             : 'normal';
         $defaultFade = self::toFloat($backendConfig->crossfade);
         $defaultCross = self::toFloat($backendConfig->getCrossfadeDuration());
+        $crossfadeSmartHigh = self::toFloat($backendConfig->crossfade_smart_high);
+        $crossfadeSmartMedium = self::toFloat($backendConfig->crossfade_smart_medium);
+        $crossfadeSmartMargin = self::toFloat($backendConfig->crossfade_smart_margin);
 
-        $liveBroadcastText = self::cleanUpString(
+        $liveBroadcastText = self::toRawString(
             $backendConfig->live_broadcast_text
         );
 
-        $fallbackPath = self::cleanUpString(
+        $fallbackPath = self::toRawString(
             $this->fallbackFile->getFallbackPathForStation($station)
         );
 
-        $tempPath = self::cleanUpString(
+        $tempPath = self::toRawString(
             $station->getRadioTempDir()
         );
 
@@ -126,33 +130,36 @@ final class ConfigWriter implements EventSubscriberInterface
             <<<LIQ
             # AzuraCast Common Runtime Functions
             %include "{$commonLibPath}"
-            
+
             log.level := {$logLevel}
             init.daemon.pidfile.path := "{$pidfile}"
-            
+
             settings.init.compact_before_start := true
-            
-            environment.set("TZ", "{$stationTz}") 
-            
+
+            environment.set("TZ", {$stationTz})
+
             settings.azuracast.liquidsoap_api_port := {$httpApiPort}
-            settings.azuracast.api_url := "{$stationApiUrl}"
-            settings.azuracast.api_key := "{$stationApiAuth}"
+            settings.azuracast.api_url := {$stationApiUrl}
+            settings.azuracast.api_key := {$stationApiAuth}
             settings.azuracast.media_path := "{$stationMediaDir}"
-            settings.azuracast.fallback_path := "{$fallbackPath}"
-            settings.azuracast.temp_path := "{$tempPath}"
-            
+            settings.azuracast.fallback_path := {$fallbackPath}
+            settings.azuracast.temp_path := {$tempPath}
+
             settings.azuracast.compute_autocue := {$useComputeAutocue}
-            
+
             settings.azuracast.default_fade := {$defaultFade}
             settings.azuracast.default_cross := {$defaultCross}
             settings.azuracast.enable_crossfade := {$enableCrossfade}
             settings.azuracast.crossfade_type := "{$crossfadeType}"
-            
-            settings.azuracast.live_broadcast_text := "{$liveBroadcastText}"
-            
+            settings.azuracast.crossfade_smart_high := {$crossfadeSmartHigh}
+            settings.azuracast.crossfade_smart_medium := {$crossfadeSmartMedium}
+            settings.azuracast.crossfade_smart_margin := {$crossfadeSmartMargin}
+
+            settings.azuracast.live_broadcast_text := {$liveBroadcastText}
+
             # Start HTTP API Server
             azuracast.start_http_api()
-            
+
             LIQ
         );
 
@@ -227,7 +234,7 @@ final class ConfigWriter implements EventSubscriberInterface
                 $playlistFilePath = PlaylistFileWriter::getPlaylistFilePath($playlist);
 
                 $playlistParams = [
-                    'id="' . self::cleanUpString($playlistVarName) . '"',
+                    'id=' . self::toRawString($playlistVarName),
                     'mime_type="audio/x-mpegurl"',
                 ];
 
@@ -244,13 +251,10 @@ final class ConfigWriter implements EventSubscriberInterface
                     . implode(',', $playlistParams) . ')';
 
                 if ($playlist->backendMerge()) {
-                    $playlistConfigLines[] = $playlistVarName . ' = merge_tracks(id="merge_'
-                        . self::cleanUpString($playlistVarName) . '", ' . $playlistVarName . ')';
+                    $playlistConfigLines[] = $playlistVarName . ' = merge_tracks(id="merge_' . $playlistVarName . '", ' . $playlistVarName . ')';
                 }
             } elseif (PlaylistRemoteTypes::Playlist === $playlist->remote_type) {
-                $playlistFunc = 'playlist("'
-                    . self::cleanUpString($playlist->remote_url)
-                    . '")';
+                $playlistFunc = 'playlist(' . self::toRawString($playlist->remote_url) . ')';
                 $playlistConfigLines[] = $playlistVarName . ' = ' . $playlistFunc;
             } else {
                 // Special handling for Remote Stream URLs.
@@ -268,7 +272,7 @@ final class ConfigWriter implements EventSubscriberInterface
                 };
 
                 $remoteUrlFunc = 'mksafe(buffer(buffer=' . $buffer . '., '
-                    . $inputFunc . '("' . self::cleanUpString($remoteUrl) . '")))';
+                    . $inputFunc . '(' . self::toRawString($remoteUrl) . ')))';
 
                 if (0 === $scheduleItems->count()) {
                     $fallbackRemoteUrl = $remoteUrlFunc;
@@ -296,6 +300,12 @@ final class ConfigWriter implements EventSubscriberInterface
             }
 
             $event->appendLines($playlistConfigLines);
+
+            // Playlists that are members of groups are only switched in Liquidsoap when they
+            // are scheduled since groups cannot be expressed in Liquidsoap
+            if ($playlist->playlist_groups->count() > 0 && $scheduleItems->count() === 0) {
+                continue;
+            }
 
             switch ($playlist->type) {
                 case PlaylistTypes::Standard:
@@ -498,7 +508,7 @@ final class ConfigWriter implements EventSubscriberInterface
             <<<LIQ
             # Allow Telnet to skip the current track.
             azuracast.utilities.add_skip_command(radio)
-            
+
             # Apply amplification metadata (if supplied)
             # This can be disabled by setting:
             #   settings.azuracast.apply_amplify := false
@@ -524,7 +534,7 @@ final class ConfigWriter implements EventSubscriberInterface
             <<<LS
             # Log current metadata for debugging.
             source.methods(radio).on_metadata(synchronous=false, azuracast.log_meta)
-            
+
             # Apply crossfade.
             radio = azuracast.apply_crossfade(radio)
             LS
@@ -551,13 +561,13 @@ final class ConfigWriter implements EventSubscriberInterface
         $recordLiveStreams = $settings->record_streams;
 
         $harborParams = [
-            '"' . self::cleanUpString($djMount) . '"',
+            self::toRawString($djMount),
             'id = "input_streamer"',
             'port = ' . $this->liquidsoap->getStreamPort($station),
             'auth = azuracast.dj_auth',
             'icy = true',
-            'icy_metadata_charset = "' . $charset . '"',
-            'metadata_charset = "' . $charset . '"',
+            'icy_metadata_charset = ' . self::toRawString($charset),
+            'metadata_charset = ' . self::toRawString($charset),
         ];
 
         $djBuffer = $settings->dj_buffer;
@@ -589,10 +599,10 @@ final class ConfigWriter implements EventSubscriberInterface
                 end
                 updates
             end
-            
+
             # Temporarily disabled for testing.
             # live = metadata.map(insert_missing, live)
-            
+
             radio = fallback(
                 id="live_fallback",
                 track_sensitive=true,
@@ -601,7 +611,7 @@ final class ConfigWriter implements EventSubscriberInterface
                     fun (_, s) -> begin
                         log("executing transition to live")
                         s
-                    end, 
+                    end,
                     fun (_, s) -> begin
                         s
                     end
@@ -653,7 +663,8 @@ final class ConfigWriter implements EventSubscriberInterface
 
                         log("Recording stopped: Switching from #{tempPath} to #{newPath}")
 
-                        process.run("mv #{tempPath} #{newPath}")
+                        file.move(force=true, tempPath, newPath)
+
                         ()
                     end
                 )
@@ -681,7 +692,7 @@ final class ConfigWriter implements EventSubscriberInterface
             <<<LIQ
             # Add Fallback
             radio = azuracast.add_fallback(radio)
-            
+
             # Send metadata changes back to AzuraCast
             source.methods(radio).on_metadata(synchronous=false, azuracast.send_feedback)
 
@@ -926,8 +937,14 @@ final class ConfigWriter implements EventSubscriberInterface
             return;
         }
 
-        $settings = $event->getStation()->backend_config;
-        $customConfig = $settings->getCustomConfigurationSection($sectionName);
+        // If LS editing is disabled, don't add custom blocks to the written code.
+        $settings = $this->settingsRepo->readSettings();
+        if (!$settings->enable_liquidsoap_editing) {
+            return;
+        }
+
+        $backendConfig = $event->getStation()->backend_config;
+        $customConfig = $backendConfig->getCustomConfigurationSection($sectionName);
 
         if (!empty($customConfig)) {
             $event->appendLines(
@@ -1004,16 +1021,22 @@ final class ConfigWriter implements EventSubscriberInterface
                 $stereoToolLicenseKey = $settings->stereo_tool_license_key;
 
                 if (is_file($stereoToolBinary)) {
-                    $stereoToolProcess = $stereoToolBinary . ' --silent - - -s ' . $stereoToolConfiguration;
+                    $stereoToolProcess = sprintf(
+                        '%s --silent - - -s %s',
+                        $stereoToolBinary,
+                        escapeshellarg($stereoToolConfiguration)
+                    );
 
                     if (!empty($stereoToolLicenseKey)) {
-                        $stereoToolProcess .= ' -k "' . $stereoToolLicenseKey . '"';
+                        $stereoToolProcess .= ' -k ' . escapeshellarg($stereoToolLicenseKey);
                     }
+
+                    $stereoToolProcessString = self::toRawString($stereoToolProcess);
 
                     $event->appendBlock(
                         <<<LIQ
                         # Stereo Tool Pipe
-                        radio = pipe(replay_delay=1.0, process='{$stereoToolProcess}', radio)
+                        radio = pipe(replay_delay=1.0, process={$stereoToolProcessString}, radio)
                         LIQ
                     );
                 } else {
@@ -1036,13 +1059,16 @@ final class ConfigWriter implements EventSubscriberInterface
                         }
                     }
 
+                    $stereoToolLicenseKeyString = self::toRawString($stereoToolLicenseKey ?? '');
+                    $stereoToolConfigurationString = self::toRawString($stereoToolConfiguration);
+
                     $event->appendBlock(
                         <<<LIQ
                         # Stereo Tool Pipe
                         radio = stereotool(
                             library_file="{$stereoToolLibrary}",
-                            license_key="{$stereoToolLicenseKey}",
-                            preset="{$stereoToolConfiguration}",
+                            license_key={$stereoToolLicenseKeyString},
+                            preset={$stereoToolConfigurationString},
                             radio
                         )
                         LIQ
@@ -1194,21 +1220,19 @@ final class ConfigWriter implements EventSubscriberInterface
 
         $outputParams[] = 'id="' . $idPrefix . $id . '"';
 
-        $outputParams[] = 'host = "' . self::cleanUpString($source->host) . '"';
+        $outputParams[] = 'host = ' . self::toRawString($source->host);
         $outputParams[] = 'port = ' . (int)$source->port;
 
         if (!empty($source->username)) {
-            $outputParams[] = 'user = "' . self::cleanUpString($source->username) . '"';
+            $outputParams[] = 'user = ' . self::toRawString($source->username);
         }
 
-        $password = self::cleanUpString($source->password);
-
+        $password = $source->password;
         $adapterType = $source->adapterType;
         if (FrontendAdapters::Shoutcast === $adapterType) {
             $password .= ':#' . $id;
         }
-
-        $outputParams[] = 'password = "' . $password . '"';
+        $outputParams[] = 'password = ' . self::toRawString($password);
 
         $mountPoint = $source->mount;
         if (StreamProtocols::Icy === $source->protocol) {
@@ -1220,22 +1244,22 @@ final class ConfigWriter implements EventSubscriberInterface
                 $mountPoint = '/';
             }
 
-            $outputParams[] = 'mount = "' . self::cleanUpString($mountPoint) . '"';
+            $outputParams[] = 'mount = ' . self::toRawString($mountPoint);
         }
 
-        $outputParams[] = 'name = "' . self::cleanUpString($station->name) . '"';
+        $outputParams[] = 'name = ' . self::toRawString($station->name);
 
         if (!$source->isShoutcast) {
-            $outputParams[] = 'description = "' . self::cleanUpString($station->description) . '"';
+            $outputParams[] = 'description = ' . self::toRawString($station->description);
         }
-        $outputParams[] = 'genre = "' . self::cleanUpString($station->genre) . '"';
+        $outputParams[] = 'genre = ' . self::toRawString($station->genre);
 
         if (!empty($station->url)) {
-            $outputParams[] = 'url = "' . self::cleanUpString($station->url) . '"';
+            $outputParams[] = 'url = ' . self::toRawString($station->url);
         }
 
         $outputParams[] = 'public = ' . ($source->isPublic ? 'true' : 'false');
-        $outputParams[] = 'encoding = "' . $charset . '"';
+        $outputParams[] = 'encoding = ' . self::toRawString($charset);
 
         if (StreamProtocols::Https === $source->protocol) {
             $outputParams[] = 'transport = https_transport';
@@ -1339,12 +1363,17 @@ final class ConfigWriter implements EventSubscriberInterface
         return $hours . 'h' . $mins . 'm';
     }
 
-    /**
-     * Filter a user-supplied string to be a valid LiquidSoap config entry.
-     */
-    public static function cleanUpString(?string $string): string
+    public static function toRawString(?string $value): string
     {
-        return str_replace(['"', "\n", "\r"], ['\'', '', ''], $string ?? '');
+        $delimiter = 'str_' . Strings::generatePassword(
+            5,
+            'abcdefghijklmnopqrstuvwxyz'
+        );
+
+        $startString = '{' . $delimiter . '|';
+        $endString = '|' . $delimiter . '}';
+
+        return $startString . str_replace($endString, '', $value ?? '') . $endString;
     }
 
     /**
@@ -1390,7 +1419,7 @@ final class ConfigWriter implements EventSubscriberInterface
 
         $strVal = mb_convert_encoding($strVal, 'UTF-8');
 
-        return str_replace(['"', "\n", "\t", "\r"], ['\"', '', '', ''], $strVal);
+        return str_replace(['\\', '"', "\n", "\t", "\r"], ['\\\\', '\"', '', '', ''], $strVal);
     }
 
     /**
@@ -1426,6 +1455,13 @@ final class ConfigWriter implements EventSubscriberInterface
     ): bool {
         $station = $event->getStation();
         $backendConfig = $event->getBackendConfig();
+
+        if (
+            PlaylistSources::Playlists === $playlist->source
+            || PlaylistSources::Requests === $playlist->source
+        ) {
+            return false;
+        }
 
         if ($backendConfig->write_playlists_to_liquidsoap) {
             return true;
