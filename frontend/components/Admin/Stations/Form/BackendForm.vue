@@ -243,7 +243,7 @@
                 </template>
             </form-fieldset>
 
-            <form-fieldset v-if="isAdministrator">
+            <form-fieldset>
                 <template #label>
                     {{ $gettext('Advanced Configuration') }}
                     <span class="badge small text-bg-primary ms-2">
@@ -253,6 +253,7 @@
 
                 <div class="row g-3">
                     <form-group-checkbox
+                        v-if="isAdministrator"
                         id="edit_form_backend_config_share_encoders"
                         class="col-md-12"
                         :field="r$.backend_config.share_encoders"
@@ -261,6 +262,7 @@
                     />
 
                     <form-group-checkbox
+                        v-if="isAdministrator"
                         id="edit_form_backend_use_manual_autodj"
                         class="col-md-12"
                         :field="r$.backend_config.use_manual_autodj"
@@ -282,6 +284,7 @@
                     />
 
                     <form-group-checkbox
+                        v-if="isAdministrator"
                         id="edit_form_backend_config_write_playlists_to_liquidsoap"
                         class="col-md-12"
                         :field="r$.backend_config.write_playlists_to_liquidsoap"
@@ -290,6 +293,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_telnet_port"
                         class="col-md-6"
                         :field="r$.backend_config.telnet_port"
@@ -300,6 +304,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_autodj_queue_length"
                         class="col-md-6"
                         :field="r$.backend_config.autodj_queue_length"
@@ -321,6 +326,7 @@
                     />
 
                     <form-group-multi-check
+                        v-if="isAdministrator"
                         id="edit_form_backend_performance_mode"
                         class="col-md-6"
                         :field="r$.backend_config.performance_mode"
@@ -332,6 +338,7 @@
                     />
 
                     <form-group-field
+                        v-if="isAdministrator"
                         id="edit_form_backend_duplicate_prevention_time_range"
                         class="col-md-6"
                         :field="r$.backend_config.duplicate_prevention_time_range"

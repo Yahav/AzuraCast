@@ -8,6 +8,7 @@ use App\Controller\Api\Traits\CanSearchResults;
 use App\Controller\Api\Traits\CanSortResults;
 use App\Entity\Repository\StationMountRepository;
 use App\Entity\StationMount;
+use App\Enums\GlobalPermissions;
 use App\Exception\ValidationException;
 use App\Http\Response;
 use App\Http\Router;
@@ -147,6 +148,45 @@ final class MountsController extends AbstractStationApiCrudController
         private readonly Adapters $adapters,
     ) {
         parent::__construct($serializer, $validator);
+    }
+
+    /**
+     * Caster.fm: the mount editor's "Advanced" tab is for global administrators only.
+     * This controller does not use serializer groups, so the fields are removed from the request.
+     */
+    private const array ADMIN_ONLY_FIELDS = [
+        'custom_listen_url',
+        'frontend_config',
+    ];
+
+    private function withoutAdminOnlyFields(ServerRequest $request): ServerRequest
+    {
+        if ($request->getAcl()->isAllowed(GlobalPermissions::All)) {
+            return $request;
+        }
+
+        $body = array_diff_key(
+            (array)$request->getParsedBody(),
+            array_flip(self::ADMIN_ONLY_FIELDS)
+        );
+
+        return $request->withParsedBody($body);
+    }
+
+    public function createAction(
+        ServerRequest $request,
+        Response $response,
+        array $params
+    ): ResponseInterface {
+        return parent::createAction($this->withoutAdminOnlyFields($request), $response, $params);
+    }
+
+    public function editAction(
+        ServerRequest $request,
+        Response $response,
+        array $params
+    ): ResponseInterface {
+        return parent::editAction($this->withoutAdminOnlyFields($request), $response, $params);
     }
 
     public function listAction(

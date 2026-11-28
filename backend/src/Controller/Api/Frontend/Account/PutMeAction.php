@@ -8,6 +8,7 @@ use App\Controller\Api\Admin\UsersController;
 use App\Controller\SingleActionInterface;
 use App\Entity\Api\Status;
 use App\Entity\Interfaces\EntityGroupsInterface;
+use App\Enums\GlobalPermissions;
 use App\Http\Response;
 use App\Http\ServerRequest;
 use App\OpenApi;
@@ -40,8 +41,16 @@ final class PutMeAction extends UsersController implements SingleActionInterface
         $user = $request->getUser();
         $user = $this->em->refetch($user);
 
+        $requestBody = (array)$request->getParsedBody();
+
+        // Caster.fm: the account e-mail address is managed by Caster.fm; only global
+        // administrators may change it here.
+        if (!$request->getAcl()->isAllowed(GlobalPermissions::All)) {
+            unset($requestBody['email']);
+        }
+
         $this->editRecord(
-            (array)$request->getParsedBody(),
+            $requestBody,
             $user,
             [
                 AbstractNormalizer::GROUPS => [

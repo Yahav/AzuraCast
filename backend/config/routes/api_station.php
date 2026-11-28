@@ -1037,7 +1037,8 @@ return static function (RouteCollectorProxy $group) {
                             $group->get('/log/{log}', Controller\Api\Stations\LogsAction::class)
                                 ->setName('api:stations:log');
                         }
-                    )->add(new Middleware\Permissions(StationPermissions::Logs, true));
+                    )->add(new Middleware\Permissions(StationPermissions::Logs, true))
+                        ->add(new Middleware\Permissions(GlobalPermissions::All));
 
                     // Vue Properties
                     call_user_func(include(__DIR__ . '/api_station_vue.php'), $group);
